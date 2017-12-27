@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="meebidHomePage">
+  <div id="app" class="meebidHomePage meebid">
     <div id="header" class="meebidHomeHeader">
       <meebid-search-typeahead class="meebidtypeahead"
              async-src="https://api.github.com/search/users?q="
@@ -28,8 +28,8 @@
         </meebid-button>
         <meebid-button icon-type="user" button-type="round" text="Register" :button-click="openRegisterDialog">
         </meebid-button>
-        <!--<meebid-button icon-type="user" button-type="round" text="User Test" :button-click="changeHintMessage">
-        </meebid-button>-->
+        <meebid-button icon-type="user" button-type="round" text="User Test" :button-click="openUserProfile">
+        </meebid-button>
         
         <meebid-button icon-type="bell" button-type="round" ref="hintButton" data-role="trigger" :button-click="openCategoryDialog">
         </meebid-button>
@@ -293,6 +293,9 @@ export default {
     },
     openRegisterDialog: function(){
       window.open("./register.html", '_blank');
+    },
+    openUserProfile() {
+      window.open("./admin.html", '_blank');
     },
     startHacking () {
       this.$notify({

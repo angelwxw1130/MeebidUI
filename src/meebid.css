@@ -644,3 +644,61 @@ body {
 /**
   Register Page End
   */
+
+/**
+  Admin Page Start
+  */
+.meebidAdminContentWrapper {
+  width: 100%;
+  height: calc(100% - 73px);
+  margin: 0;
+}
+
+.meebidAdminHeader {
+  width: 100%; 
+  border-bottom: 1px solid #efefef; 
+  padding: 15px 30px;
+  display: flex;
+  background: #ffffff;
+}
+
+.meebidAdminMenu {
+  width: 30%;
+  height: 100%;
+  margin: 0;
+  border-right: 1px solid #efefef; 
+  float: left;
+}
+
+.meebidAdminContent {
+  float: left;
+  width: 69%;
+  height: 100%;
+  margin: 0;
+  padding-left: 5%;
+  padding-right: 20%;
+}
+
+.meebidUserProfileUserName {
+  width: 40%;
+  display: inline-block;
+}
+
+.meebidUserProfileForm {
+  padding-top: 20px;
+}
+
+.meebid .el-upload__input {
+  display: none;
+}
+
+.meebidUserProfileFormWrapper {
+  padding-top: 10px;
+}
+
+.meebidUserProfileFormWrapper .el-upload__tip {
+  margin-top: unset;
+}
+/**
+  Admin Page End
+  */

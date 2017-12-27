@@ -1,43 +1,131 @@
 <template>
-  <div id="app">
-    <div id="header" class="meebidHomeHeader">
-      <meebid-search-typeahead class="meebidtypeahead"
-             async-src="https://api.github.com/search/users?q="
-             async-key="items"
-             item-key="login"
-             :force-select="true">
-        <span class="glyphicon glyphicon-search meebidHeaderSearchIcon"></span>
-        <input data-role="input" class="form-control" type="text" placeholder="Search">
-        <template slot="item" scope="props">
-          <li ref="props.typeaheadBusyIndicator"><meebid-busy-indicator size="Medium"></meebid-busy-indicator></li>
-          <li v-for="(item, index) in props.items" :class="{active:props.activeIndex===index}">
-            <a href="javascript:void(0)" @click="props.select(item)">
-              <div>
-                <img width="36px" height="36px" :src="item.avatar_url"> 
-                <span style="padding-left: 10px;">{{item.login}}</span>
-              </div>
-            </a>
-          </li>
-          <li v-show="props.noResult"><div class="noResult">No Data</div></li>
-        </template>
-      </meebid-search-typeahead>
+  <div id="app" class="meebid">
+    <div id="header" class="meebidAdminHeader">
       <div class="meebidHeaderButtonToolbar">
-        <meebid-button wrapper-cls="homeWrapper" button-type="round" text="Home">
+        <meebid-button wrapper-cls="homeWrapper" button-type="round" text="Home" :button-click="redirectToHome">
         </meebid-button>
-        <meebid-button icon-type="user" button-type="round" text="Register/Login" :button-click="changeHintMessage">
+        <meebid-button icon-type="user" button-type="round" text="User Test" :button-click="openUserProfile">
         </meebid-button>
-        <!--<meebid-button icon-type="user" button-type="round" text="User Test" :button-click="changeHintMessage">
-        </meebid-button>-->
         
-        <meebid-button icon-type="bell" button-type="round" ref="hintButton" data-role="trigger">
+        <meebid-button icon-type="bell" button-type="round" ref="hintButton" data-role="trigger" >
         </meebid-button>
-        <meebid-button icon-type="menu-hamburger" button-type="round" :button-click="showAlert">
+        <meebid-button icon-type="menu-hamburger" button-type="round" >
         </meebid-button>
       </div>
     </div>
-    <div id="content" class="meebidHomeContent" height="">
-      <meebid-homepage-list ref="homePageListContainer">
-      </meebid-homepage-list>
+    <div id="content" class="meebidAdminContentWrapper">
+      <div class="meebidAdminMenu">
+        <el-menu
+        default-active="memberProfile"
+        class="el-menu-vertical-demo"
+        @open="handleOpen"
+        @close="handleClose"
+        @select="handleSelect"
+        background-color="#545c64"
+        text-color="#fff"
+        active-text-color="#ffd04b">
+          <el-menu-item index="memberProfile">
+            <i class="el-icon-menu"></i>
+            <span slot="title">User Profile</span>
+          </el-menu-item>
+          <el-menu-item index="houseProfile">
+            <i class="el-icon-menu"></i>
+            <span slot="title">House Auction Information</span>
+          </el-menu-item>
+          <el-menu-item index="message">
+            <i class="el-icon-setting"></i>
+            <span slot="title">Messages</span>
+          </el-menu-item>
+          <el-submenu index="1">
+            <i class="el-icon-location"></i>
+            <template slot="title">             
+              <span>Sub Menu</span>
+            </template>
+            <el-menu-item-group>
+              <template slot="title">分组一</template>
+              <el-menu-item index="1-1">选项1</el-menu-item>
+              <el-menu-item index="1-2">选项2</el-menu-item>
+            </el-menu-item-group>
+            <el-menu-item-group title="分组2">
+              <el-menu-item index="1-3">选项3</el-menu-item>
+            </el-menu-item-group>
+            <el-submenu index="1-4">
+              <template slot="title">选项4</template>
+              <el-menu-item index="1-4-1">选项1</el-menu-item>
+            </el-submenu>
+          </el-submenu>
+        </el-menu>
+      </div>
+      <div class="meebidAdminContent">
+        <div v-if="active === 'memberProfile'">
+          
+          <el-row>
+            <el-col :span="24" class="meebidUserProfileFormWrapper">
+              <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">User Profile</div>
+              <div class="meebidRegisterHeaderLabel">You can update your Profile Information here.</div>
+              <el-form ref="userProfileForm" :model="userProfileForm" label-width="150px" class="meebidUserProfileForm">
+                <el-form-item label="Contact User Name">
+                  <el-input v-model="userProfileForm.firstName" class="meebidUserProfileUserName" placeholder="Please input First Name"></el-input>
+                  <el-input v-model="userProfileForm.lastName" class="meebidUserProfileUserName" placeholder="Please input Last Name"></el-input>
+                </el-form-item>
+                <el-form-item label="Contact Cellphone">
+                  <el-input v-model="userProfileForm.cellphone" placeholder="Please input Cellphone"></el-input>
+                </el-form-item>
+                <el-form-item label="Email">
+                  <el-input v-model="userProfileForm.email" placeholder="Please input email address"></el-input>
+                </el-form-item>
+                <el-form-item label="Region">
+                  <el-select v-model="userProfileForm.region" placeholder="Select...">
+                    <el-option
+                      v-for="item in regionOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="Favourite Category">
+                  <el-button size="small" type="primary" @click="openCategoryDialog"><i class="el-icon-edit"></i> Click to change Favourite Categories</el-button>
+                </el-form-item>
+                <el-form-item label="Bussiness License">
+                  <el-upload
+                    class="upload-demo"
+                    list-type="picture"
+                    action="https://jsonplaceholder.typicode.com/posts/"
+                    :file-list="userProfileForm.bussinessLicense"
+                    >
+                    <el-button size="small" type="primary"><i class="el-icon-upload"></i> Click to upload</el-button>
+                    <div class="el-upload__tip" slot="tip">Please upload a file no larger than 1mb</div>
+                  </el-upload>
+                </el-form-item>
+                <el-form-item label="Certification of Registed Auction House">
+                  <el-upload
+                    class="upload-demo"
+                    list-type="picture"
+                    action="https://jsonplaceholder.typicode.com/posts/"
+                    :file-list="userProfileForm.certification"
+                    >
+                    <el-button size="small" type="primary"><i class="el-icon-upload"></i> Click to upload</el-button>
+                    <div class="el-upload__tip" slot="tip">Please upload a file no larger than 1mb</div>
+                  </el-upload>
+                </el-form-item>
+                
+                <el-form-item>
+                  <el-button type="primary" @click="onLogin">UPDATE USER PROFILE</el-button>
+                </el-form-item>
+              </el-form>
+            </el-col>
+          </el-row>
+        </div>
+        <div v-else-if="active === 'houseProfile'">
+          Update House Auction Information
+        </div>
+        <div v-else-if="active === 'message'">
+          Message Box
+        </div>
+      </div>
+      <meebid-category-dialog :items="categoryItems" ref="categoryDialog">
+      </meebid-category-dialog>
     </div>
   </div>
 </template>
@@ -46,159 +134,115 @@
 export default {
   data () {
     return {
-      msg: 'Want something new?'
+      active: "memberProfile",
+      regionOptions: [{
+        value: "CN",
+        label: "China"
+      },{
+        value: "US",
+        label: "United States"
+      },{
+        value: "CA",
+        label: "Canada"
+      },{
+        value: "EN",
+        label: "England"
+      },{
+        value: "FR",
+        label: "Franch"
+      },{
+        value: "GR",
+        label: "Germany"
+      }],
+      userProfileForm: {
+        bussinessLicense: [{
+          name: 'test.jpeg',
+          url: './../static/diy_crafts.jpg',
+          status: 'finished'
+        }]
+      },
+      categoryItems: [{
+        imageUrl: "./../static/animals.jpg",
+        label: "Animals",
+        selected: true
+      }, {
+        imageUrl: "./../static/architecture.jpg",
+        label: "Architecture",
+        selected: true
+      }, {
+        imageUrl: "./../static/art.jpg",
+        label: "Art",
+        selected: false
+      }, {
+        imageUrl: "./../static/cars_motorcycles.jpg",
+        label: "Cars and Motocycles",
+        selected: false
+      }, {
+        imageUrl: "./../static/design.jpg",
+        label: "Design",
+        selected: false
+      }, {
+        imageUrl: "./../static/diy_crafts.jpg",
+        label: "DIY and Crafts",
+        selected: false
+      }, {
+        imageUrl: "./../static/education.jpg",
+        label: "Education",
+        selected: false
+      }, {
+        imageUrl: "./../static/everything.jpg",
+        label: "Everything",
+        selected: false
+      }, {
+        imageUrl: "./../static/film_music_books.jpg",
+        label: "Film, Music and Books",
+        selected: false
+      }, {
+        imageUrl: "./../static/food_drink.jpg",
+        label: "Food and drink",
+        selected: false
+      }]
     }
   },
   mounted() {
-    console.log("app ready");
     
-    this.$refs.homePageListContainer.addItem({
-      height: "",
-      imageUrl: "./../static/clock1.jpg",
-      avatarUrl: "./../static/user1.jpg",
-      imageProvider: "Carrie Beth",
-      imageName: "The big day ❤️",
-      description: "Vintage French Clock | home antique clocks antique french…",
-      favouriteCount: "729",
-      meebidListItemClass: {
-        transform: "translateX(0px) translateY(0px)"
-      }
-    });
-    this.$refs.homePageListContainer.addItem({
-      height: "",
-      imageUrl: "./../static/clock2.jpg",
-      avatarUrl: "./../static/user2.jpg",
-      imageProvider: "Here should be Auction",
-      imageName: "Auction Item Name",
-      description: ".would love to know the orgin of this pic. i bet our resto…",
-      favouriteCount: "4.3k",
-      meebidListItemClass: {
-        transform: "translateX(260px) translateY(0px)"
-      }
-    });
-    this.$refs.homePageListContainer.addItem({
-      height: "",
-      imageUrl: "./../static/clock3.jpg",
-      avatarUrl: "./../static/user3.jpg",
-      imageProvider: "Melinda Earll",
-      imageName: "antique French clocks",
-      description: "French Porcelain Mounted Ormolu Calendar Mantel Clock by…",
-      favouriteCount: "221",
-      meebidListItemClass: {
-        transform: "translateX(520px) translateY(0px)"
-      }
-    });
-    this.$refs.homePageListContainer.addItem({
-      height: "",
-      imageUrl: "./../static/clock4.jpg",
-      avatarUrl: "./../static/user4.jpg",
-      imageProvider: "Charlene Clouser",
-      imageName: "Time pieces",
-      description: "Late 18TH CENTURY FRENCH EMPIRE ORMOLU MANTEL CLOCK the dial…",
-      favouriteCount: "84",
-      meebidListItemClass: {
-        transform: "translateX(780px) translateY(0px)"
-      }
-    });
-    this.$refs.homePageListContainer.addItem({
-      height: "",
-      imageUrl: "./../static/clock5.jpg",
-      avatarUrl: "./../static/user5.jpg",
-      imageProvider: "Catheryne Tope",
-      imageName: "Baroque Tall Case Clock",
-      description: "French Clock from the Baroque Period. This type of clock was…",
-      favouriteCount: "513",
-      meebidListItemClass: {
-        transform: "translateX(1040px) translateY(0px)"
-      }
-    });
-    this.$refs.homePageListContainer.addItem({
-      height: "",
-      imageUrl: "./../static/clock6.jpg",
-      avatarUrl: "./../static/user6.jpg",
-      imageProvider: "Gaia Semerdjyan",
-      imageName: "Clocks",
-      description: "Eighteenth-Century French Clocks | The Frick Collection",
-      favouriteCount: "22",
-      meebidListItemClass: {
-        transform: "translateX(0px) translateY(560px)"
-      }
-    });
-    this.$refs.homePageListContainer.addItem({
-      height: "",
-      imageUrl: "./../static/clock7.jpg",
-      avatarUrl: "./../static/user7.jpg",
-      imageProvider: "Garrett Bay",
-      imageName: "projects",
-      description: "Beautiful antique gilt figural clock.",
-      favouriteCount: "813",
-      meebidListItemClass: {
-        transform: "translateX(260px) translateY(507px)"
-      }
-    });
-    this.$refs.homePageListContainer.addItem({
-      height: "",
-      imageUrl: "./../static/clock8.jpg",
-      avatarUrl: "./../static/user8.jpg",
-      imageProvider: "Belinda Vernon",
-      imageName: "Victorian",
-      description: "AN UNUSUAL 19TH CENTURY FRENCH CHAMPLEVE ENAMEL BRONZE…",
-      favouriteCount: "164",
-      meebidListItemClass: {
-        transform: "translateX(520px) translateY(523px)"
-      }
-    });
-    this.$refs.homePageListContainer.addItem({
-      height: "",
-      imageUrl: "./../static/clock9.jpg",
-      avatarUrl: "./../static/user9.jpg",
-      imageProvider: "Ed Clarke",
-      imageName: "Lara's Design Inspiration",
-      description: "Antique clock French 1800. A modern equivalent would look…",
-      favouriteCount: "2.7k",
-      meebidListItemClass: {
-        transform: "translateX(780px) translateY(469px)"
-      }
-    });
   },
 
   methods: {
-    startHacking () {
-      this.$notify({
-        title: 'Shhh',
-        message: 'Just be patient...',
-        duration: 6000
-      })
+    openCategoryDialog() {
+      this.$refs.categoryDialog.categoryDialogVisible = true;
+      this.$refs.categoryDialog.validateSelectedItem();
     },
-    changeHintMessage: function(){
-      this.$refs.hintButton.hintNumber++;
+    handleOpen(key, keyPath) {
       
     },
-    showAlert : function(){
-      /*if (vm1.$refs.busyIndicator.active){
-        vm1.$refs.busyIndicator.hide()
-      } else {
-        vm1.$refs.busyIndicator.show()
-      }*/
+    handleClose(key, keyPath) {
       
-      //this.$set('alertIsOpen',true);
+    },
+    handleSelect(key, keyPath) {
+      this.active = key;
+      console.log(key, keyPath);
+    },
+    openUserProfile() {
+      window.open("./admin.html", '_blank');
     }
   }
 }
-/**
-    <popover title="Notification">
-      <meebid-button icon-type="bell" button-type="round" ref="hintButton" data-role="trigger">
-      </meebid-button>
-      <div slot="popover">
-        <h5 >Test Notification</h5>
-      </div>
-    </popover>
-    */
+
 </script>
 
 <style>
+html
+{
+  height:100%;
+  margin:0;
+}
+body
+{
+  height:100%;
+  margin:0; 
+}
 #app {
-  font-family: Helvetica, sans-serif;
-  text-align: center;
+  height: 100%;
 }
 </style>
