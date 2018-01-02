@@ -2,6 +2,33 @@ body {
   font-family: "Helvetica Neue", "Helvetica", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ", "Meiryo", "ＭＳ Ｐゴシック", arial, sans-serif;
 }
 
+.meebid .el-button--primary {
+  background-color: #ff5242;
+  border-color: #ff5242;
+}
+
+.meebid .el-button--primary:focus, .meebid .el-button--primary:hover {
+  background: #ff7063;
+  border-color: #ff7063;
+}
+
+.meebid .el-radio__inner:hover {
+  border-color: #ff5242;
+}
+
+.meebid .el-radio__input.is-checked .el-radio__inner {
+    border-color: #ff5242;
+    background: #ff5242;
+}
+
+.meebid .el-menu--horizontal.el-menu--dark .el-submenu .el-menu-item.is-active, .meebid .el-menu-item.is-active {
+  color: #ff5242;
+}
+
+.meebid .el-upload-list__item.is-success .el-upload-list__item-name:hover {
+  color: #ff5242;
+}
+
 .meebidHomeHeader {
   width: 100%; 
   border-bottom: 1px solid #efefef; 
@@ -592,7 +619,6 @@ body {
   top: 3px;
   left: 3px;
   border-radius: 25px;
-
 }
 
 .meebidCategoryItem:hover .meebidCategoryItemMask {
@@ -613,14 +639,14 @@ body {
   Register Page Start
   */
 .meebidRegisterContent {
-  width: 1200px;
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
   margin-top: 85px;
 }
 
 .meebidRegisterContent .el-col-12 {
-  width: 40%;
+  width: 45%;
   margin-left: 50px;
   padding-top: 10px;
   padding-left: 30px;
@@ -628,9 +654,10 @@ body {
 
 .meebidRegisterContent .el-form {
   padding-top: 25px;
+  max-width: 500px;
 }
 
-.meebidLoginFormWrapper {
+.meebid .meebidRegisterContent .meebidLoginFormWrapper {
   margin-left: unset;
 }
 
@@ -692,12 +719,60 @@ body {
   display: none;
 }
 
+.meebidProfileFormWrapper {
+  padding-top: 10px;
+}
+
 .meebidUserProfileFormWrapper {
   padding-top: 10px;
 }
 
 .meebidUserProfileFormWrapper .el-upload__tip {
   margin-top: unset;
+}
+
+.meebidHouseProfileForm {
+  padding-top: 20px;
+}
+
+.meebidHouseProfileFormWrapper {
+  padding-top: 10px;
+}
+
+.meebidHouseProfileFormWrapper .el-upload__tip {
+  margin-top: unset;
+}
+
+.meebidCategorySelectItemInForm {
+  width: 100%;
+  min-width: 600px;
+}
+
+.meebidCategorySelectItemInForm .meebidCategoryItem {
+  margin-left: 0px;
+  margin-right: 24px;
+  border: none;
+  padding-left: 0px;
+}
+.meebidCategorySelectItemInForm .meebidCategoryItem .meebidCategoryItemMask {
+  left: unset;
+  width: 132px;
+  height: 132px;
+}
+
+.meebidCategorySelectItemInForm .meebidCategoryItemLabel {
+  font-size: 18px;
+  bottom: 11px;
+  left: 11px;
+}
+
+.meebidCategorySelectItemInForm .meebidCategoryItemImage {
+  width: 132px;
+  height: 132px;
+}
+
+.meebidAdminMenuLabel {
+  font-weight: bold;
 }
 /**
   Admin Page End

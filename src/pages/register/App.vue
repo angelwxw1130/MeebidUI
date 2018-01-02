@@ -30,8 +30,8 @@
           <el-form ref="form" :model="form" label-width="150px" >
             <el-form-item label="Register Type">
               <el-radio-group v-model="form.type">
-                <el-radio label="1">Member User</el-radio>
-                <el-radio label="2">Auction House User</el-radio>
+                <el-radio label="member">Member User</el-radio>
+                <el-radio label="house">Auction House User</el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="Email">
@@ -762,7 +762,7 @@ export default {
         password: ""
       },
       form: {
-        type: "1",
+        type: "member",
         email: "",
         password: "",
         confirmPassword: ""
@@ -776,11 +776,40 @@ export default {
   },
 
   methods: {
+    redirectToHome() {
+      window.location.href = "./home.html";
+    },
     onLogin() {
 
     },
     onSubmit() {
-
+      var me = this;
+      $.ajax({
+        type: "POST",
+        url: "http://47.100.84.71/api/user/register",
+        contentType : "application/json", 
+        data: {
+          email: this.form.email,
+          password: this.form.password,
+          type: this.form.type
+        },
+        success() {
+          me.$notify({
+            title: 'Success',
+            message: 'Register successful',
+            duration: 5000
+          })
+        },
+        error() {
+          me.$notify({
+            title: 'Failure',
+            message: 'Register failure',
+            duration: 5000
+          })
+        }
+      }).done(function(){
+        console.log("register done");
+      });
     },
     showTermConditionDialog() {
       this.ruleDialogVisible = true;

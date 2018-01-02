@@ -24,8 +24,6 @@ Vue.component(MeebidHomePageListItem.name, MeebidHomePageListItem);
 Vue.component(MeebidPageList.name, MeebidPageList);
 Vue.component(MeebidCategoryDialog.name, MeebidCategoryDialog);
 
-//Vue.use(MeebidButton);
-
 var appVue = new Vue({
   el: '#app',
   render: h => h(App),

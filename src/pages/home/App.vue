@@ -24,17 +24,20 @@
       <div class="meebidHeaderButtonToolbar">
         <meebid-button wrapper-cls="homeWrapper" button-type="round" text="Home" :button-click="changeHintMessage">
         </meebid-button>
-        <meebid-button icon-type="user" button-type="round" text="Login" :button-click="openLoginDialog">
-        </meebid-button>
-        <meebid-button icon-type="user" button-type="round" text="Register" :button-click="openRegisterDialog">
-        </meebid-button>
-        <meebid-button icon-type="user" button-type="round" text="User Test" :button-click="openUserProfile">
-        </meebid-button>
-        
-        <meebid-button icon-type="bell" button-type="round" ref="hintButton" data-role="trigger" :button-click="openCategoryDialog">
-        </meebid-button>
-        <meebid-button icon-type="menu-hamburger" button-type="round" :button-click="showAlert" >
-        </meebid-button>
+        <template v-if="loginUser.isLogin === false">
+          <meebid-button icon-type="user" button-type="round" text="Login" :button-click="openLoginDialog">
+          </meebid-button>
+          <meebid-button icon-type="user" button-type="round" text="Register" :button-click="openRegisterDialog">
+          </meebid-button>
+        </template>
+        <template v-if="loginUser.isLogin === true">
+          <meebid-button icon-type="user" button-type="round" text="User Test" :button-click="openUserProfile">
+          </meebid-button>
+          <meebid-button icon-type="bell" button-type="round" ref="hintButton" data-role="trigger" :button-click="openCategoryDialog">
+          </meebid-button>
+          <meebid-button icon-type="menu-hamburger" button-type="round" :button-click="showAlert" >
+          </meebid-button>
+        </template>
       </div>
     </div>
     <div id="content" class="meebidHomeContent" height="">
@@ -77,11 +80,12 @@
 </template>
 
 <script>
+import loginUtils from './../../utils/loginUtils'
 import $ from 'jquery'
 export default {
   data () {
     return {
-      msg: 'Want something new?',
+      loginUser: loginUtils.getLoginUser(),
       loginDialogVisible: false,
       registerDialogVisible: false,
       loginName: "",
@@ -261,6 +265,7 @@ export default {
 
     },
     onLogin: function(){
+      var me = this;
       var name = this.loginName;
       var password = this.loginPassword;
       if(name == '' || password == ''){  
@@ -271,18 +276,27 @@ export default {
         return;  
       }
       $.ajax({  
-        url : 'login',  
-        type : 'post',  
+        url : "http://47.100.84.71/api/user/login",  
+        type : 'POST',  
         data : {  
           email : name,  
           password : password  
-        },  
+        },
+        contentType : "application/json", 
         success : function(data) {  
           var result = data.result;  
           if(result == 'true' || result == true){  
-              alert("Login Successful");  
+            me.$notify({
+              title: 'Success',
+              message: 'Login successful',
+              duration: 5000
+            })
           }else {  
-              alert("Login Failed");  
+            me.$notify({
+              title: 'Failure',
+              message: 'Login failed',
+              duration: 5000
+            })
           }
         },  
         error : function(data) {  

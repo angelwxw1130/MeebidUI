@@ -25,7 +25,7 @@ plugins.push(new webpack.optimize.CommonsChunkPlugin({
 
 glob.sync('./src/pages/**/**.html').forEach(path => {
   const chunk = path.split('./src/pages/')[1].split('.html')[0].split('/')[0]
-  // const pageJS = './src/pages/' + chunk + '/app.js'
+  
   var conf = {
     filename: chunk + '.html',
     template: 'src/pages/' + chunk + '/' + chunk + '.html', // 模板路径
@@ -45,7 +45,7 @@ module.exports = (options = {}) => ({
     path: resolve(__dirname, 'dist'),
     filename: options.dev ? '[name].js' : '[name].js?[chunkhash]',
     chunkFilename: '[id].js?[chunkhash]',
-    publicPath: options.dev ? '/assets/' : publicPath
+    publicPath: '/'
   },
   module: {
     rules: [{
@@ -91,13 +91,14 @@ module.exports = (options = {}) => ({
     port: 8010,
     proxy: {
       '/api/': {
-        target: 'http://127.0.0.1:8080',
+        target: 'http://47.100.84.71:80',
         changeOrigin: true,
         pathRewrite: {
           '^/api': ''
         }
       }
     },
+
     historyApiFallback: {
       index: url.parse(options.dev ? '/assets/' : publicPath).pathname
     }
