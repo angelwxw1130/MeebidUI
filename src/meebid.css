@@ -7,6 +7,10 @@ body {
   border-color: #ff5242;
 }
 
+.meebid .el-input__inner:focus {
+    border-color: #ff5242;
+}
+
 .meebid .el-button--primary:focus, .meebid .el-button--primary:hover {
   background: #ff7063;
   border-color: #ff7063;

@@ -25,17 +25,19 @@
         <meebid-button wrapper-cls="homeWrapper" button-type="round" text="Home" :button-click="changeHintMessage">
         </meebid-button>
         <template v-if="loginUser.isLogin === false">
-          <meebid-button icon-type="user" button-type="round" text="Login" :button-click="openLoginDialog">
+          <meebid-button icon-type="log-in" button-type="round" text="Login" :button-click="openLoginDialog">
           </meebid-button>
           <meebid-button icon-type="user" button-type="round" text="Register" :button-click="openRegisterDialog">
           </meebid-button>
         </template>
-        <template v-if="loginUser.isLogin === true">
-          <meebid-button icon-type="user" button-type="round" text="User Test" :button-click="openUserProfile">
+        <template v-else>
+          <meebid-button icon-type="user" button-type="round" :text="loginUser.userId" :button-click="openUserProfile">
           </meebid-button>
           <meebid-button icon-type="bell" button-type="round" ref="hintButton" data-role="trigger" :button-click="openCategoryDialog">
           </meebid-button>
           <meebid-button icon-type="menu-hamburger" button-type="round" :button-click="showAlert" >
+          </meebid-button>
+          <meebid-button icon-type="log-out" button-type="round" text="Logout" :button-click="onLogout" >
           </meebid-button>
         </template>
       </div>
@@ -264,6 +266,10 @@ export default {
       this.loginDialogVisible = true;
 
     },
+    onLogout () {
+      loginUtils.setLoginUser()
+      window.location.reload()
+    },
     onLogin: function(){
       var me = this;
       var name = this.loginName;
@@ -283,9 +289,13 @@ export default {
           password : password  
         },
         contentType : "application/json", 
-        success : function(data) {  
-          var result = data.result;  
-          if(result == 'true' || result == true){  
+        success : function(data) {
+          loginUtils.setLoginUser({
+            userId: "test1",
+            token: (new Date()).setDate((new Date()).getDate() + 3).getTime()
+          })
+          me.loginUser = loginUtils.getLoginUser()
+          if(data && data.code === 0){  
             me.$notify({
               title: 'Success',
               message: 'Login successful',
@@ -298,6 +308,8 @@ export default {
               duration: 5000
             })
           }
+          window.location.reload()
+
         },  
         error : function(data) {  
           alert(data);  

@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="meebidHomePage meebid">
-    <div id="header" class="meebidHomeHeader">
+    <div id="header" class="meebidHomeHeader meebidRegisterHeader">
       <div class="meebidHeaderButtonToolbar">
         <meebid-button wrapper-cls="homeWrapper" button-type="round" text="Home" :button-click="redirectToHome">
         </meebid-button>

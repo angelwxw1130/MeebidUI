@@ -45,7 +45,7 @@ module.exports = (options = {}) => ({
     path: resolve(__dirname, 'dist'),
     filename: options.dev ? '[name].js' : '[name].js?[chunkhash]',
     chunkFilename: '[id].js?[chunkhash]',
-    publicPath: '/'
+    publicPath: options.dev ? '/' : ''
   },
   module: {
     rules: [{
@@ -87,14 +87,15 @@ module.exports = (options = {}) => ({
     }
   },
   devServer: {
-    host: '127.0.0.1',
+    host: '0.0.0.0',
+    disableHostCheck: true,
     port: 8010,
     proxy: {
       '/api/': {
         target: 'http://47.100.84.71:80',
         changeOrigin: true,
         pathRewrite: {
-          '^/api': ''
+          '^/api': '/api'
         }
       }
     },
