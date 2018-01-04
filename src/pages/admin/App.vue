@@ -1,15 +1,36 @@
 <template>
   <div id="app" class="meebid">
     <div id="header" class="meebidAdminHeader">
+      <meebid-search-typeahead class="meebidtypeahead"
+             async-src="https://api.github.com/search/users?q="
+             async-key="items"
+             item-key="login"
+             :force-select="true">
+        <span class="glyphicon glyphicon-search meebidHeaderSearchIcon"></span>
+        <input data-role="input" class="form-control" type="text" placeholder="Search">
+        <template slot="item" scope="props">
+          <li ref="props.typeaheadBusyIndicator"><meebid-busy-indicator size="Medium"></meebid-busy-indicator></li>
+          <li v-for="(item, index) in props.items" :class="{active:props.activeIndex===index}">
+            <a href="javascript:void(0)" @click="props.select(item)">
+              <div>
+                <img width="36px" height="36px" :src="item.avatar_url"> 
+                <span style="padding-left: 10px;">{{item.login}}</span>
+              </div>
+            </a>
+          </li>
+          <li v-show="props.noResult"><div class="noResult">No Data</div></li>
+        </template>
+      </meebid-search-typeahead>
       <div class="meebidHeaderButtonToolbar">
         <meebid-button wrapper-cls="homeWrapper" button-type="round" text="Home" :button-click="redirectToHome">
         </meebid-button>
-        <meebid-button icon-type="user" button-type="round" text="User Test" :button-click="openUserProfile">
+        <meebid-button icon-type="user" button-type="round" :text="loginUser.userId" :button-click="openUserProfile">
         </meebid-button>
-        
-        <meebid-button icon-type="bell" button-type="round" ref="hintButton" data-role="trigger" >
+        <meebid-button icon-type="bell" button-type="round" ref="hintButton" data-role="trigger" :button-click="openCategoryDialog">
         </meebid-button>
-        <meebid-button icon-type="menu-hamburger" button-type="round" >
+        <meebid-button icon-type="menu-hamburger" button-type="round" :button-click="showAlert" >
+        </meebid-button>
+        <meebid-button icon-type="log-out" button-type="round" text="Logout" :button-click="onLogout" >
         </meebid-button>
       </div>
     </div>
@@ -179,9 +200,12 @@
 </template>
 
 <script>
+import loginUtils from './../../utils/loginUtils'
+import $ from 'jquery'
 export default {
   data () {
     return {
+      loginUser: loginUtils.getLoginUser(),
       active: "memberProfile",
       regionOptions: [{
         value: "CN",

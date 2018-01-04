@@ -44,7 +44,7 @@ body {
   background: #ffffff;
 }
 
-.meebidHomeHeader .form-control {
+.meebid .form-control {
   background-color: #eeeeee;
   padding-left: 50px;
   font-family: "Helvetica Neue", "Helvetica", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ", "Meiryo", "ＭＳ Ｐゴシック", arial, sans-serif;
@@ -56,7 +56,7 @@ body {
   box-shadow: none;
 }
 
-.meebidHomeHeader .meebidHeaderSearchIcon {
+.meebid .meebidHeaderSearchIcon {
   font-size: 18px;
   color: #aaaaaa; 
   position:absolute; 
@@ -642,11 +642,20 @@ body {
 /**
   Register Page Start
   */
+
+.meebidRegisterHeaderText {
+  font-size: 32px;
+  color: #8e8e8e;
+  padding-top: 20px;
+  width: 100%;
+  padding-left: 180px;
+}
+
 .meebidRegisterContent {
   width: 100%;
   margin-left: auto;
   margin-right: auto;
-  margin-top: 85px;
+  margin-top: 15px;
 }
 
 .meebidRegisterContent .el-col-12 {
@@ -694,7 +703,7 @@ body {
 }
 
 .meebidAdminMenu {
-  width: 30%;
+  width: 25%;
   height: 100%;
   margin: 0;
   border-right: 1px solid #efefef; 
@@ -703,11 +712,11 @@ body {
 
 .meebidAdminContent {
   float: left;
-  width: 69%;
+  width: 70%;
   height: 100%;
   margin: 0;
-  padding-left: 5%;
-  padding-right: 20%;
+  padding-left: 10%;
+  padding-right: 10%;
 }
 
 .meebidUserProfileUserName {

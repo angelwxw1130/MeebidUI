@@ -5,7 +5,8 @@ export default {
     let loginUser = {
       isLogin: false
     }
-    if (loginUserToken && loginUserToken > new Date().getTime()){
+    let currentDate = new Date()
+    if (loginUserToken && loginUserToken > currentDate.getTime()){
       loginUser = {
         userId: loginUserId,
         token: loginUserToken

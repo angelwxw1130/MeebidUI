@@ -1,13 +1,14 @@
 <template>
   <div id="app" class="meebidHomePage meebid">
-    <div id="header" class="meebidHomeHeader meebidRegisterHeader">
+    <div id="header" class="meebidAdminHeader meebidRegisterHeader">
       <div class="meebidHeaderButtonToolbar">
         <meebid-button wrapper-cls="homeWrapper" button-type="round" text="Home" :button-click="redirectToHome">
         </meebid-button>
       </div>
     </div>
+    <div class="meebidRegisterHeaderText">Log In or Create Account</div>
     <div id="content" class="meebidRegisterContent" >
-
+      
       <el-row>
         <el-col :span="12" class="meebidLoginFormWrapper">
           <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">Returning User</div>
@@ -752,6 +753,7 @@
 
 <script>
 import $ from 'jquery'
+import loginUtils from './../../utils/loginUtils'
 export default {
   data () {
     return {
@@ -780,7 +782,29 @@ export default {
       window.location.href = "./home.html";
     },
     onLogin() {
-
+      $.ajax({  
+        url : "/api/user/login",  
+        type : 'POST',  
+        data : {  
+          email : this.loginForm.email,  
+          password : this.loginForm.password  
+        },
+        contentType : "application/json", 
+        dataType : 'json',
+        success : function(data) {
+          let currentDate = new Date()
+          currentDate.setDate(currentDate.getDate() + 3)
+          loginUtils.setLoginUser({
+            userId: "test1",
+            token: currentDate.getTime()
+          })
+          
+          window.location.href = "./home.html"
+        },  
+        error : function(data) {  
+          alert(data);  
+        }
+      })  
     },
     onSubmit() {
       var me = this;
@@ -819,7 +843,17 @@ export default {
 </script>
 
 <style>
+html
+{
+  height:100%;
+  margin:0;
+}
+body
+{
+  height:100%;
+  margin:0; 
+}
 #app {
-  font-family: "Gotham SSm A", "Gotham SSm B",  arial, sans-serif
+  height: 100%;
 }
 </style>

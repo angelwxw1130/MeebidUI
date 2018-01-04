@@ -290,9 +290,11 @@ export default {
         },
         contentType : "application/json", 
         success : function(data) {
+          let currentDate = new Date()
+          currentDate.setDate(currentDate.getDate() + 3)
           loginUtils.setLoginUser({
             userId: "test1",
-            token: (new Date()).setDate((new Date()).getDate() + 3).getTime()
+            token: currentDate.getTime()
           })
           me.loginUser = loginUtils.getLoginUser()
           if(data && data.code === 0){  
@@ -318,10 +320,10 @@ export default {
       })  
     },
     openRegisterDialog: function(){
-      window.open("./register.html", '_blank');
+      window.location.href = "./register.html";
     },
     openUserProfile() {
-      window.open("./admin.html", '_blank');
+      window.location.href = "./admin.html";
     },
     startHacking () {
       this.$notify({
