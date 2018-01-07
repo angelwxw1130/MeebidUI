@@ -8,7 +8,7 @@
              :force-select="true">
         <span class="glyphicon glyphicon-search meebidHeaderSearchIcon"></span>
         <input data-role="input" class="form-control" type="text" placeholder="Search">
-        <template slot="item" scope="props">
+        <template slot="item" slot-scope="props">
           <li ref="props.typeaheadBusyIndicator"><meebid-busy-indicator size="Medium"></meebid-busy-indicator></li>
           <li v-for="(item, index) in props.items" :class="{active:props.activeIndex===index}">
             <a href="javascript:void(0)" @click="props.select(item)">
@@ -284,10 +284,11 @@ export default {
       $.ajax({  
         url : "http://47.100.84.71/api/user/login",  
         type : 'POST',  
-        data : {  
+        data : JSON.stringify({  
           email : name,  
           password : password  
-        },
+        }),
+        context: this,
         contentType : "application/json", 
         success : function(data) {
           let currentDate = new Date()
@@ -298,13 +299,13 @@ export default {
           })
           me.loginUser = loginUtils.getLoginUser()
           if(data && data.code === 0){  
-            me.$notify({
+            this.$notify({
               title: 'Success',
               message: 'Login successful',
               duration: 5000
             })
           }else {  
-            me.$notify({
+            this.$notify({
               title: 'Failure',
               message: 'Login failed',
               duration: 5000

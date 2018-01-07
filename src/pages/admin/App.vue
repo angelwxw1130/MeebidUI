@@ -8,7 +8,7 @@
              :force-select="true">
         <span class="glyphicon glyphicon-search meebidHeaderSearchIcon"></span>
         <input data-role="input" class="form-control" type="text" placeholder="Search">
-        <template slot="item" scope="props">
+        <template slot="item" slot-scope="props">
           <li ref="props.typeaheadBusyIndicator"><meebid-busy-indicator size="Medium"></meebid-busy-indicator></li>
           <li v-for="(item, index) in props.items" :class="{active:props.activeIndex===index}">
             <a href="javascript:void(0)" @click="props.select(item)">

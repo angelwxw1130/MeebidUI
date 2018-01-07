@@ -13,11 +13,11 @@
         <el-col :span="12" class="meebidLoginFormWrapper">
           <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">Returning User</div>
           <div class="meebidRegisterHeaderLabel">Existing MEEBID.COM members, please sign in with your email address and password here.</div>
-          <el-form ref="loginForm" :model="loginForm" label-width="150px">
-            <el-form-item label="Email">
+          <el-form ref="loginForm" status-icon :rules="loginFormRules" :model="loginForm" label-width="150px">
+            <el-form-item label="Email" prop="email">
               <el-input v-model="loginForm.email"></el-input>
             </el-form-item>
-            <el-form-item label="Password">
+            <el-form-item label="Password" prop="password">
               <el-input v-model="loginForm.password" type="password"></el-input>
             </el-form-item>
             <el-form-item>
@@ -28,21 +28,21 @@
         <el-col :span="12" class="meebidRegisterFormWrapper">
           <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">New Users</div>
           <div class="meebidRegisterHeaderLabel">Create an account to join Meebid.</div>
-          <el-form ref="form" :model="form" label-width="150px" >
-            <el-form-item label="Register Type">
+          <el-form ref="form" status-icon :rules="formRules" :model="form" label-width="150px" >
+            <el-form-item label="Register Type" prop="type">
               <el-radio-group v-model="form.type">
                 <el-radio label="member">Member User</el-radio>
                 <el-radio label="house">Auction House User</el-radio>
               </el-radio-group>
             </el-form-item>
-            <el-form-item label="Email">
+            <el-form-item label="Email" prop="email">
               <el-input v-model="form.email"></el-input>
             </el-form-item>
-            <el-form-item label="Password">
-              <el-input v-model="form.password" type="password"></el-input>
+            <el-form-item label="Password" prop="password">
+              <el-input v-model="form.password" type="password" @change="onPasswordChange"></el-input>
             </el-form-item>
-            <el-form-item label="Confirm Password">
-              <el-input v-model="form.confirmPassword" type="password"></el-input>
+            <el-form-item label="Confirm Password" prop="confirmPassword">
+              <el-input v-model="form.confirmPassword" type="password" @change="onConfirmPasswordChange"></el-input>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="onSubmit">REGISTER & CONTINUE</el-button>
@@ -756,6 +756,19 @@ import $ from 'jquery'
 import loginUtils from './../../utils/loginUtils'
 export default {
   data () {
+    var validatePassword = (rule, value, callback) => {
+      if (this.form.password !== '') {
+        this.$refs.form.validateField('confirmPassword');
+      }
+      callback();
+    };
+    var validateConfirmPassword = (rule, value, callback) => {
+      if (value !== this.form.password) {
+        callback(new Error('Password does not match.'));
+      } else {
+        callback();
+      }
+    };
     return {
       ruleDialogVisible: false,
       active: 0,
@@ -763,11 +776,32 @@ export default {
         email: "",
         password: ""
       },
+      loginFormRules: {
+        email: [
+          { required: true, message: 'Please input email', trigger: 'blur' }          
+        ],
+        password: [
+          { required: true, message: 'Please input password', trigger: 'blur' }    
+        ],
+      },
       form: {
         type: "member",
         email: "",
         password: "",
         confirmPassword: ""
+      },
+      formRules: {
+        email: [
+          { required: true, message: 'Please input email', trigger: 'blur' }          
+        ],
+        password: [
+          { required: true, message: 'Please input password.', trigger: 'blur' },
+          { validator: validatePassword, trigger: 'change' }
+        ],
+        confirmPassword: [
+          { required: true, message: 'Please input password again.', trigger: 'blur' },  
+          { validator: validateConfirmPassword, trigger: 'change' }
+        ]
       }
     }
   },
@@ -785,12 +819,12 @@ export default {
       $.ajax({  
         url : "/api/user/login",  
         type : 'POST',  
-        data : {  
+        data : JSON.stringify({  
           email : this.loginForm.email,  
           password : this.loginForm.password  
-        },
+        }),
+        context: this,
         contentType : "application/json", 
-        dataType : 'json',
         success : function(data) {
           let currentDate = new Date()
           currentDate.setDate(currentDate.getDate() + 3)
@@ -799,7 +833,7 @@ export default {
             token: currentDate.getTime()
           })
           
-          window.location.href = "./home.html"
+          //window.location.href = "./home.html"
         },  
         error : function(data) {  
           alert(data);  
@@ -810,22 +844,24 @@ export default {
       var me = this;
       $.ajax({
         type: "POST",
-        url: "http://47.100.84.71/api/user/register",
+        url: "/api/user/register",
         contentType : "application/json", 
-        data: {
+        context: this,
+        processData: false,
+        data: JSON.stringify({
           email: this.form.email,
           password: this.form.password,
           type: this.form.type
-        },
+        }),
         success() {
-          me.$notify({
+          this.$notify({
             title: 'Success',
             message: 'Register successful',
             duration: 5000
           })
         },
         error() {
-          me.$notify({
+          this.$notify({
             title: 'Failure',
             message: 'Register failure',
             duration: 5000
@@ -834,6 +870,12 @@ export default {
       }).done(function(){
         console.log("register done");
       });
+    },
+    onPasswordChange() {
+
+    },
+    onConfirmPasswordChange() {
+
     },
     showTermConditionDialog() {
       this.ruleDialogVisible = true;

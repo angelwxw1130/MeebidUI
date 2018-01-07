@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-default/index.css'
+import 'element-ui/lib/theme-chalk/index.css'
 import './../../meebid.css'
 import './../../bootstrap-3.3.7-dist/css/bootstrap.min.css'
 import MeebidButton from './../../component/button/meebidButton.vue'
