@@ -2,6 +2,10 @@ body {
   font-family: "Helvetica Neue", "Helvetica", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ", "Meiryo", "ＭＳ Ｐゴシック", arial, sans-serif;
 }
 
+.meebid .el-radio__input.is-checked+.el-radio__label {
+  color: #606266;
+}
+
 .meebid .el-button--primary {
   background-color: #ff5242;
   border-color: #ff5242;
@@ -711,13 +715,18 @@ body {
   float: left;
 }
 
+.meebidAdminMenu .el-menu {
+  height: 100%;
+}
+
 .meebidAdminContent {
   float: left;
-  width: 70%;
+  width: 75%;
   height: 100%;
   margin: 0;
   padding-left: 10%;
   padding-right: 10%;
+  overflow-x: scroll;
 }
 
 .meebidUserProfileUserName {

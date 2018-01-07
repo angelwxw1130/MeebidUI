@@ -795,11 +795,11 @@ export default {
           { required: true, message: 'Please input email', trigger: 'blur' }          
         ],
         password: [
-          { required: true, message: 'Please input password.', trigger: 'blur' },
+          { required: true, message: 'Please input password.', trigger: 'change' },
           { validator: validatePassword, trigger: 'change' }
         ],
         confirmPassword: [
-          { required: true, message: 'Please input password again.', trigger: 'blur' },  
+          { required: true, message: 'Please input password again.', trigger: 'change' },  
           { validator: validateConfirmPassword, trigger: 'change' }
         ]
       }

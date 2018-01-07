@@ -57,7 +57,7 @@
             <i class="el-icon-setting"></i>
             <span slot="title" class="meebidAdminMenuLabel">Messages</span>
           </el-menu-item>
-          <el-submenu index="1">
+          <!--<el-submenu index="1">
             <i class="el-icon-location"></i>
             <template slot="title">             
               <span>Sub Menu</span>
@@ -74,7 +74,7 @@
               <template slot="title">选项4</template>
               <el-menu-item index="1-4-1">选项1</el-menu-item>
             </el-submenu>
-          </el-submenu>
+          </el-submenu>-->
         </el-menu>
       </div>
       <div class="meebidAdminContent">
@@ -84,18 +84,18 @@
             <el-col :span="24" class="meebidUserProfileFormWrapper">
               <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">User Profile</div>
               <div class="meebidRegisterHeaderLabel">You can update your Profile Information here.</div>
-              <el-form ref="userProfileForm" :model="userProfileForm" label-width="150px" class="meebidUserProfileForm">
+              <el-form ref="userProfileForm" :rules="userProfileFormRules" :model="userProfileForm" label-width="150px" class="meebidUserProfileForm">
+                <el-form-item label="Email" prop="email">
+                  <el-input v-model="userProfileForm.email" placeholder="Please input email address"></el-input>
+                </el-form-item>
                 <el-form-item label="Contact User Name">
                   <el-input v-model="userProfileForm.firstName" class="meebidUserProfileUserName" placeholder="Please input First Name"></el-input>
                   <el-input v-model="userProfileForm.lastName" class="meebidUserProfileUserName" placeholder="Please input Last Name"></el-input>
                 </el-form-item>
                 <el-form-item label="Contact Cellphone">
                   <el-input v-model="userProfileForm.cellphone" placeholder="Please input Cellphone"></el-input>
-                </el-form-item>
-                <el-form-item label="Email">
-                  <el-input v-model="userProfileForm.email" placeholder="Please input email address"></el-input>
-                </el-form-item>
-                <el-form-item label="Region">
+                </el-form-item>               
+                <el-form-item label="Region" prop="region">
                   <el-select v-model="userProfileForm.region" placeholder="Select...">
                     <el-option
                       v-for="item in regionOptions"
@@ -105,7 +105,7 @@
                     </el-option>
                   </el-select>
                 </el-form-item>
-                <el-form-item label="Favourite Category">
+                <el-form-item label="Favourite Category" prop="favouriteCategory">
                   <el-button size="small" type="primary" @click="openCategoryDialog"><i class="el-icon-edit"></i> Click to change Favourite Categories</el-button>
                   <div class="meebidCategorySelectItemInForm">
                     <div v-for="(item,index) in categoryItems" v-if="item.selected===true" class="meebidCategoryItem">
@@ -247,6 +247,17 @@ export default {
       }],
       userProfileForm: {
         region: ''
+      },
+      userProfileFormRules: {
+        email: [
+          { required: true, message: 'Please input email', trigger: 'blur' }
+        ],
+        region: [
+          { required: true, message: 'Please select region', trigger: 'change' }
+        ],
+        favouriteCategory: [
+          { required: true}
+        ]
       },
       houseProfileForm: {
         country: '',
