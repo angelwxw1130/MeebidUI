@@ -7,9 +7,20 @@
       </div>
     </div>
     <div id="content" class="meebidAdminContentWrapper" >
-      <el-container v-loading="loading" element-loading-text="We are validating your account, please wait..." element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)">
-        
-        <el-main>Main</el-main>
+      <el-container v-loading="loading" class="meebidValidationPageContainer meebidPaddingTopMedium" :element-loading-text="loadingText" element-loading-spinner="el-icon-loading">
+        <el-main>
+          <!--<div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">Account Validateion</div>
+          <div class="meebidRegisterHeaderLabel">Using validation code to activate your account</div>
+          <el-form ref="validateionForm" :model="validateionForm" label-width="150px" class="meebidPaddingTopMedium">
+            <el-form-item label="Validation Code" prop="code">
+              <el-input v-model="validateionForm.code" placeholder="Please input your validation code here"></el-input>
+            </el-form-item>
+
+            <el-form-item>
+              <el-button type="primary" @click="onValidate">VALIDATE ACCOUNT</el-button>
+            </el-form-item>
+          </el-form>-->
+        </el-main>
       </el-container>
     </div>
     
@@ -19,10 +30,15 @@
 <script>
 import $ from 'jquery'
 import loginUtils from './../../utils/loginUtils'
+import urlUtils from './../../utils/urlUtils'
 export default {
   data () {
     return {
       loading: false,
+      loadingText: "We are validating your account, please wait...",
+      validateionForm: {
+        code: ""
+      },
       loginUser: loginUtils.getLoginUser()
     }
   },
@@ -30,14 +46,53 @@ export default {
     var me = this;
     console.log("Email Validateion Page Ready");
     this.loading = true;
+    var paramterStr = window.location.search;
+    var code = urlUtils.getParameter('code');
+    $.ajax({  
+      url : "/api/user/activate",  
+      type : 'POST',  
+      data : JSON.stringify({  
+        code : code
+      }),
+      context: this,
+      contentType : "application/json", 
+      success : function(data) {
+        if (data.code == '1'){
+          let currentDate = new Date()
+          currentDate.setTime(currentDate.getTime() + data.content.expiredAt * 1000)
+          loginUtils.setLoginUser({
+            expireTime: currentDate.getTime(),
+            token: data.content.token
+          })
+        } else {  
+          this.$notify({
+            title: 'Failure',
+            message: 'Validation failure, please check your validation url.',
+            duration: 5000
+          })
+        }
 
-    setTimeout(() => {
-      this.loading = false;
-    }, 3000);
+        this.loadingText = "Validation Successful, will redirect to Home page in 3 seconds"
+        setTimeout(function(){
+          window.location.href = "./home.html";
+        }, 1000);
+      },  
+      error : function(data) {
+        this.validateionForm.code = "";
+        this.$notify({
+          title: 'Failed',
+          message: 'Validation failure, please check your validation url.',
+          duration: 5000
+        })
+      },  
+      dataType : 'json' 
+    })  
   },
 
   methods: {
-    
+    onValidate() {
+      
+    }
   }
 }
 </script>

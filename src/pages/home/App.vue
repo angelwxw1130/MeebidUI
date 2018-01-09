@@ -31,7 +31,7 @@
           </meebid-button>
         </template>
         <template v-else>
-          <meebid-button icon-type="user" button-type="round" :text="loginUser.userId" :button-click="openUserProfile">
+          <meebid-button icon-type="user" button-type="round" :text="userProfile.firstName" :button-click="openUserProfile">
           </meebid-button>
           <meebid-button icon-type="bell" button-type="round" ref="hintButton" data-role="trigger" :button-click="openCategoryDialog">
           </meebid-button>
@@ -56,10 +56,14 @@
       width="400px">
       
         <div class="meebidLoginDialogLabel">Returning User</div>
-        <el-input v-model="loginName" class="meebidLoginDialogFieldLabel" placeholder="Please input email address">  
-        </el-input>
-        <el-input v-model="loginPassword" type="password" class="meebidLoginDialogFieldLabel" placeholder="Please input password"> 
-        </el-input>
+        <el-form ref="loginFormRef" :rules="loginFormRules" class="meebidLoginDialogForm" :model="loginForm" label-width="0px">
+          <el-form-item prop="email">
+            <el-input v-model="loginForm.email" placeholder="Please input email address" auto-complete="off"></el-input>
+          </el-form-item>
+          <el-form-item prop="password">
+            <el-input v-model="loginForm.password" type="password" placeholder="Please input password" auto-complete="off"></el-input>
+          </el-form-item>
+        </el-form>
 
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="onLogin" class="meebidLoginDialogButton">LOGGED IN</el-button>
@@ -85,13 +89,28 @@
 import loginUtils from './../../utils/loginUtils'
 import $ from 'jquery'
 export default {
+  props: {
+    profileData: Object
+  },
   data () {
     return {
       loginUser: loginUtils.getLoginUser(),
+      userProfile: {
+      },
       loginDialogVisible: false,
       registerDialogVisible: false,
-      loginName: "",
-      loginPassword: "",
+      loginForm: {
+        email: "",
+        password: ""
+      },
+      loginFormRules: {
+        email: [
+          { required: true, message: 'Please input email', trigger: 'change' }          
+        ],
+        password: [
+          { required: true, message: 'Please input password', trigger: 'change' }    
+        ],
+      },
       categoryItems: [{
         imageUrl: "./../static/animals.jpg",
         label: "Animals",
@@ -137,6 +156,8 @@ export default {
   },
   mounted() {
     console.log("app ready");
+    this.userProfile = this.$parent.$data.user;
+
     
     this.$refs.homePageListContainer.addItem({
       height: "",
@@ -261,10 +282,7 @@ export default {
         .catch(_ => {});
     },
     openLoginDialog: function(){
-      this.loginName = "";
-      this.loginPassword = "";
       this.loginDialogVisible = true;
-
     },
     onLogout () {
       loginUtils.setLoginUser()
@@ -272,39 +290,30 @@ export default {
     },
     onLogin: function(){
       var me = this;
-      var name = this.loginName;
-      var password = this.loginPassword;
-      if(name == '' || password == ''){  
-        this.$message({  
-          message : 'Email or password is blank!',  
-          type : 'error'  
-        })  
-        return;  
+      var email = this.loginForm.email;
+      var password = this.loginForm.password;
+      if (!this.$refs.loginFormRef.validate()){
+        return;
       }
       $.ajax({  
-        url : "http://47.100.84.71/api/user/login",  
+        url : "/api/user/login",  
         type : 'POST',  
         data : JSON.stringify({  
-          email : name,  
+          email : email,  
           password : password  
         }),
         context: this,
         contentType : "application/json", 
         success : function(data) {
-          let currentDate = new Date()
-          currentDate.setDate(currentDate.getDate() + 3)
-          loginUtils.setLoginUser({
-            userId: "test1",
-            token: currentDate.getTime()
-          })
-          me.loginUser = loginUtils.getLoginUser()
-          if(data && data.code === 0){  
-            this.$notify({
-              title: 'Success',
-              message: 'Login successful',
-              duration: 5000
+          if (data.code == '1'){
+            let currentDate = new Date()
+            currentDate.setTime(currentDate.getTime() + data.content.expiredAt * 1000)
+            loginUtils.setLoginUser({
+              expireTime: currentDate.getTime(),
+              token: data.content.token
             })
-          }else {  
+            this.$refs.loginFormRef.resetFields()
+          } else {  
             this.$notify({
               title: 'Failure',
               message: 'Login failed',

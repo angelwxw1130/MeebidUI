@@ -84,16 +84,16 @@
             <el-col :span="24" class="meebidUserProfileFormWrapper">
               <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">User Profile</div>
               <div class="meebidRegisterHeaderLabel">You can update your Profile Information here.</div>
-              <el-form ref="userProfileForm" :rules="userProfileFormRules" :model="userProfileForm" label-width="150px" class="meebidUserProfileForm">
+              <el-form ref="userProfileForm" :rules="userProfileFormRules" :model="userProfileForm" label-width="150px" class="meebidPaddingTopMedium">
                 <el-form-item label="Email" prop="email">
-                  <el-input v-model="userProfileForm.email" placeholder="Please input email address"></el-input>
+                  <el-input v-model="userProfileForm.email" class="meebidFormFieldMediumLength" placeholder="Please input email address"></el-input>
                 </el-form-item>
                 <el-form-item label="Contact User Name">
-                  <el-input v-model="userProfileForm.firstName" class="meebidUserProfileUserName" placeholder="Please input First Name"></el-input>
-                  <el-input v-model="userProfileForm.lastName" class="meebidUserProfileUserName" placeholder="Please input Last Name"></el-input>
+                  <el-input v-model="userProfileForm.firstName" class="meebidUserProfileUserName meebidFormFieldSmallLength" placeholder="Please input First Name"></el-input>
+                  <el-input v-model="userProfileForm.lastName" class="meebidUserProfileUserName meebidFormFieldSmallLength" placeholder="Please input Last Name"></el-input>
                 </el-form-item>
                 <el-form-item label="Contact Cellphone">
-                  <el-input v-model="userProfileForm.cellphone" placeholder="Please input Cellphone"></el-input>
+                  <el-input v-model="userProfileForm.cellphone" class="meebidFormFieldMediumLength" placeholder="Please input Cellphone"></el-input>
                 </el-form-item>               
                 <el-form-item label="Region" prop="region">
                   <el-select v-model="userProfileForm.region" placeholder="Select...">

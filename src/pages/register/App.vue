@@ -15,10 +15,10 @@
           <div class="meebidRegisterHeaderLabel">Existing MEEBID.COM members, please sign in with your email address and password here.</div>
           <el-form ref="loginForm" status-icon :rules="loginFormRules" :model="loginForm" label-width="150px">
             <el-form-item label="Email" prop="email">
-              <el-input v-model="loginForm.email"></el-input>
+              <el-input v-model="loginForm.email" auto-complete="off"></el-input>
             </el-form-item>
             <el-form-item label="Password" prop="password">
-              <el-input v-model="loginForm.password" type="password"></el-input>
+              <el-input v-model="loginForm.password" type="password" auto-complete="off"></el-input>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="onLogin">LOGGED IN</el-button>
@@ -36,13 +36,13 @@
               </el-radio-group>
             </el-form-item>
             <el-form-item label="Email" prop="email">
-              <el-input v-model="form.email"></el-input>
+              <el-input v-model="form.email" auto-complete="off"></el-input>
             </el-form-item>
             <el-form-item label="Password" prop="password">
-              <el-input v-model="form.password" type="password" @change="onPasswordChange"></el-input>
+              <el-input v-model="form.password" type="password" @change="onPasswordChange" auto-complete="off"></el-input>
             </el-form-item>
             <el-form-item label="Confirm Password" prop="confirmPassword">
-              <el-input v-model="form.confirmPassword" type="password" @change="onConfirmPasswordChange"></el-input>
+              <el-input v-model="form.confirmPassword" type="password" @change="onConfirmPasswordChange" auto-complete="off"></el-input>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="onSubmit">REGISTER & CONTINUE</el-button>
@@ -778,10 +778,10 @@ export default {
       },
       loginFormRules: {
         email: [
-          { required: true, message: 'Please input email', trigger: 'blur' }          
+          { required: true, message: 'Please input email', trigger: 'change' }          
         ],
         password: [
-          { required: true, message: 'Please input password', trigger: 'blur' }    
+          { required: true, message: 'Please input password', trigger: 'change' }    
         ],
       },
       form: {
@@ -807,8 +807,6 @@ export default {
   },
   mounted() {
     console.log("Register Page Ready");
-    
-    
   },
 
   methods: {
@@ -826,12 +824,23 @@ export default {
         context: this,
         contentType : "application/json", 
         success : function(data) {
-          let currentDate = new Date()
-          currentDate.setDate(currentDate.getDate() + 3)
-          loginUtils.setLoginUser({
-            userId: "test1",
-            token: currentDate.getTime()
-          })
+          if (data.code == '1'){
+            let currentDate = new Date()
+            currentDate.setTime(currentDate.getTime() + data.content.expiredAt * 1000)
+            loginUtils.setLoginUser({
+              expireTime: currentDate.getTime(),
+              token: data.content.token
+            })
+            this.$refs.loginFormRef.resetFields()
+          } else {  
+            this.$notify({
+              title: 'Failure',
+              message: 'Login failed',
+              duration: 5000
+            })
+          }
+          window.location.reload()
+
           
           //window.location.href = "./home.html"
         },  

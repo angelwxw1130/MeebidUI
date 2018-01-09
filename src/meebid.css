@@ -2,6 +2,18 @@ body {
   font-family: "Helvetica Neue", "Helvetica", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ", "Meiryo", "ＭＳ Ｐゴシック", arial, sans-serif;
 }
 
+.meebidPaddingTopMedium {
+  padding-top: 20px;
+}
+
+.meebidPaddingTopSmall {
+  padding-top: 10px;
+}
+
+.meebidPaddingTopLarge{
+  padding-top: 30px;
+}
+
 .meebid .el-radio__input.is-checked+.el-radio__label {
   color: #606266;
 }
@@ -11,8 +23,12 @@ body {
   border-color: #ff5242;
 }
 
+.meebid .el-select .el-input.is-focus .el-input__inner {
+  border-color: #606266;
+}
+
 .meebid .el-input__inner:focus {
-    border-color: #ff5242;
+  border-color: #606266;
 }
 
 .meebid .el-button--primary:focus, .meebid .el-button--primary:hover {
@@ -103,6 +119,10 @@ body {
   height: 42px;
   line-height: 42px;
   padding-left: 20px;
+}
+
+.meebidLoginDialogForm {
+  padding-top: 15px;
 }
 
 /**
@@ -553,11 +573,12 @@ body {
 }
 
 .meebidHomePage .meebidLoginDialog .el-dialog__body {
-  padding: 20px 20px;
+  padding: 20px 20px 0px 20px;
 }
 
 .meebidHomePage .meebidLoginDialog .meebidLoginDialogButton {
-  width: 100%;
+  width: calc(100% - 10px);
+  margin-right: 5px;
 }
 
 /**
@@ -596,8 +617,8 @@ body {
 }
 
 .meebidCategoryItemImage {
-  width: 176px;
-  height: 176px;
+  width: 154px;
+  height: 154px;
 }
 
 .meebidCategoryItem.selected {
@@ -615,8 +636,8 @@ body {
 }
 
 .meebidCategoryItemMask {
-  width: 176px;
-  height: 176px;
+  width: 154px;
+  height: 154px;
   z-index: 1;
   -moz-transition: background 0.3s ease-in,color 0.2s ease-out; 
   -webkit-transition: background 0.3s ease-in,color 0.2s ease-out; 
@@ -695,7 +716,7 @@ body {
   */
 .meebidAdminContentWrapper {
   width: 100%;
-  height: calc(100% - 73px);
+  height: calc(100% - 75px);
   margin: 0;
 }
 
@@ -730,12 +751,15 @@ body {
 }
 
 .meebidUserProfileUserName {
-  width: 40%;
   display: inline-block;
 }
 
-.meebidUserProfileForm {
-  padding-top: 20px;
+.meebid .meebidFormFieldSmallLength {
+  width: 40%;
+}
+
+.meebid .meebidFormFieldMediumLength {
+  width: 70%;
 }
 
 .meebid .el-upload__input {
@@ -799,4 +823,31 @@ body {
 }
 /**
   Admin Page End
+  */
+
+/** 
+  Email Validation Start
+  */
+.meebidValidationPageContainer {
+  height: 100%;
+  width: 60%;
+  margin: auto;
+}
+
+.meebidValidationPageContainer .el-loading-spinner{
+  top: 30%;
+}
+
+.meebidValidationPageContainer .el-loading-spinner i {
+  font-size: 50px;
+  color: #ff5242;
+}
+
+.meebidValidationPageContainer .el-loading-spinner .el-loading-text {
+  color: #ff5242;
+  font-size: 36px;
+}
+
+/**
+  Email Validation End
   */
