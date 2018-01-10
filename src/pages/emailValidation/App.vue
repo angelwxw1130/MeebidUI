@@ -64,7 +64,8 @@ export default {
             expireTime: currentDate.getTime(),
             token: data.content.token
           })
-        } else {  
+        } else {
+          this.loading = false;
           this.$notify({
             title: 'Failure',
             message: 'Validation failure, please check your validation url.',

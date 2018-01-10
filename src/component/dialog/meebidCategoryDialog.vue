@@ -1,13 +1,15 @@
 <template>
-  <el-dialog title="Category" :visible.sync="categoryDialogVisible" width="800px">
+  <el-dialog title="Category" :visible.sync="categoryDialogVisible" width="800px" :show-close="false" :close-on-click-modal="false" :close-on-press-escape="false">
     <div class="categoryDialogInfoLabel">Please select at least one interested category</div>
-    <div v-for="(item,index) in items" :class="{selected:item.selected===true}" class="meebidCategoryItem" @click="selectItem(item)">
-      <img class="meebidCategoryItemImage" :src="item.imageUrl">
-      <span class="meebidCategoryItemLabel">{{item.label}}</span>
-      <div class="meebidCategoryItemMask"></div>
+    <div class="categoryDialogItemsWrapper">
+      <div v-for="(item,index) in items" :class="{selected:items[index].selected===true}" class="meebidCategoryItem" @click="selectItem(item, index)">
+        <img class="meebidCategoryItemImage" :src="item.imgUrl">
+        <span class="meebidCategoryItemLabel">{{item.name}}</span>
+        <div class="meebidCategoryItemMask"></div>
+      </div>
     </div>
     <span slot="footer" class="dialog-footer">
-      <el-button @click="categoryDialogVisible = false">Cancel</el-button>
+      <!--<el-button @click="categoryDialogVisible = false">Cancel</el-button>-->
       <el-button type="primary" @click="onSave" :disabled="noItemSelected">Save</el-button>
     </span>
   </el-dialog>
@@ -17,7 +19,7 @@
   export default {
     name: 'meebid-category-dialog',
     props: {
-      categoryDialogVisible: {
+      isProfilePage: {
         type: Boolean,
         'default': false
       },
@@ -28,6 +30,7 @@
     },
     data () {
       return {
+        categoryDialogVisible: false,
         noItemSelected: true
       }
     },
@@ -51,19 +54,18 @@
         });
         this.noItemSelected = !hasItemSelected;
       },
-      selectItem(item) {
+      selectItem(item, index) {
         item.selected = !item.selected;
         this.validateSelectedItem();
       },
       onSave() {
-        
-        if (hasItemSelected) {
-          this.categoryDialogVisible = false;
-        } else {
+        if (!this.noItemSelected) {
+          if (this.isProfilePage){
+            this.categoryDialogVisible = false;
+          } else {
 
-        }
-
-        
+          }
+        }         
       }
     }
   }

@@ -112,44 +112,44 @@ export default {
         ],
       },
       categoryItems: [{
-        imageUrl: "./../static/animals.jpg",
-        label: "Animals",
+        imgUrl: "./../static/animals.jpg",
+        name: "Animals",
         selected: true
       }, {
-        imageUrl: "./../static/architecture.jpg",
-        label: "Architecture",
+        imgUrl: "./../static/architecture.jpg",
+        name: "Architecture",
         selected: true
       }, {
-        imageUrl: "./../static/art.jpg",
-        label: "Art",
+        imgUrl: "./../static/art.jpg",
+        name: "Art",
         selected: false
       }, {
-        imageUrl: "./../static/cars_motorcycles.jpg",
-        label: "Cars and Motocycles",
+        imgUrl: "./../static/cars_motorcycles.jpg",
+        name: "Cars and Motocycles",
         selected: false
       }, {
-        imageUrl: "./../static/design.jpg",
-        label: "Design",
+        imgUrl: "./../static/design.jpg",
+        name: "Design",
         selected: false
       }, {
-        imageUrl: "./../static/diy_crafts.jpg",
-        label: "DIY and Crafts",
+        imgUrl: "./../static/diy_crafts.jpg",
+        name: "DIY and Crafts",
         selected: false
       }, {
-        imageUrl: "./../static/education.jpg",
-        label: "Education",
+        imgUrl: "./../static/education.jpg",
+        name: "Education",
         selected: false
       }, {
-        imageUrl: "./../static/everything.jpg",
-        label: "Everything",
+        imgUrl: "./../static/everything.jpg",
+        name: "Everything",
         selected: false
       }, {
-        imageUrl: "./../static/film_music_books.jpg",
-        label: "Film, Music and Books",
+        imgUrl: "./../static/film_music_books.jpg",
+        name: "Film, Music and Books",
         selected: false
       }, {
-        imageUrl: "./../static/food_drink.jpg",
-        label: "Food and drink",
+        imgUrl: "./../static/food_drink.jpg",
+        name: "Food and drink",
         selected: false
       }]
     }

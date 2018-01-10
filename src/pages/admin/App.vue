@@ -28,7 +28,7 @@
         </meebid-button>
         <meebid-button icon-type="bell" button-type="round" ref="hintButton" data-role="trigger" :button-click="openCategoryDialog">
         </meebid-button>
-        <meebid-button icon-type="menu-hamburger" button-type="round" :button-click="showAlert" >
+        <meebid-button icon-type="menu-hamburger" button-type="round" >
         </meebid-button>
         <meebid-button icon-type="log-out" button-type="round" text="Logout" :button-click="onLogout" >
         </meebid-button>
@@ -42,9 +42,8 @@
         @open="handleOpen"
         @close="handleClose"
         @select="handleSelect"
-        background-color="#545c64"
-        text-color="#fff"
-        active-text-color="#ffd04b">
+        background-color="#e6e6e6"
+        >
           <el-menu-item index="memberProfile">
             <i class="el-icon-menu"></i>
             <span slot="title" class="meebidAdminMenuLabel">User Profile</span>
@@ -95,8 +94,8 @@
                 <el-form-item label="Contact Cellphone">
                   <el-input v-model="userProfileForm.cellphone" class="meebidFormFieldMediumLength" placeholder="Please input Cellphone"></el-input>
                 </el-form-item>               
-                <el-form-item label="Region" prop="region">
-                  <el-select v-model="userProfileForm.region" placeholder="Select...">
+                <el-form-item label="Region" prop="topRegion">
+                  <el-select v-model="userProfileForm.topRegion" placeholder="Select...">
                     <el-option
                       v-for="item in regionOptions"
                       :key="item.value"
@@ -105,18 +104,18 @@
                     </el-option>
                   </el-select>
                 </el-form-item>
-                <el-form-item label="Favourite Category" prop="favouriteCategory">
+                <el-form-item label="Favourite Category">
                   <el-button size="small" type="primary" @click="openCategoryDialog"><i class="el-icon-edit"></i> Click to change Favourite Categories</el-button>
                   <div class="meebidCategorySelectItemInForm">
                     <div v-for="(item,index) in categoryItems" v-if="item.selected===true" class="meebidCategoryItem">
-                      <img class="meebidCategoryItemImage" :src="item.imageUrl">
-                      <span class="meebidCategoryItemLabel">{{item.label}}</span>
+                      <img class="meebidCategoryItemImage" :src="item.imgUrl">
+                      <span class="meebidCategoryItemLabel">{{item.name}}</span>
                       <div class="meebidCategoryItemMask"></div>
                     </div>
                   </div>
                 </el-form-item>                
                 <el-form-item>
-                  <el-button type="primary" @click="onLogin">UPDATE USER PROFILE</el-button>
+                  <el-button type="primary" @click="onUpdateProfile">UPDATE USER PROFILE</el-button>
                 </el-form-item>
               </el-form>
             </el-col>
@@ -183,7 +182,7 @@
                 </el-form-item>
                 
                 <el-form-item>
-                  <el-button type="primary" @click="onLogin">UPDATE AUCTION HOUSE INFORMATION</el-button>
+                  <el-button type="primary" @click="onUpdateProfile">UPDATE AUCTION HOUSE INFORMATION</el-button>
                 </el-form-item>
               </el-form>
             </el-col>
@@ -193,7 +192,7 @@
           Message Box
         </div>
       </div>
-      <meebid-category-dialog :items="categoryItems" ref="categoryDialog">
+      <meebid-category-dialog :items="categoryItems" :isProfilePage="isProfilePage" ref="categoryDialog">
       </meebid-category-dialog>
     </div>
   </div>
@@ -207,46 +206,47 @@ export default {
     return {
       loginUser: loginUtils.getLoginUser(),
       active: "memberProfile",
+      isProfilePage: true,
       regionOptions: [{
-        value: "CN",
+        value: 0,
         label: "China"
       },{
-        value: "US",
+        value: 1,
         label: "United States"
       },{
-        value: "CA",
+        value: 2,
         label: "Canada"
       },{
-        value: "EN",
+        value: 3,
         label: "England"
       },{
-        value: "FR",
+        value: 4,
         label: "Franch"
       },{
-        value: "GR",
+        value: 5,
         label: "Germany"
       }],
       countryOptions: [{
-        value: "CN",
+        value: 0,
         label: "China"
       },{
-        value: "US",
+        value: 1,
         label: "United States"
       },{
-        value: "CA",
+        value: 2,
         label: "Canada"
       },{
-        value: "EN",
+        value: 3,
         label: "England"
       },{
-        value: "FR",
+        value: 4,
         label: "Franch"
       },{
-        value: "GR",
+        value: 5,
         label: "Germany"
       }],
+      userProfile: {},
       userProfileForm: {
-        region: ''
       },
       userProfileFormRules: {
         email: [
@@ -254,9 +254,6 @@ export default {
         ],
         region: [
           { required: true, message: 'Please select region', trigger: 'change' }
-        ],
-        favouriteCategory: [
-          { required: true}
         ]
       },
       houseProfileForm: {
@@ -267,55 +264,38 @@ export default {
           status: 'finished'
         }]
       },
-      categoryItems: [{
-        imageUrl: "./../static/animals.jpg",
-        label: "Animals",
-        selected: true
-      }, {
-        imageUrl: "./../static/architecture.jpg",
-        label: "Architecture",
-        selected: true
-      }, {
-        imageUrl: "./../static/art.jpg",
-        label: "Art",
-        selected: false
-      }, {
-        imageUrl: "./../static/cars_motorcycles.jpg",
-        label: "Cars and Motocycles",
-        selected: false
-      }, {
-        imageUrl: "./../static/design.jpg",
-        label: "Design",
-        selected: false
-      }, {
-        imageUrl: "./../static/diy_crafts.jpg",
-        label: "DIY and Crafts",
-        selected: false
-      }, {
-        imageUrl: "./../static/education.jpg",
-        label: "Education",
-        selected: false
-      }, {
-        imageUrl: "./../static/everything.jpg",
-        label: "Everything",
-        selected: false
-      }, {
-        imageUrl: "./../static/film_music_books.jpg",
-        label: "Film, Music and Books",
-        selected: false
-      }, {
-        imageUrl: "./../static/food_drink.jpg",
-        label: "Food and drink",
-        selected: false
-      }]
+      categoryItems: []
     }
   },
   mounted() {
-    
+    console.log("Profile App ready");
+    this.userProfile = this.$parent.$data.user;
+    if (this.userProfile.type === window.meebidConstant.userType.member){
+      this.userProfileForm = this.userProfile;
+      var categoryItems = this.$parent.$data.categories;
+      var selectedItems = this.userProfileForm && this.userProfileForm.favorCategories ? this.userProfileForm.favorCategoriessplit(";") : [];
+      for (var i = 0; i < categoryItems.length; i++){
+        for (var j = 0; j < selectedItems.length; j++){
+          if (pasreInt(selectedItems[j]) === categoryItems[i].id){
+            categoryItems[i].selected = true;
+            break;
+          }
+        }
+        categoryItems[i].selected = false;
+      }
+      this.categoryItems = categoryItems;
+    } else {
+      this.houseProfileForm = this.userProfile;
+    }
+
   },
 
   methods: {
     redirectToHome() {
+      window.location.href = "./home.html";
+    },
+    onLogout () {
+      loginUtils.setLoginUser()
       window.location.href = "./home.html";
     },
     openCategoryDialog() {
@@ -334,6 +314,51 @@ export default {
     },
     openUserProfile() {
       window.open("./admin.html", '_blank');
+    },
+    onUpdateProfile() {
+      var categoryItems = this.categoryItems || [];
+      var selectedItems = []
+      
+      for (var i = 0; i < categoryItems.length; i++){
+        if (categoryItems[i].selected){
+          selectedItems.push(categoryItems[i].id);
+        }
+      }
+      var favorCategories = selectedItems.join(";");
+      this.userProfile.favorCategories = favorCategories;
+      $.ajax({
+        type: "POST",
+        url: "/api/user/profile",
+        contentType : "application/json", 
+        context: this,
+        processData: false,
+        data: JSON.stringify(this.userProfile),
+        success(data) {
+          if (data.code === 1){
+            this.$notify({
+              title: 'Success',
+              message: 'Update successful',
+              duration: 5000
+            })
+          } else {
+            this.$notify({
+              title: 'Failure',
+              message: 'Update failure',
+              duration: 5000
+            })
+          }
+          
+        },
+        error() {
+          this.$notify({
+            title: 'Failure',
+            message: 'Update failure',
+            duration: 5000
+          })
+        }
+      }).done(function(){
+        console.log("Update Profile done");
+      });
     }
   }
 }
