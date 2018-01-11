@@ -63,7 +63,41 @@
           if (this.isProfilePage){
             this.categoryDialogVisible = false;
           } else {
+            /**
+            $.ajax({  
+              url : "/api/user/login",  
+              type : 'POST',  
+              data : JSON.stringify({  
+                email : email,  
+                password : password  
+              }),
+              context: this,
+              contentType : "application/json", 
+              success : function(data) {
+                if (data.code == '1'){
+                  let currentDate = new Date()
+                  currentDate.setTime(currentDate.getTime() + data.content.expiredAt * 1000)
+                  loginUtils.setLoginUser({
+                    expireTime: currentDate.getTime(),
+                    token: data.content.token
+                  })
+                  this.$refs.loginFormRef.resetFields()
+                } else {  
+                  this.$notify({
+                    title: 'Failure',
+                    message: 'Login failed',
+                    duration: 5000
+                  })
+                }
+                window.location.reload()
 
+              },  
+              error : function(data) {  
+                alert(data);  
+              },  
+              dataType : 'json' 
+            })  
+            */
           }
         }         
       }

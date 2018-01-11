@@ -16,6 +16,7 @@ import App from './App.vue'
 import loginUtils from './../../utils/loginUtils'
 import errorUtils from './../../utils/errorUtils'
 import { MessageBox } from 'element-ui';
+import meebidConstant from './../../constant/meebidConstants'
 
 Vue.use(ElementUI)
 Vue.component(MeebidButton.name, MeebidButton);
@@ -40,6 +41,10 @@ if (loginUser.token){
          success : function(data) {
 
          	if (data.code == 1){
+         		var categoryItems = data.content.categories;
+				for (var i = 0; i < categoryItems.length; i++){
+					categoryItems[i].selected = false;
+		        }
          		var appVue = new Vue({
 					el: '#app',
 					render: h => h(App),

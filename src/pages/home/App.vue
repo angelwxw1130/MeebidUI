@@ -111,53 +111,30 @@ export default {
           { required: true, message: 'Please input password', trigger: 'change' }    
         ],
       },
-      categoryItems: [{
-        imgUrl: "./../static/animals.jpg",
-        name: "Animals",
-        selected: true
-      }, {
-        imgUrl: "./../static/architecture.jpg",
-        name: "Architecture",
-        selected: true
-      }, {
-        imgUrl: "./../static/art.jpg",
-        name: "Art",
-        selected: false
-      }, {
-        imgUrl: "./../static/cars_motorcycles.jpg",
-        name: "Cars and Motocycles",
-        selected: false
-      }, {
-        imgUrl: "./../static/design.jpg",
-        name: "Design",
-        selected: false
-      }, {
-        imgUrl: "./../static/diy_crafts.jpg",
-        name: "DIY and Crafts",
-        selected: false
-      }, {
-        imgUrl: "./../static/education.jpg",
-        name: "Education",
-        selected: false
-      }, {
-        imgUrl: "./../static/everything.jpg",
-        name: "Everything",
-        selected: false
-      }, {
-        imgUrl: "./../static/film_music_books.jpg",
-        name: "Film, Music and Books",
-        selected: false
-      }, {
-        imgUrl: "./../static/food_drink.jpg",
-        name: "Food and drink",
-        selected: false
-      }]
+      categoryItems: []
     }
   },
   mounted() {
     console.log("app ready");
     this.userProfile = this.$parent.$data.user;
-
+    if (this.userProfile.type === window.meebidConstant.userType.member){
+      this.userProfileForm = this.userProfile;
+      var categoryItems = this.$parent.$data.categories;
+      var selectedItems = this.userProfileForm && this.userProfileForm.favorCategories ? this.userProfileForm.favorCategoriessplit(";") : [];
+      for (var i = 0; i < categoryItems.length; i++){
+        for (var j = 0; j < selectedItems.length; j++){
+          if (pasreInt(selectedItems[j]) === categoryItems[i].id){
+            categoryItems[i].selected = true;
+            break;
+          }
+        }
+        categoryItems[i].selected = false;
+      }
+      this.categoryItems = categoryItems;
+    } 
+    if (this.userProfile.type === window.meebidConstant.userType.member && (this.userProfile.favorCategories === "" || this.userProfile.favorCategories === null || this.userProfile.favorCategories === undefined)){
+      //this.$refs.categoryDialog.categoryDialogVisible = true;
+    }
     
     this.$refs.homePageListContainer.addItem({
       height: "",

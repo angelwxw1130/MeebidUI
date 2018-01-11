@@ -856,7 +856,6 @@ export default {
         url: "/api/user/register",
         contentType : "application/json", 
         context: this,
-        processData: false,
         data: JSON.stringify({
           email: this.form.email,
           password: this.form.password,

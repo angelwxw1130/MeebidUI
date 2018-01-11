@@ -44,14 +44,18 @@
         @select="handleSelect"
         background-color="#e6e6e6"
         >
-          <el-menu-item index="memberProfile">
-            <i class="el-icon-menu"></i>
-            <span slot="title" class="meebidAdminMenuLabel">User Profile</span>
-          </el-menu-item>
-          <el-menu-item index="houseProfile">
-            <i class="el-icon-menu"></i>
-            <span slot="title" class="meebidAdminMenuLabel">House Auction Information</span>
-          </el-menu-item>
+          <template v-if="userProfile.type === userType.member">
+            <el-menu-item index="memberProfile">
+              <i class="el-icon-menu"></i>
+              <span slot="title" class="meebidAdminMenuLabel">User Profile</span>
+            </el-menu-item>
+          </template>
+          <template v-if="userProfile.type === userType.house">
+            <el-menu-item index="houseProfile">
+              <i class="el-icon-menu"></i>
+              <span slot="title" class="meebidAdminMenuLabel">House Auction Information</span>
+            </el-menu-item>
+          </template>
           <el-menu-item index="message">
             <i class="el-icon-setting"></i>
             <span slot="title" class="meebidAdminMenuLabel">Messages</span>
@@ -128,8 +132,8 @@
               <div class="meebidRegisterHeaderLabel">You can update your Auction House Information here.</div>
               <el-form ref="houseProfileForm" :model="houseProfileForm" label-width="150px" class="meebidHouseProfileForm">
                 <el-form-item label="Contact User Name">
-                  <el-input v-model="houseProfileForm.firstName" class="meebidUserProfileUserName" placeholder="Please input First Name"></el-input>
-                  <el-input v-model="houseProfileForm.lastName" class="meebidUserProfileUserName" placeholder="Please input Last Name"></el-input>
+                  <el-input v-model="houseProfileForm.firstName" class="meebidUserProfileUserName meebidFormFieldSmallLength" placeholder="Please input First Name"></el-input>
+                  <el-input v-model="houseProfileForm.lastName" class="meebidUserProfileUserName meebidFormFieldSmallLength" placeholder="Please input Last Name"></el-input>
                 </el-form-item>
                 <el-form-item label="Contact Cellphone">
                   <el-input v-model="houseProfileForm.cellphone" placeholder="Please input Cellphone"></el-input>
@@ -204,6 +208,7 @@ import $ from 'jquery'
 export default {
   data () {
     return {
+      userType: window.meebidConstant.userType,
       loginUser: loginUtils.getLoginUser(),
       active: "memberProfile",
       isProfilePage: true,
@@ -315,6 +320,32 @@ export default {
     openUserProfile() {
       window.open("./admin.html", '_blank');
     },
+    buildRequest() {
+      if (this.userProfile.type === this.userType.member) {
+        return {
+          topRegion: this.userProfile.topRegion,
+          avatar: this.userProfile.avatar,
+          firstName: this.userProfile.firstName,
+          lastName: this.userProfile.lastName,
+          favorCategories: this.userProfile.favorCategories,
+          cellphone: this.userProfile.cellphone,
+          email: this.userProfile.email
+        }
+      } else if (this.userProfile.type === this.userType.house) {
+        return {
+          topRegion: this.userProfile.topRegion,
+          firstName: this.userProfile.firstName,
+          lastName: this.userProfile.lastName,
+          contact: this.userProfile.contact,
+          cellphone: this.userProfile.cellphone,
+          email: this.userProfile.email,
+          logo: this.userProfile.logo,
+          idUrl: this.userProfile.idUrl,
+          blicenseUrl: this.userProfile.blicenseUrl,
+          qualiDocUrl: this.userProfile.qualiDocUrl
+        }
+      }
+    },
     onUpdateProfile() {
       var categoryItems = this.categoryItems || [];
       var selectedItems = []
@@ -331,8 +362,10 @@ export default {
         url: "/api/user/profile",
         contentType : "application/json", 
         context: this,
-        processData: false,
-        data: JSON.stringify(this.userProfile),
+        headers: {
+          token: this.loginUser.token
+        },
+        data: JSON.stringify(this.buildRequest()),
         success(data) {
           if (data.code === 1){
             this.$notify({
