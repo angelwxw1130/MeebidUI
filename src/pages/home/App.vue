@@ -133,7 +133,7 @@ export default {
       this.categoryItems = categoryItems;
     } 
     if (this.userProfile.type === window.meebidConstant.userType.member && (this.userProfile.favorCategories === "" || this.userProfile.favorCategories === null || this.userProfile.favorCategories === undefined)){
-      //this.$refs.categoryDialog.categoryDialogVisible = true;
+      this.$refs.categoryDialog.categoryDialogVisible = true;
     }
     
     this.$refs.homePageListContainer.addItem({

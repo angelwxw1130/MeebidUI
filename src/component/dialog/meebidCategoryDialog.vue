@@ -16,6 +16,9 @@
 </template>
 
 <script>
+  import meebidUtils from './../../utils/meebidUtils'
+  import $ from 'jquery'
+  import loginUtils from './../../utils/loginUtils'
   export default {
     name: 'meebid-category-dialog',
     props: {
@@ -63,41 +66,45 @@
           if (this.isProfilePage){
             this.categoryDialogVisible = false;
           } else {
-            /**
+            var favorCategories = meebidUtils.buildCategoryItemStr(this.items);
             $.ajax({  
-              url : "/api/user/login",  
+              url : "/api/user/profile",  
               type : 'POST',  
               data : JSON.stringify({  
-                email : email,  
-                password : password  
+                favorCategories: favorCategories
               }),
+              headers: {
+                token: loginUtils.getLoginUser().token
+              },
               context: this,
               contentType : "application/json", 
               success : function(data) {
                 if (data.code == '1'){
-                  let currentDate = new Date()
-                  currentDate.setTime(currentDate.getTime() + data.content.expiredAt * 1000)
-                  loginUtils.setLoginUser({
-                    expireTime: currentDate.getTime(),
-                    token: data.content.token
+                  this.$notify({
+                    title: 'Success',
+                    message: 'Update Favor Categories successful',
+                    duration: 5000
                   })
-                  this.$refs.loginFormRef.resetFields()
+                  this.categoryDialogVisible = false;
                 } else {  
                   this.$notify({
                     title: 'Failure',
-                    message: 'Login failed',
+                    message: 'Update Favor Categories failed',
                     duration: 5000
                   })
                 }
-                window.location.reload()
 
               },  
               error : function(data) {  
-                alert(data);  
+                this.$notify({
+                  title: 'Failure',
+                  message: 'Update Favor Categories failed',
+                  duration: 5000
+                })  
               },  
               dataType : 'json' 
             })  
-            */
+            
           }
         }         
       }

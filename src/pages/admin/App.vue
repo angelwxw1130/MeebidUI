@@ -204,6 +204,7 @@
 
 <script>
 import loginUtils from './../../utils/loginUtils'
+import meebidUtils from './../../utils/meebidUtils'
 import $ from 'jquery'
 export default {
   data () {
@@ -347,15 +348,7 @@ export default {
       }
     },
     onUpdateProfile() {
-      var categoryItems = this.categoryItems || [];
-      var selectedItems = []
-      
-      for (var i = 0; i < categoryItems.length; i++){
-        if (categoryItems[i].selected){
-          selectedItems.push(categoryItems[i].id);
-        }
-      }
-      var favorCategories = selectedItems.join(";");
+      var favorCategories = meebidUtils.buildCategoryItemStr(this.categoryItems);
       this.userProfile.favorCategories = favorCategories;
       $.ajax({
         type: "POST",
