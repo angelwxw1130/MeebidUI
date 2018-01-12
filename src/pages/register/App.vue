@@ -15,10 +15,10 @@
           <div class="meebidRegisterHeaderLabel">Existing MEEBID.COM members, please sign in with your email address and password here.</div>
           <el-form ref="loginForm" status-icon :rules="loginFormRules" :model="loginForm" label-width="150px">
             <el-form-item label="Email" prop="email">
-              <el-input v-model="loginForm.email" auto-complete="off"></el-input>
+              <el-input v-model="loginForm.email" auto-complete="new-password"></el-input>
             </el-form-item>
             <el-form-item label="Password" prop="password">
-              <el-input v-model="loginForm.password" type="password" auto-complete="off"></el-input>
+              <el-input v-model="loginForm.password" type="password" auto-complete="new-password"></el-input>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="onLogin">LOGGED IN</el-button>
@@ -36,13 +36,13 @@
               </el-radio-group>
             </el-form-item>
             <el-form-item label="Email" prop="email">
-              <el-input v-model="form.email" auto-complete="off"></el-input>
+              <el-input v-model="form.email" auto-complete="new-password"></el-input>
             </el-form-item>
             <el-form-item label="Password" prop="password">
-              <el-input v-model="form.password" type="password" @change="onPasswordChange" auto-complete="off"></el-input>
+              <el-input v-model="form.password" type="password" auto-complete="new-password"></el-input>
             </el-form-item>
             <el-form-item label="Confirm Password" prop="confirmPassword">
-              <el-input v-model="form.confirmPassword" type="password" @change="onConfirmPasswordChange" auto-complete="off"></el-input>
+              <el-input v-model="form.confirmPassword" type="password" auto-complete="new-password"></el-input>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="onSubmit">REGISTER & CONTINUE</el-button>
@@ -792,7 +792,7 @@ export default {
       },
       formRules: {
         email: [
-          { required: true, message: 'Please input email', trigger: 'blur' }          
+          { required: true, message: 'Please input email', trigger: 'change' }          
         ],
         password: [
           { required: true, message: 'Please input password.', trigger: 'change' },
@@ -806,7 +806,22 @@ export default {
     }
   },
   mounted() {
+    var me = this;
     console.log("Register Page Ready");
+    setTimeout(function(){
+      me.loginForm = {
+        email: "",
+        password: ""
+      };
+      me.form = {
+        type: "member",
+        email: "",
+        password: "",
+        confirmPassword: ""
+      };
+      me.$refs.loginForm.resetFields();
+      me.$refs.form.resetFields();
+    }, 200);
   },
 
   methods: {
@@ -865,11 +880,12 @@ export default {
           this.$notify({
             title: 'Success',
             message: 'Register successful',
-            duration: 5000
+            duration: 5000,
+            type: "success"
           })
         },
         error() {
-          this.$notify({
+          this.$notify.error({
             title: 'Failure',
             message: 'Register failure',
             duration: 5000
@@ -878,12 +894,6 @@ export default {
       }).done(function(){
         console.log("register done");
       });
-    },
-    onPasswordChange() {
-
-    },
-    onConfirmPasswordChange() {
-
     },
     showTermConditionDialog() {
       this.ruleDialogVisible = true;

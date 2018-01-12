@@ -827,6 +827,10 @@ body {
 .meebidAdminMenuLabel {
   font-weight: bold;
 }
+
+.meebidUserProfileFormWrapper .el-form, .meebidHouseProfileFormWrapper .el-form {
+  min-width: 750px;
+}
 /**
   Admin Page End
   */

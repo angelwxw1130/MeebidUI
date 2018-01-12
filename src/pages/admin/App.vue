@@ -24,7 +24,7 @@
       <div class="meebidHeaderButtonToolbar">
         <meebid-button wrapper-cls="homeWrapper" button-type="round" text="Home" :button-click="redirectToHome">
         </meebid-button>
-        <meebid-button icon-type="user" button-type="round" :text="loginUser.userId" :button-click="openUserProfile">
+        <meebid-button icon-type="user" button-type="round" :text="userProfile.firstName" :button-click="openUserProfile">
         </meebid-button>
         <meebid-button icon-type="bell" button-type="round" ref="hintButton" data-role="trigger" :button-click="openCategoryDialog">
         </meebid-button>
@@ -90,6 +90,7 @@
               <el-form ref="userProfileForm" :rules="userProfileFormRules" :model="userProfileForm" label-width="150px" class="meebidPaddingTopMedium">
                 <el-form-item label="Email" prop="email">
                   <el-input v-model="userProfileForm.email" class="meebidFormFieldMediumLength" placeholder="Please input email address"></el-input>
+                  <el-button type="primary" size="small" @click="onRevalidate">RE-VALIDATE</el-button>
                 </el-form-item>
                 <el-form-item label="Contact User Name">
                   <el-input v-model="userProfileForm.firstName" class="meebidUserProfileUserName meebidFormFieldSmallLength" placeholder="Please input First Name"></el-input>
@@ -140,6 +141,7 @@
                 </el-form-item>
                 <el-form-item label="Email">
                   <el-input v-model="houseProfileForm.email" placeholder="Please input email address"></el-input>
+                  <el-button type="primary" size="small" @click="onRevalidate">RE-VALIDATE</el-button>
                 </el-form-item>
                 <el-form-item label="Country">
                   <el-select v-model="houseProfileForm.country" placeholder="Select...">
@@ -275,24 +277,27 @@ export default {
   },
   mounted() {
     console.log("Profile App ready");
-    this.userProfile = this.$parent.$data.user;
-    if (this.userProfile.type === window.meebidConstant.userType.member){
-      this.userProfileForm = this.userProfile;
-      var categoryItems = this.$parent.$data.categories;
-      var selectedItems = this.userProfileForm && this.userProfileForm.favorCategories ? this.userProfileForm.favorCategoriessplit(";") : [];
-      for (var i = 0; i < categoryItems.length; i++){
-        for (var j = 0; j < selectedItems.length; j++){
-          if (pasreInt(selectedItems[j]) === categoryItems[i].id){
-            categoryItems[i].selected = true;
-            break;
+    if (this.$parent.$data && this.$parent.$data.user){
+      this.userProfile = this.$parent.$data.user;
+      if (this.userProfile.type === window.meebidConstant.userType.member){
+        this.userProfileForm = this.userProfile;
+        var categoryItems = this.$parent.$data.categories;
+        var selectedItems = this.userProfileForm && this.userProfileForm.favorCategories ? this.userProfileForm.favorCategoriessplit(";") : [];
+        for (var i = 0; i < categoryItems.length; i++){
+          for (var j = 0; j < selectedItems.length; j++){
+            if (pasreInt(selectedItems[j]) === categoryItems[i].id){
+              categoryItems[i].selected = true;
+              break;
+            }
           }
+          categoryItems[i].selected = false;
         }
-        categoryItems[i].selected = false;
+        this.categoryItems = categoryItems;
+      } else if (this.userProfile.type === window.meebidConstant.userType.house){
+        this.houseProfileForm = this.userProfile;
       }
-      this.categoryItems = categoryItems;
-    } else {
-      this.houseProfileForm = this.userProfile;
     }
+    
 
   },
 
@@ -363,11 +368,12 @@ export default {
           if (data.code === 1){
             this.$notify({
               title: 'Success',
+              type: 'success',
               message: 'Update successful',
               duration: 5000
             })
           } else {
-            this.$notify({
+            this.$notify.error({
               title: 'Failure',
               message: 'Update failure',
               duration: 5000
@@ -376,7 +382,7 @@ export default {
           
         },
         error() {
-          this.$notify({
+          this.$notify.error({
             title: 'Failure',
             message: 'Update failure',
             duration: 5000
@@ -384,6 +390,45 @@ export default {
         }
       }).done(function(){
         console.log("Update Profile done");
+      });
+    },
+    onRevalidate() {
+      $.ajax({
+        type: "POST",
+        url: "/api/user/revalidate",
+        contentType : "application/json", 
+        context: this,
+        headers: {
+          token: this.loginUser.token
+        },
+        data: JSON.stringify({
+          email: this.userProfile.email
+        }),
+        success(data) {
+          if (data.code === 1){
+            this.$notify({
+              title: 'Success',
+              message: data.msg,
+              duration: 5000
+            })
+          } else {
+            this.$notify({
+              title: 'Failure',
+              message: data.msg,
+              duration: 5000
+            })
+          }
+          
+        },
+        error() {
+          this.$notify({
+            title: 'Failure',
+            message: 'Re-send Validation Email failure',
+            duration: 5000
+          })
+        }
+      }).done(function(){
+        console.log("Re-send Validation Email done");
       });
     }
   }

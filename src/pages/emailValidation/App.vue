@@ -66,7 +66,7 @@ export default {
           })
         } else {
           this.loading = false;
-          this.$notify({
+          this.$notify.error({
             title: 'Failure',
             message: 'Validation failure, please check your validation url.',
             duration: 5000
@@ -80,7 +80,7 @@ export default {
       },  
       error : function(data) {
         this.validateionForm.code = "";
-        this.$notify({
+        this.$notify.error({
           title: 'Failed',
           message: 'Validation failure, please check your validation url.',
           duration: 5000

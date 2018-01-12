@@ -116,25 +116,29 @@ export default {
   },
   mounted() {
     console.log("app ready");
-    this.userProfile = this.$parent.$data.user;
-    if (this.userProfile.type === window.meebidConstant.userType.member){
-      this.userProfileForm = this.userProfile;
-      var categoryItems = this.$parent.$data.categories;
-      var selectedItems = this.userProfileForm && this.userProfileForm.favorCategories ? this.userProfileForm.favorCategoriessplit(";") : [];
-      for (var i = 0; i < categoryItems.length; i++){
-        for (var j = 0; j < selectedItems.length; j++){
-          if (pasreInt(selectedItems[j]) === categoryItems[i].id){
-            categoryItems[i].selected = true;
-            break;
+    
+    if (this.$parent.$data && this.$parent.$data.user){
+      this.userProfile = this.$parent.$data.user;
+      if (this.userProfile.type === window.meebidConstant.userType.member){
+        this.userProfileForm = this.userProfile;
+        var categoryItems = this.$parent.$data.categories;
+        var selectedItems = this.userProfileForm && this.userProfileForm.favorCategories ? this.userProfileForm.favorCategoriessplit(";") : [];
+        for (var i = 0; i < categoryItems.length; i++){
+          for (var j = 0; j < selectedItems.length; j++){
+            if (pasreInt(selectedItems[j]) === categoryItems[i].id){
+              categoryItems[i].selected = true;
+              break;
+            }
           }
+          categoryItems[i].selected = false;
         }
-        categoryItems[i].selected = false;
+        this.categoryItems = categoryItems;
+      } 
+      if (this.userProfile.type === window.meebidConstant.userType.member && (this.userProfile.favorCategories === "" || this.userProfile.favorCategories === null || this.userProfile.favorCategories === undefined)){
+        this.$refs.categoryDialog.categoryDialogVisible = true;
       }
-      this.categoryItems = categoryItems;
-    } 
-    if (this.userProfile.type === window.meebidConstant.userType.member && (this.userProfile.favorCategories === "" || this.userProfile.favorCategories === null || this.userProfile.favorCategories === undefined)){
-      this.$refs.categoryDialog.categoryDialogVisible = true;
     }
+    
     
     this.$refs.homePageListContainer.addItem({
       height: "",
@@ -291,7 +295,7 @@ export default {
             })
             this.$refs.loginFormRef.resetFields()
           } else {  
-            this.$notify({
+            this.$notify.error({
               title: 'Failure',
               message: 'Login failed',
               duration: 5000
