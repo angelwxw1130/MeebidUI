@@ -47,7 +47,7 @@ export default {
     console.log("Email Validateion Page Ready");
     this.loading = true;
     var paramterStr = window.location.search;
-    var code = urlUtils.getParameter('code');
+    var code = urlUtils.getUrlParameter('code');
     $.ajax({  
       url : "/api/user/activate",  
       type : 'POST',  
@@ -64,6 +64,10 @@ export default {
             expireTime: currentDate.getTime(),
             token: data.content.token
           })
+          this.loadingText = "Validation Successful, will redirect to Home page in 3 seconds"
+          setTimeout(function(){
+            window.location.href = "./home.html";
+          }, 1000);
         } else {
           this.loading = false;
           this.$notify.error({
@@ -73,10 +77,7 @@ export default {
           })
         }
 
-        this.loadingText = "Validation Successful, will redirect to Home page in 3 seconds"
-        setTimeout(function(){
-          window.location.href = "./home.html";
-        }, 1000);
+        
       },  
       error : function(data) {
         this.validateionForm.code = "";
@@ -93,6 +94,9 @@ export default {
   methods: {
     onValidate() {
       
+    },
+    redirectToHome() {
+      window.location.href = "./home.html";
     }
   }
 }

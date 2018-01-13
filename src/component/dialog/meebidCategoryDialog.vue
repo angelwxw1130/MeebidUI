@@ -2,9 +2,9 @@
   <el-dialog title="Category" :visible.sync="categoryDialogVisible" width="800px" :show-close="false" :close-on-click-modal="false" :close-on-press-escape="false">
     <div class="categoryDialogInfoLabel">Please select at least one interested category</div>
     <div class="categoryDialogItemsWrapper">
-      <div v-for="(item,index) in items" :class="{selected:items[index].selected===true}" class="meebidCategoryItem" @click="selectItem(item, index)">
+      <div v-for="(item,index) in items" :class="{selected:items[index].selected===true}" :title="item.description" class="meebidCategoryItem" @click="selectItem(item, index)">
         <img class="meebidCategoryItemImage" :src="item.imgUrl">
-        <span class="meebidCategoryItemLabel">{{item.name}}</span>
+        <span class="meebidCategoryItemLabel" >{{item.description}}</span>
         <div class="meebidCategoryItemMask"></div>
       </div>
     </div>

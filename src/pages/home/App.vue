@@ -58,10 +58,10 @@
         <div class="meebidLoginDialogLabel">Returning User</div>
         <el-form ref="loginFormRef" :rules="loginFormRules" class="meebidLoginDialogForm" :model="loginForm" label-width="0px">
           <el-form-item prop="email">
-            <el-input v-model="loginForm.email" placeholder="Please input email address" auto-complete="off"></el-input>
+            <el-input v-model="loginForm.email" placeholder="Please input email address" auto-complete="new-password"></el-input>
           </el-form-item>
           <el-form-item prop="password">
-            <el-input v-model="loginForm.password" type="password" placeholder="Please input password" auto-complete="off"></el-input>
+            <el-input v-model="loginForm.password" type="password" placeholder="Please input password" auto-complete="new-password"></el-input>
           </el-form-item>
         </el-form>
 
@@ -122,15 +122,15 @@ export default {
       if (this.userProfile.type === window.meebidConstant.userType.member){
         this.userProfileForm = this.userProfile;
         var categoryItems = this.$parent.$data.categories;
-        var selectedItems = this.userProfileForm && this.userProfileForm.favorCategories ? this.userProfileForm.favorCategoriessplit(";") : [];
+        var selectedItems = this.userProfileForm && this.userProfileForm.favorCategories ? this.userProfileForm.favorCategories.split(";") : [];
         for (var i = 0; i < categoryItems.length; i++){
+          categoryItems[i].selected = false;
           for (var j = 0; j < selectedItems.length; j++){
-            if (pasreInt(selectedItems[j]) === categoryItems[i].id){
+            if (parseInt(selectedItems[j]) === categoryItems[i].id){
               categoryItems[i].selected = true;
               break;
             }
           }
-          categoryItems[i].selected = false;
         }
         this.categoryItems = categoryItems;
       } 

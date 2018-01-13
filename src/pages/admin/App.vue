@@ -24,7 +24,7 @@
       <div class="meebidHeaderButtonToolbar">
         <meebid-button wrapper-cls="homeWrapper" button-type="round" text="Home" :button-click="redirectToHome">
         </meebid-button>
-        <meebid-button icon-type="user" button-type="round" :text="userProfile.firstName" :button-click="openUserProfile">
+        <meebid-button icon-type="user" button-type="round" :text="firstName" :button-click="openUserProfile">
         </meebid-button>
         <meebid-button icon-type="bell" button-type="round" ref="hintButton" data-role="trigger" :button-click="openCategoryDialog">
         </meebid-button>
@@ -89,16 +89,16 @@
               <div class="meebidRegisterHeaderLabel">You can update your Profile Information here.</div>
               <el-form ref="userProfileForm" :rules="userProfileFormRules" :model="userProfileForm" label-width="150px" class="meebidPaddingTopMedium">
                 <el-form-item label="Email" prop="email">
-                  <el-input v-model="userProfileForm.email" class="meebidFormFieldMediumLength" placeholder="Please input email address"></el-input>
-                  <el-button type="primary" size="small" @click="onRevalidate">RE-VALIDATE</el-button>
+                  <el-input readonly v-model="userProfileForm.email" class="meebidFormFieldMediumLength" placeholder="Please input email address"></el-input>
+                  <el-button class="meebidFormFieldRevalidateButton" type="primary" size="small" ref="memberRevalidate" :disabled="memberRevalidateButtonDisabled" @click="onMemberRevalidate">{{revalidateMemberLabel}}</el-button>
                 </el-form-item>
                 <el-form-item label="Contact User Name">
                   <el-input v-model="userProfileForm.firstName" class="meebidUserProfileUserName meebidFormFieldSmallLength" placeholder="Please input First Name"></el-input>
                   <el-input v-model="userProfileForm.lastName" class="meebidUserProfileUserName meebidFormFieldSmallLength" placeholder="Please input Last Name"></el-input>
                 </el-form-item>
-                <el-form-item label="Contact Cellphone">
+                <!--<el-form-item label="Contact Cellphone">
                   <el-input v-model="userProfileForm.cellphone" class="meebidFormFieldMediumLength" placeholder="Please input Cellphone"></el-input>
-                </el-form-item>               
+                </el-form-item>-->          
                 <el-form-item label="Region" prop="topRegion">
                   <el-select v-model="userProfileForm.topRegion" placeholder="Select...">
                     <el-option
@@ -112,9 +112,9 @@
                 <el-form-item label="Favourite Category">
                   <el-button size="small" type="primary" @click="openCategoryDialog"><i class="el-icon-edit"></i> Click to change Favourite Categories</el-button>
                   <div class="meebidCategorySelectItemInForm">
-                    <div v-for="(item,index) in categoryItems" v-if="item.selected===true" class="meebidCategoryItem">
+                    <div v-for="(item,index) in categoryItems" v-if="item.selected===true" :title="item.description" class="meebidCategoryItem">
                       <img class="meebidCategoryItemImage" :src="item.imgUrl">
-                      <span class="meebidCategoryItemLabel">{{item.name}}</span>
+                      <span class="meebidCategoryItemLabel">{{item.description}}</span>
                       <div class="meebidCategoryItemMask"></div>
                     </div>
                   </div>
@@ -211,8 +211,11 @@ import $ from 'jquery'
 export default {
   data () {
     return {
+      revalidateMemberLabel: "RE-VALIDATE",
       userType: window.meebidConstant.userType,
       loginUser: loginUtils.getLoginUser(),
+      memberRevalidateButtonDisabled: false,
+      firstName: "",
       active: "memberProfile",
       isProfilePage: true,
       regionOptions: [{
@@ -282,20 +285,21 @@ export default {
       if (this.userProfile.type === window.meebidConstant.userType.member){
         this.userProfileForm = this.userProfile;
         var categoryItems = this.$parent.$data.categories;
-        var selectedItems = this.userProfileForm && this.userProfileForm.favorCategories ? this.userProfileForm.favorCategoriessplit(";") : [];
+        var selectedItems = this.userProfileForm && this.userProfileForm.favorCategories ? this.userProfileForm.favorCategories.split(";") : [];
         for (var i = 0; i < categoryItems.length; i++){
+          categoryItems[i].selected = false;
           for (var j = 0; j < selectedItems.length; j++){
-            if (pasreInt(selectedItems[j]) === categoryItems[i].id){
+            if (parseInt(selectedItems[j]) === categoryItems[i].id){
               categoryItems[i].selected = true;
               break;
             }
           }
-          categoryItems[i].selected = false;
         }
         this.categoryItems = categoryItems;
       } else if (this.userProfile.type === window.meebidConstant.userType.house){
         this.houseProfileForm = this.userProfile;
       }
+      this.firstName = this.userProfile.firstName;
     }
     
 
@@ -372,6 +376,7 @@ export default {
               message: 'Update successful',
               duration: 5000
             })
+            this.firstName = this.userProfile.firstName;
           } else {
             this.$notify.error({
               title: 'Failure',
@@ -392,6 +397,59 @@ export default {
         console.log("Update Profile done");
       });
     },
+    onMemberRevalidate() {
+      this.memberRevalidateButtonDisabled = true;
+      $.ajax({
+        type: "POST",
+        url: "/api/user/revalidate",
+        contentType : "application/json", 
+        context: this,
+        headers: {
+          token: this.loginUser.token
+        },
+        data: JSON.stringify({
+          email: this.userProfile.email
+        }),
+        success(data) {
+          if (data.code === 1){
+            this.$notify({
+              type: 'success',
+              title: 'Success',
+              message: data.msg,
+              duration: 5000
+            })
+          } else {
+            this.$notify.error({
+              title: 'Failure',
+              message: data.msg,
+              duration: 5000
+            })
+          }
+          
+        },
+        error() {
+          this.$notify.error({
+            title: 'Failure',
+            message: 'Re-send Validation Email failure',
+            duration: 5000
+          })
+        }
+      }).done(function(){
+        console.log("Re-send Validation Email done");
+      });
+      var count = 60;
+      var me = this;
+      var interval = setInterval(function(){
+        if (count === 0){
+          me.revalidateMemberLabel = "RE-VALIDATE";
+          me.memberRevalidateButtonDisabled = false;
+          window.clearInterval(interval);
+          return;
+        }
+        me.revalidateMemberLabel = (count-- - 1) + 's';
+        
+      }, 1000);
+    },
     onRevalidate() {
       $.ajax({
         type: "POST",
@@ -407,12 +465,13 @@ export default {
         success(data) {
           if (data.code === 1){
             this.$notify({
+              type: 'success',
               title: 'Success',
               message: data.msg,
               duration: 5000
             })
           } else {
-            this.$notify({
+            this.$notify.error({
               title: 'Failure',
               message: data.msg,
               duration: 5000
@@ -421,7 +480,7 @@ export default {
           
         },
         error() {
-          this.$notify({
+          this.$notify.error({
             title: 'Failure',
             message: 'Re-send Validation Email failure',
             duration: 5000

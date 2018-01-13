@@ -630,10 +630,14 @@ body {
   color: #ffffff;
   font-size: 24px;
   font-weight: bold;
+  line-height: 28px;
   max-width: 125px;
   bottom: 15px;
   left: 15px;
   z-index: 2;
+  white-space: normal;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .meebidCategoryItemMask {
@@ -830,6 +834,10 @@ body {
 
 .meebidUserProfileFormWrapper .el-form, .meebidHouseProfileFormWrapper .el-form {
   min-width: 750px;
+}
+
+.meebidFormFieldRevalidateButton {
+  width: 120px;
 }
 /**
   Admin Page End
