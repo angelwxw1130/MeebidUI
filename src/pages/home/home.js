@@ -2,8 +2,10 @@ import Vue from 'vue'
 import ElementUI from 'element-ui'
 import jquery from 'jquery'
 import 'element-ui/lib/theme-chalk/index.css'
+import './../../meebidTheme/index.css'
 import './../../meebid.css'
 import './../../bootstrap-3.3.7-dist/css/bootstrap.min.css'
+import meebidConstant from './../../constant/meebidConstants'
 import MeebidButton from './../../component/button/meebidButton.vue'
 import MeebidTypeahead from './../../component/typeahead/meebidTypeahead.vue'
 import MeebidSearchTypeahead from './../../component/typeahead/meebidSearchTypeahead.vue'
@@ -15,10 +17,11 @@ import MeebidCategoryDialog from './../../component/dialog/meebidCategoryDialog.
 import App from './App.vue'
 import loginUtils from './../../utils/loginUtils'
 import errorUtils from './../../utils/errorUtils'
-import { MessageBox } from 'element-ui';
-import meebidConstant from './../../constant/meebidConstants'
+import { MessageBox } from 'element-ui'
+import locale from 'element-ui/lib/locale/lang/en'
 
-Vue.use(ElementUI)
+
+Vue.use(ElementUI, {locale});
 Vue.component(MeebidButton.name, MeebidButton);
 Vue.component(MeebidDropdown.name, MeebidDropdown);
 Vue.component(MeebidTypeahead.name, MeebidTypeahead);

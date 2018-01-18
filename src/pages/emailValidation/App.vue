@@ -67,7 +67,7 @@ export default {
           this.loadingText = "Validation Successful, will redirect to Home page in 3 seconds"
           setTimeout(function(){
             window.location.href = "./home.html";
-          }, 1000);
+          }, 3000);
         } else {
           this.loading = false;
           this.$notify.error({

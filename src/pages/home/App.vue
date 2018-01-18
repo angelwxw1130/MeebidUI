@@ -31,8 +31,10 @@
           </meebid-button>
         </template>
         <template v-else>
-          <meebid-button icon-type="user" button-type="round" :text="userProfile.firstName" :button-click="openUserProfile">
-          </meebid-button>
+          <el-tooltip v-model="profileTooltipVisible" class="item" effect="light" content="Please update your personal information first" placement="bottom" :disabled="profileTooltipEnabled">
+            <meebid-button icon-type="user" button-type="round" :text="userProfile.firstName" :button-click="openUserProfile">
+            </meebid-button>
+          </el-tooltip>
           <meebid-button icon-type="bell" button-type="round" ref="hintButton" data-role="trigger" :button-click="openCategoryDialog">
           </meebid-button>
           <meebid-button icon-type="menu-hamburger" button-type="round" :button-click="showAlert" >
@@ -94,6 +96,8 @@ export default {
   },
   data () {
     return {
+      profileTooltipVisible: false,
+      profileTooltipEnabled: false,
       loginUser: loginUtils.getLoginUser(),
       userProfile: {
       },
@@ -105,10 +109,10 @@ export default {
       },
       loginFormRules: {
         email: [
-          { required: true, message: 'Please input email', trigger: 'change' }          
+          { required: true, message: 'Please input email', trigger: 'blur' }          
         ],
         password: [
-          { required: true, message: 'Please input password', trigger: 'change' }    
+          { required: true, message: 'Please input password', trigger: 'blur' }    
         ],
       },
       categoryItems: []
@@ -136,6 +140,8 @@ export default {
       } 
       if (this.userProfile.type === window.meebidConstant.userType.member && (this.userProfile.favorCategories === "" || this.userProfile.favorCategories === null || this.userProfile.favorCategories === undefined)){
         this.$refs.categoryDialog.categoryDialogVisible = true;
+        this.profileTooltipVisible = true;
+        this.profileTooltipEnabled = true;
       }
     }
     

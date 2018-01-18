@@ -37,7 +37,7 @@
     <div id="content" class="meebidAdminContentWrapper">
       <div class="meebidAdminMenu">
         <el-menu
-        default-active="memberProfile"
+        :default-active="defaultActiveProfile"
         class="el-menu-vertical-demo"
         @open="handleOpen"
         @close="handleClose"
@@ -87,12 +87,12 @@
             <el-col :span="24" class="meebidUserProfileFormWrapper">
               <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">User Profile</div>
               <div class="meebidRegisterHeaderLabel">You can update your Profile Information here.</div>
-              <el-form ref="userProfileForm" :rules="userProfileFormRules" :model="userProfileForm" label-width="150px" class="meebidPaddingTopMedium">
+              <el-form ref="userProfileForm" :rules="userProfileFormRules" :model="userProfileForm" label-width="180px" class="meebidPaddingTopMedium">
                 <el-form-item label="Email" prop="email">
                   <el-input readonly v-model="userProfileForm.email" class="meebidFormFieldMediumLength" placeholder="Please input email address"></el-input>
                   <el-button class="meebidFormFieldRevalidateButton" type="primary" size="small" ref="memberRevalidate" :disabled="memberRevalidateButtonDisabled" @click="onMemberRevalidate">{{revalidateMemberLabel}}</el-button>
                 </el-form-item>
-                <el-form-item label="Contact User Name">
+                <el-form-item label="First Name & Last Name">
                   <el-input v-model="userProfileForm.firstName" class="meebidUserProfileUserName meebidFormFieldSmallLength" placeholder="Please input First Name"></el-input>
                   <el-input v-model="userProfileForm.lastName" class="meebidUserProfileUserName meebidFormFieldSmallLength" placeholder="Please input Last Name"></el-input>
                 </el-form-item>
@@ -131,18 +131,19 @@
             <el-col :span="24" class="meebidHouseProfileFormWrapper">
               <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">Auction House Information</div>
               <div class="meebidRegisterHeaderLabel">You can update your Auction House Information here.</div>
-              <el-form ref="houseProfileForm" :model="houseProfileForm" label-width="150px" class="meebidHouseProfileForm">
-                <el-form-item label="Contact User Name">
+              <el-form ref="houseProfileForm" :model="houseProfileForm" label-width="180px" class="meebidHouseProfileForm">
+                <el-form-item label="Email">
+                  <el-input readonly v-model="houseProfileForm.email" class="meebidFormFieldMediumLength" placeholder="Please input email address"></el-input>
+                  <el-button type="primary" size="small" @click="onRevalidate">RE-VALIDATE</el-button>
+                </el-form-item>
+                <el-form-item label="First Name & Last Name">
                   <el-input v-model="houseProfileForm.firstName" class="meebidUserProfileUserName meebidFormFieldSmallLength" placeholder="Please input First Name"></el-input>
                   <el-input v-model="houseProfileForm.lastName" class="meebidUserProfileUserName meebidFormFieldSmallLength" placeholder="Please input Last Name"></el-input>
                 </el-form-item>
                 <el-form-item label="Contact Cellphone">
                   <el-input v-model="houseProfileForm.cellphone" placeholder="Please input Cellphone"></el-input>
                 </el-form-item>
-                <el-form-item label="Email">
-                  <el-input v-model="houseProfileForm.email" placeholder="Please input email address"></el-input>
-                  <el-button type="primary" size="small" @click="onRevalidate">RE-VALIDATE</el-button>
-                </el-form-item>
+                
                 <el-form-item label="Country">
                   <el-select v-model="houseProfileForm.country" placeholder="Select...">
                     <el-option
@@ -154,37 +155,55 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item label="Bussiness License">
-                  <el-upload
+                  <meebid-upload
                     class="upload-demo"
-                    list-type="picture"
-                    action="https://jsonplaceholder.typicode.com/posts/"
-                    :file-list="houseProfileForm.bussinessLicense" multiple
+                    ref="bLicenseUpload"
+                    field-name="bLicenseUpload"
+                    :multiple="false"
+                    :limit="1"
+                    :on-exceed="handleUploadExceed"
+                    :on-success="handleUploadSuccess"
+                    :on-preview="handlePictureCardPreview"
+                    list-type="picture-card"
+                    :on-error="handleUploadError"
+                    :file-list="houseProfileForm.bLicenseUpload"
                     >
-                    <el-button size="small" type="primary"><i class="el-icon-upload"></i> Click to upload</el-button>
-                    <div class="el-upload__tip" slot="tip">Please upload a file no larger than 1mb</div>
-                  </el-upload>
+                    <i class="el-icon-plus" ></i>
+                  </meebid-upload>
                 </el-form-item>
-                <el-form-item label="Certification of Registed Auction House">
-                  <el-upload
+                <el-form-item class="meebidUserProfileLongLabel" label="Certification of Registed Auction House">
+                  <meebid-upload
                     class="upload-demo"
-                    list-type="picture"
-                    action="https://jsonplaceholder.typicode.com/posts/"
-                    :file-list="houseProfileForm.certification"
+                    ref="qualiDocUpload"
+                    field-name="qualiDocUpload"
+                    :multiple="false"
+                    :limit="1"
+                    :on-exceed="handleUploadExceed"
+                    :on-success="handleUploadSuccess"
+                    :on-preview="handlePictureCardPreview"
+                    list-type="picture-card"
+                    :on-error="handleUploadError"
+                    :file-list="houseProfileForm.qualiDocUpload"
                     >
-                    <el-button size="small" type="primary"><i class="el-icon-upload"></i> Click to upload</el-button>
-                    <div class="el-upload__tip" slot="tip">Please upload a file no larger than 1mb</div>
-                  </el-upload>
+                    <i class="el-icon-plus" ></i>
+                  </meebid-upload>
                 </el-form-item>
-                <el-form-item label="Auction House Representative">
-                  <el-upload
+                <el-form-item class="meebidUserProfileLongLabel" label="Auction House Representative">
+                  <meebid-upload
                     class="upload-demo"
-                    list-type="picture"
-                    action="https://jsonplaceholder.typicode.com/posts/"
-                    :file-list="houseProfileForm.representative"
+                    ref="idUpload"
+                    field-name="idUpload"
+                    :multiple="false"
+                    :limit="1"
+                    :on-exceed="handleUploadExceed"
+                    :on-success="handleUploadSuccess"
+                    :on-preview="handlePictureCardPreview"
+                    list-type="picture-card"
+                    :on-error="handleUploadError"
+                    :file-list="houseProfileForm.idUpload"
                     >
-                    <el-button size="small" type="primary"><i class="el-icon-upload"></i> Click to upload</el-button>
-                    <div class="el-upload__tip" slot="tip">Please upload a file no larger than 1mb</div>
-                  </el-upload>
+                    <i class="el-icon-plus" ></i>
+                  </meebid-upload>
                 </el-form-item>
                 
                 <el-form-item>
@@ -198,6 +217,9 @@
           Message Box
         </div>
       </div>
+      <el-dialog :visible.sync="previewDialogVisible">
+        <img width="100%" :src="previewDialogImageUrl" alt="">
+      </el-dialog>
       <meebid-category-dialog :items="categoryItems" :isProfilePage="isProfilePage" ref="categoryDialog">
       </meebid-category-dialog>
     </div>
@@ -211,6 +233,9 @@ import $ from 'jquery'
 export default {
   data () {
     return {
+      previewDialogVisible: false,
+      previewDialogImageUrl: "",
+      defaultActiveProfile: 'memberProfile',
       revalidateMemberLabel: "RE-VALIDATE",
       userType: window.meebidConstant.userType,
       loginUser: loginUtils.getLoginUser(),
@@ -268,18 +293,14 @@ export default {
         ]
       },
       houseProfileForm: {
-        country: '',
-        bussinessLicense: [{
-          name: 'test.jpeg',
-          url: './../static/diy_crafts.jpg',
-          status: 'finished'
-        }]
       },
       categoryItems: []
     }
   },
-  mounted() {
-    console.log("Profile App ready");
+  watch: {
+
+  },
+  beforeMount() {
     if (this.$parent.$data && this.$parent.$data.user){
       this.userProfile = this.$parent.$data.user;
       if (this.userProfile.type === window.meebidConstant.userType.member){
@@ -297,10 +318,38 @@ export default {
         }
         this.categoryItems = categoryItems;
       } else if (this.userProfile.type === window.meebidConstant.userType.house){
+        if (!this.userProfile.blicenseUrl) {
+          this.userProfile.bLicenseUpload = [];
+        } else {
+          this.userProfile.bLicenseUpload = [{
+              url: this.userProfile.blicenseUrl
+          }];
+        }
+        if (!this.userProfile.qualiDocUrl) {
+          this.userProfile.qualiDocUpload = [];
+        } else {
+          this.userProfile.qualiDocUpload = [{
+              url: this.userProfile.qualiDocUrl
+          }];
+        }
+        if (!this.userProfile.idUrl) {
+          this.userProfile.idUpload = [];
+        } else {
+          this.userProfile.idUpload = [{
+              url: this.userProfile.idUrl
+          }];
+        }
         this.houseProfileForm = this.userProfile;
+        this.defaultActiveProfile = 'houseProfile';
+        this.active = 'houseProfile';
+
       }
       this.firstName = this.userProfile.firstName;
     }
+  },
+  mounted() {
+    console.log("Profile App ready");
+    
     
 
   },
@@ -346,13 +395,13 @@ export default {
           topRegion: this.userProfile.topRegion,
           firstName: this.userProfile.firstName,
           lastName: this.userProfile.lastName,
-          contact: this.userProfile.contact,
+          //contact: this.userProfile.contact,
           cellphone: this.userProfile.cellphone,
-          email: this.userProfile.email,
-          logo: this.userProfile.logo,
-          idUrl: this.userProfile.idUrl,
-          blicenseUrl: this.userProfile.blicenseUrl,
-          qualiDocUrl: this.userProfile.qualiDocUrl
+          //email: this.userProfile.email,
+          //logo: this.userProfile.logo,
+          //idUrl: this.userProfile.idUrl,
+          //blicenseUrl: this.userProfile.blicenseUrl,
+          //qualiDocUrl: this.userProfile.qualiDocUrl
         }
       }
     },
@@ -489,6 +538,26 @@ export default {
       }).done(function(){
         console.log("Re-send Validation Email done");
       });
+    },
+    handleUploadSuccess(response, file, fileList, fieldName) {
+      var res = response;
+      this.userProfile[fieldName] = fileList;
+      
+    },
+    handleUploadError(err, file, fileList) {
+      this.$notify.error({
+        title: 'Failure',
+        message: error,
+        duration: 5000
+      })
+    },
+    handleUploadExceed() {
+      this.$message.warning('You can only upload one image for this field.');
+      
+    },
+    handlePictureCardPreview (file) {
+      this.previewDialogVisible = true;
+      this.previewDialogImageUrl = file.url;
     }
   }
 }

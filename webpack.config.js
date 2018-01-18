@@ -15,7 +15,9 @@ glob.sync('./src/pages/**/**.js').forEach(path => {
   entries[chunk] = path
 })
 
-const plugins = []
+const plugins = [
+  new webpack.NormalModuleReplacementPlugin(/element-ui[\/\\]lib[\/\\]locale[\/\\]lang[\/\\]zh-CN/, 'element-ui/lib/locale/lang/en')
+]
 plugins.push(new webpack.optimize.CommonsChunkPlugin({
   names: ['vendor', 'manifest']
 // }),

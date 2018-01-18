@@ -53,6 +53,16 @@ body {
   color: #ff5242;
 }
 
+.meebid .el-upload-list__item .el-icon-close-tip {
+  color: #ff5242;
+  font-weight: bold;
+}
+
+.meebid .el-upload--picture-card:hover, .meebid .el-upload:focus {
+    border-color: #ff5242;
+    color: #ff5242;
+}
+
 .meebidHomeHeader {
   width: 100%; 
   border-bottom: 1px solid #efefef; 
@@ -714,7 +724,7 @@ body {
 }
 
 .meebidRegisterHeaderLabel {
-  padding-left: 150px;
+  padding-left: 180px;
 }
 
 /**
@@ -838,6 +848,19 @@ body {
 
 .meebidFormFieldRevalidateButton {
   width: 120px;
+}
+
+.meebidUserProfileLongLabel .el-form-item__label{
+  line-height: 20px;
+  padding-top: 10px;
+}
+
+.meebid-upload-overlimit {
+  display: none;
+}
+
+.meebid .el-upload {
+  margin: 0 8px 23px 0;
 }
 /**
   Admin Page End

@@ -754,10 +754,19 @@
 <script>
 import $ from 'jquery'
 import loginUtils from './../../utils/loginUtils'
+import validationUtils from './../../utils/validationUtils'
 export default {
   data () {
+    var validateEmail = (rule, value, callback) => {
+      var regex = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
+
+      if (!value.match(regex)){
+        callback(new Error('Please input correct email.'));
+      }
+      callback();
+    }
     var validatePassword = (rule, value, callback) => {
-      if (this.form.password !== '') {
+      if (this.form.password !== '' && this.form.confirmPassword !== '') {
         this.$refs.form.validateField('confirmPassword');
       }
       callback();
@@ -778,10 +787,10 @@ export default {
       },
       loginFormRules: {
         email: [
-          { required: true, message: 'Please input email', trigger: 'change' }          
+          { required: true, message: 'Please input email', trigger: 'blur' }          
         ],
         password: [
-          { required: true, message: 'Please input password', trigger: 'change' }    
+          { required: true, message: 'Please input password', trigger: 'blur' }    
         ],
       },
       form: {
@@ -792,15 +801,17 @@ export default {
       },
       formRules: {
         email: [
-          { required: true, message: 'Please input email', trigger: 'change' }          
+          { required: true, message: 'Please input email', trigger: 'blur' },
+          { validator: validateEmail, trigger: 'blur'}      
         ],
         password: [
-          { required: true, message: 'Please input password.', trigger: 'change' },
-          { validator: validatePassword, trigger: 'change' }
+          { required: true, message: 'Please input password.', trigger: 'blur' },
+          { min: 6, max: 255, message: 'Password cannot be less than 6 characters', trigger: 'blur' },
+          { validator: validatePassword, trigger: 'blur' }
         ],
         confirmPassword: [
-          { required: true, message: 'Please input password again.', trigger: 'change' },  
-          { validator: validateConfirmPassword, trigger: 'change' }
+          { required: true, message: 'Please input password again.', trigger: 'blur' },
+          { validator: validateConfirmPassword, trigger: 'blur' }
         ]
       }
     }
@@ -879,8 +890,9 @@ export default {
         success() {
           this.$notify({
             title: 'Success',
-            message: 'Register successful',
-            duration: 5000,
+            duration: 0,
+            message: 'Register successful. Please check your email to activate your accout.',
+            showClose: true,
             type: "success"
           })
         },

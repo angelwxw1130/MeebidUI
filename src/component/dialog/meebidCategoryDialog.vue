@@ -79,7 +79,7 @@
               context: this,
               contentType : "application/json", 
               success : function(data) {
-                if (data.code == '1'){
+                /** if (data.code == '1'){
                   this.$notify({
                     title: 'Success',
                     message: 'Update Favor Categories successful',
@@ -92,7 +92,7 @@
                     message: 'Update Favor Categories failed',
                     duration: 5000
                   })
-                }
+                }*/
 
               },  
               error : function(data) {  
