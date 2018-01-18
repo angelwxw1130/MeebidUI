@@ -4,7 +4,7 @@ import Upload from './upload.vue';
 import IframeUpload from './iframe-upload.vue';
 import MeebidProgress from './progress.vue';
 import Vue from 'vue';
-import Migrating from 'element-ui/src/mixins/migrating';
+import Migrating from './migrating';
 Vue.component(MeebidProgress.name, MeebidProgress);
 
 function noop() {}
