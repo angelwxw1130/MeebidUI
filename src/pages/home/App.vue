@@ -31,8 +31,8 @@
           </meebid-button>
         </template>
         <template v-else>
-          <el-tooltip v-model="profileTooltipVisible" class="item" effect="light" content="Please update your personal information first" placement="bottom" :disabled="profileTooltipEnabled">
-            <meebid-button icon-type="user" button-type="round" :text="userProfile.firstName" :button-click="openUserProfile">
+          <el-tooltip v-model="profileTooltipVisible" class="item" effect="light" content="Please update your personal information first" placement="bottom" :disabled="profileTooltipDisabled">
+            <meebid-button icon-type="user" button-type="round" :text="firstName" :button-click="openUserProfile">
             </meebid-button>
           </el-tooltip>
           <meebid-button icon-type="bell" button-type="round" ref="hintButton" data-role="trigger" :button-click="openCategoryDialog">
@@ -97,10 +97,11 @@ export default {
   data () {
     return {
       profileTooltipVisible: false,
-      profileTooltipEnabled: false,
+      profileTooltipDisabled: true,
       loginUser: loginUtils.getLoginUser(),
       userProfile: {
       },
+      firstName: "User",
       loginDialogVisible: false,
       registerDialogVisible: false,
       loginForm: {
@@ -118,9 +119,8 @@ export default {
       categoryItems: []
     }
   },
-  mounted() {
+  beforeMount() {
     console.log("app ready");
-    
     if (this.$parent.$data && this.$parent.$data.user){
       this.userProfile = this.$parent.$data.user;
       if (this.userProfile.type === window.meebidConstant.userType.member){
@@ -141,11 +141,14 @@ export default {
       if (this.userProfile.type === window.meebidConstant.userType.member && (this.userProfile.favorCategories === "" || this.userProfile.favorCategories === null || this.userProfile.favorCategories === undefined)){
         this.$refs.categoryDialog.categoryDialogVisible = true;
         this.profileTooltipVisible = true;
-        this.profileTooltipEnabled = true;
+        this.profileTooltipDisabled = false;
+      }
+      if (this.userProfile.firstName){
+        this.firstName = this.userProfile.firstName;
       }
     }
-    
-    
+  },
+  mounted(){
     this.$refs.homePageListContainer.addItem({
       height: "",
       imageUrl: "./../static/clock1.jpg",

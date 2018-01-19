@@ -240,7 +240,7 @@ export default {
       userType: window.meebidConstant.userType,
       loginUser: loginUtils.getLoginUser(),
       memberRevalidateButtonDisabled: false,
-      firstName: "",
+      firstName: "User",
       active: "memberProfile",
       isProfilePage: true,
       regionOptions: [{
@@ -303,6 +303,9 @@ export default {
   beforeMount() {
     if (this.$parent.$data && this.$parent.$data.user){
       this.userProfile = this.$parent.$data.user;
+      if (this.userProfile.firstName){
+        this.firstName = this.userProfile.firstName;
+      }
       if (this.userProfile.type === window.meebidConstant.userType.member){
         this.userProfileForm = this.userProfile;
         var categoryItems = this.$parent.$data.categories;
@@ -344,7 +347,7 @@ export default {
         this.active = 'houseProfile';
 
       }
-      this.firstName = this.userProfile.firstName;
+      
     }
   },
   mounted() {
@@ -391,18 +394,25 @@ export default {
           email: this.userProfile.email
         }
       } else if (this.userProfile.type === this.userType.house) {
-        return {
+        var returnObj = {
           topRegion: this.userProfile.topRegion,
           firstName: this.userProfile.firstName,
           lastName: this.userProfile.lastName,
-          //contact: this.userProfile.contact,
           cellphone: this.userProfile.cellphone,
           //email: this.userProfile.email,
           //logo: this.userProfile.logo,
-          //idUrl: this.userProfile.idUrl,
-          //blicenseUrl: this.userProfile.blicenseUrl,
-          //qualiDocUrl: this.userProfile.qualiDocUrl
+          //contact: this.userProfile.contact,
+        };
+        if (this.userProfile.bLicenseUpload.length && this.userProfile.bLicenseUpload[0] && this.userProfile.bLicenseUpload[0].rUid){
+          returnObj.blicenseUrl = this.userProfile.bLicenseUpload[0].rUid;
         }
+        if (this.userProfile.qualiDocUpload.length && this.userProfile.qualiDocUpload[0] && this.userProfile.qualiDocUpload[0].rUid){
+          returnObj.qualiDocUrl = this.userProfile.qualiDocUpload[0].rUid;
+        }
+        if (this.userProfile.idUpload.length && this.userProfile.idUpload[0] && this.userProfile.idUpload[0].rUid){
+          returnObj.idUrl = this.userProfile.idUpload[0].rUid;
+        }
+        return returnObj;
       }
     },
     onUpdateProfile() {
@@ -542,7 +552,6 @@ export default {
     handleUploadSuccess(response, file, fileList, fieldName) {
       var res = response;
       this.userProfile[fieldName] = fileList;
-      
     },
     handleUploadError(err, file, fileList) {
       this.$notify.error({

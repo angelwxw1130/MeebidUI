@@ -755,6 +755,7 @@
 import $ from 'jquery'
 import loginUtils from './../../utils/loginUtils'
 import validationUtils from './../../utils/validationUtils'
+import errorUtils from './../../utils/errorUtils'
 export default {
   data () {
     var validateEmail = (rule, value, callback) => {
@@ -762,8 +763,27 @@ export default {
 
       if (!value.match(regex)){
         callback(new Error('Please input correct email.'));
+      } else {
+        $.ajax({  
+          url : "/api/user/email/check?email=" + value,  
+          type : 'GET',  
+          context: this,
+          contentType : "application/json", 
+          dataType : 'json',
+          success : function(data) {
+            if (data.code == '1'){
+              callback();
+            } else {  
+              callback(new Error(data.msg));
+            }
+          },  
+          error : function(data) {  
+            errorUtils.requestError(data);  
+            callback(new Error("Error"));
+          }
+        })  
       }
-      callback();
+      
     }
     var validatePassword = (rule, value, callback) => {
       if (this.form.password !== '' && this.form.confirmPassword !== '') {
@@ -864,11 +884,8 @@ export default {
               message: 'Login failed',
               duration: 5000
             })
-          }
-          window.location.reload()
-
-          
-          //window.location.href = "./home.html"
+          }        
+          window.location.href = "./home.html"
         },  
         error : function(data) {  
           alert(data);  
@@ -877,35 +894,42 @@ export default {
     },
     onSubmit() {
       var me = this;
-      $.ajax({
-        type: "POST",
-        url: "/api/user/register",
-        contentType : "application/json", 
-        context: this,
-        data: JSON.stringify({
-          email: this.form.email,
-          password: this.form.password,
-          type: this.form.type
-        }),
-        success() {
-          this.$notify({
-            title: 'Success',
-            duration: 0,
-            message: 'Register successful. Please check your email to activate your accout.',
-            showClose: true,
-            type: "success"
-          })
-        },
-        error() {
-          this.$notify.error({
-            title: 'Failure',
-            message: 'Register failure',
-            duration: 5000
-          })
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          $.ajax({
+            type: "POST",
+            url: "/api/user/register",
+            contentType : "application/json", 
+            context: this,
+            data: JSON.stringify({
+              email: this.form.email,
+              password: this.form.password,
+              type: this.form.type
+            }),
+            success() {
+              this.$notify({
+                title: 'Success',
+                duration: 0,
+                message: 'Register successful. Please check your email to activate your accout.',
+                showClose: true,
+                type: "success"
+              })
+            },
+            error() {
+              this.$notify.error({
+                title: 'Failure',
+                message: 'Register failure',
+                duration: 5000
+              })
+            }
+          }).done(function(){
+            console.log("register done");
+          });
+        } else {
+          return false;
         }
-      }).done(function(){
-        console.log("register done");
       });
+
     },
     showTermConditionDialog() {
       this.ruleDialogVisible = true;

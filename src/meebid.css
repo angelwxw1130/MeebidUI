@@ -862,6 +862,19 @@ body {
 .meebid .el-upload {
   margin: 0 8px 23px 0;
 }
+
+.meebid .el-upload-list--picture-card .el-upload-list__item-thumbnail {
+  max-width: 146px;
+  max-height: 146px;
+  width: unset;
+  height: unset;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
 /**
   Admin Page End
   */
