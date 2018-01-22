@@ -13,7 +13,7 @@
         <el-col :span="12" class="meebidLoginFormWrapper">
           <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">Returning User</div>
           <div class="meebidRegisterHeaderLabel">Existing MEEBID.COM members, please sign in with your email address and password here.</div>
-          <el-form ref="loginForm" status-icon :rules="loginFormRules" :model="loginForm" label-width="150px">
+          <el-form ref="loginFormRef" status-icon :model="loginForm" label-width="180px">
             <el-form-item label="Email" prop="email">
               <el-input v-model="loginForm.email" auto-complete="new-password"></el-input>
             </el-form-item>
@@ -28,7 +28,7 @@
         <el-col :span="12" class="meebidRegisterFormWrapper">
           <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">New Users</div>
           <div class="meebidRegisterHeaderLabel">Create an account to join Meebid.</div>
-          <el-form ref="form" status-icon :rules="formRules" :model="form" label-width="150px" >
+          <el-form ref="form" status-icon :rules="formRules" :model="form" label-width="180px" >
             <el-form-item label="Register Type" prop="type">
               <el-radio-group v-model="form.type">
                 <el-radio label="member">Member User</el-radio>
@@ -755,6 +755,7 @@
 import $ from 'jquery'
 import loginUtils from './../../utils/loginUtils'
 import validationUtils from './../../utils/validationUtils'
+import i18n from './../../i18n/i18n'
 import errorUtils from './../../utils/errorUtils'
 export default {
   data () {
@@ -850,7 +851,7 @@ export default {
         password: "",
         confirmPassword: ""
       };
-      me.$refs.loginForm.resetFields();
+      me.$refs.loginFormRef.resetFields();
       me.$refs.form.resetFields();
     }, 200);
   },
@@ -860,75 +861,83 @@ export default {
       window.location.href = "./home.html";
     },
     onLogin() {
-      $.ajax({  
-        url : "/api/user/login",  
-        type : 'POST',  
-        data : JSON.stringify({  
-          email : this.loginForm.email,  
-          password : this.loginForm.password  
-        }),
-        context: this,
-        contentType : "application/json", 
-        success : function(data) {
-          if (data.code == '1'){
-            let currentDate = new Date()
-            currentDate.setTime(currentDate.getTime() + data.content.expiredAt * 1000)
-            loginUtils.setLoginUser({
-              expireTime: currentDate.getTime(),
-              token: data.content.token
-            })
-            this.$refs.loginFormRef.resetFields()
-          } else {  
-            this.$notify({
-              title: 'Failure',
-              message: 'Login failed',
-              duration: 5000
-            })
-          }        
-          window.location.href = "./home.html"
-        },  
-        error : function(data) {  
-          alert(data);  
+      var me = this;
+      this.$refs.loginFormRef.validate(function(isValid){
+        if (isValid){
+          $.ajax({  
+            url : "/api/user/login",  
+            type : 'POST',  
+            data : JSON.stringify({  
+              email : me.loginForm.email,  
+              password : me.loginForm.password  
+            }),
+            context: me,
+            contentType : "application/json", 
+            success : function(data) {
+              if (data.code == '1'){
+                let currentDate = new Date()
+                currentDate.setTime(currentDate.getTime() + data.content.expiredAt * 1000)
+                loginUtils.setLoginUser({
+                  expireTime: currentDate.getTime(),
+                  token: data.content.token
+                })
+                this.$refs.loginFormRef.resetFields()
+                window.location.href = "./home.html"
+              } else {  
+                this.$message.error(i18n.t('meebid.alertMessage.MSG_LOGIN_ACCOUNT_NOT_EXIST'));
+
+                /*this.$notify({
+                  title: 'Failure',
+                  message: 'Login failed',
+                  duration: 5000
+                })*/
+              }        
+              
+            },  
+            error : function(data) {  
+              alert(data);  
+            }
+          })  
         }
-      })  
+        
+      })
+
     },
     onSubmit() {
       var me = this;
-      this.$refs.form.validate((valid) => {
-        if (valid) {
-          $.ajax({
-            type: "POST",
-            url: "/api/user/register",
-            contentType : "application/json", 
-            context: this,
-            data: JSON.stringify({
-              email: this.form.email,
-              password: this.form.password,
-              type: this.form.type
-            }),
-            success() {
-              this.$notify({
-                title: 'Success',
-                duration: 0,
-                message: 'Register successful. Please check your email to activate your accout.',
-                showClose: true,
-                type: "success"
-              })
-            },
-            error() {
-              this.$notify.error({
-                title: 'Failure',
-                message: 'Register failure',
-                duration: 5000
-              })
-            }
-          }).done(function(){
-            console.log("register done");
-          });
-        } else {
-          return false;
-        }
-      });
+      if (this.form.email && this.form.password) {
+        $.ajax({
+          type: "POST",
+          url: "/api/user/register",
+          contentType : "application/json", 
+          context: this,
+          data: JSON.stringify({
+            email: this.form.email,
+            password: this.form.password,
+            type: this.form.type
+          }),
+          success() {
+            this.$notify({
+              title: 'Success',
+              duration: 0,
+              message: 'Register successful. Please check your email to activate your accout.',
+              showClose: true,
+              type: "success"
+            })
+          },
+          error() {
+            this.$notify.error({
+              title: 'Failure',
+              message: 'Register failure',
+              duration: 5000
+            })
+          }
+        }).done(function(){
+          console.log("register done");
+        });
+      } else {
+        return false;
+      }
 
     },
     showTermConditionDialog() {

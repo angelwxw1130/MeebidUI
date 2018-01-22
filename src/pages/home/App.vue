@@ -58,7 +58,7 @@
       width="400px">
       
         <div class="meebidLoginDialogLabel">Returning User</div>
-        <el-form ref="loginFormRef" :rules="loginFormRules" class="meebidLoginDialogForm" :model="loginForm" label-width="0px">
+        <el-form ref="loginFormRef" class="meebidLoginDialogForm" :model="loginForm" label-width="0px">
           <el-form-item prop="email">
             <el-input v-model="loginForm.email" placeholder="Please input email address" auto-complete="new-password"></el-input>
           </el-form-item>
@@ -66,6 +66,7 @@
             <el-input v-model="loginForm.password" type="password" placeholder="Please input password" auto-complete="new-password"></el-input>
           </el-form-item>
         </el-form>
+        
 
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="onLogin" class="meebidLoginDialogButton">LOGGED IN</el-button>
@@ -89,6 +90,7 @@
 
 <script>
 import loginUtils from './../../utils/loginUtils'
+import i18n from './../../i18n/i18n'
 import $ from 'jquery'
 export default {
   props: {
@@ -282,42 +284,45 @@ export default {
       var me = this;
       var email = this.loginForm.email;
       var password = this.loginForm.password;
-      if (!this.$refs.loginFormRef.validate()){
-        return;
-      }
-      $.ajax({  
-        url : "/api/user/login",  
-        type : 'POST',  
-        data : JSON.stringify({  
-          email : email,  
-          password : password  
-        }),
-        context: this,
-        contentType : "application/json", 
-        success : function(data) {
-          if (data.code == '1'){
-            let currentDate = new Date()
-            currentDate.setTime(currentDate.getTime() + data.content.expiredAt * 1000)
-            loginUtils.setLoginUser({
-              expireTime: currentDate.getTime(),
-              token: data.content.token
-            })
-            this.$refs.loginFormRef.resetFields()
-          } else {  
-            this.$notify.error({
-              title: 'Failure',
-              message: 'Login failed',
-              duration: 5000
-            })
-          }
-          window.location.reload()
+      if (email && password){
+        $.ajax({  
+          url : "/api/user/login",  
+          type : 'POST',  
+          data : JSON.stringify({  
+            email : email,  
+            password : password  
+          }),
+          context: me,
+          contentType : "application/json", 
+          success : function(data) {
+            if (data.code == '1'){
+              let currentDate = new Date()
+              currentDate.setTime(currentDate.getTime() + data.content.expiredAt * 1000)
+              loginUtils.setLoginUser({
+                expireTime: currentDate.getTime(),
+                token: data.content.token
+              })
+              this.$refs.loginFormRef.resetFields()
+              window.location.reload()
+            } else {  
+              this.$message.error(i18n.t('meebid.alertMessage.MSG_LOGIN_ACCOUNT_NOT_EXIST'));
+              
+              /* 
+              this.$notify.error({
+                title: 'Failure',
+                message: 'Login failed',
+                duration: 5000
+              }) */
+            }
+            
 
-        },  
-        error : function(data) {  
-          alert(data);  
-        },  
-        dataType : 'json' 
-      })  
+          },  
+          error : function(data) {  
+            alert(data);  
+          },  
+          dataType : 'json' 
+        })  
+      }
     },
     openRegisterDialog: function(){
       window.location.href = "./register.html";
@@ -333,7 +338,7 @@ export default {
       })
     },
     changeHintMessage: function(){
-      this.$refs.hintButton.hintNumber++;
+      //this.$refs.hintButton.hintNumber++;
       
     },
     showAlert : function(){

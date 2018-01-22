@@ -7,7 +7,7 @@ const url = require('url')
 const publicPath = ''
 
 const entries = {
-  vendor: './src/vendor'
+  //vendor: './src/vendor'
 }
 
 glob.sync('./src/pages/**/**.js').forEach(path => {
@@ -19,7 +19,7 @@ const plugins = [
   new webpack.NormalModuleReplacementPlugin(/element-ui[\/\\]lib[\/\\]locale[\/\\]lang[\/\\]zh-CN/, 'element-ui/lib/locale/lang/en')
 ]
 plugins.push(new webpack.optimize.CommonsChunkPlugin({
-  names: ['vendor', 'manifest']
+  names: [/*'vendor', */'manifest']
 // }),
 // new HtmlWebpackPlugin({
 //   template: 'src/index.html'
@@ -31,7 +31,7 @@ glob.sync('./src/pages/**/**.html').forEach(path => {
   var conf = {
     filename: chunk + '.html',
     template: 'src/pages/' + chunk + '/' + chunk + '.html', // 模板路径
-    chunks: [chunk, 'vendor', 'manifest'], // 每个html引用的js模块
+    chunks: [chunk/*, 'vendor'*/, 'manifest'], // 每个html引用的js模块
     inject: true              // js插入位置
   }
   plugins.push(new HtmlWebpackPlugin(conf))

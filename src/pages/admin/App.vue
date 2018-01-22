@@ -88,9 +88,15 @@
               <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">User Profile</div>
               <div class="meebidRegisterHeaderLabel">You can update your Profile Information here.</div>
               <el-form ref="userProfileForm" :rules="userProfileFormRules" :model="userProfileForm" label-width="180px" class="meebidPaddingTopMedium">
+                <el-form-item label="" v-if="userProfile.right === 4097">
+                  <el-alert class="meebidAlertMessage" :closable="false"
+                    :title="$t('meebid.alertMessage.MSG_PROFILE_ACCOUNT_NOT_ACTIVATE')"
+                    type="warning">
+                  </el-alert>
+                </el-form-item>
                 <el-form-item label="Email" prop="email">
                   <el-input readonly v-model="userProfileForm.email" class="meebidFormFieldMediumLength" placeholder="Please input email address"></el-input>
-                  <el-button class="meebidFormFieldRevalidateButton" type="primary" size="small" ref="memberRevalidate" :disabled="memberRevalidateButtonDisabled" @click="onMemberRevalidate">{{revalidateMemberLabel}}</el-button>
+                  <el-button v-if="userProfile.right === 4097" class="meebidFormFieldRevalidateButton" type="primary" size="small" ref="memberRevalidate" :disabled="memberRevalidateButtonDisabled" @click="onMemberRevalidate">{{revalidateMemberLabel}}</el-button>
                 </el-form-item>
                 <el-form-item label="First Name & Last Name">
                   <el-input v-model="userProfileForm.firstName" class="meebidUserProfileUserName meebidFormFieldSmallLength" placeholder="Please input First Name"></el-input>
@@ -131,10 +137,23 @@
             <el-col :span="24" class="meebidHouseProfileFormWrapper">
               <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">Auction House Information</div>
               <div class="meebidRegisterHeaderLabel">You can update your Auction House Information here.</div>
+              
               <el-form ref="houseProfileForm" :model="houseProfileForm" label-width="180px" class="meebidHouseProfileForm">
+                <el-form-item label="" v-if="userProfile.right === 4097">
+                  <el-alert class="meebidAlertMessage" :closable="false"
+                    :title="$t('meebid.alertMessage.MSG_PROFILE_ACCOUNT_NOT_ACTIVATE')"
+                    type="warning">
+                  </el-alert>
+                </el-form-item>
+                <el-form-item label="" v-if="userProfile.right === 4098">
+                  <el-alert class="meebidAlertMessage" :closable="false"
+                    :title="$t('meebid.alertMessage.MSG_PROFILE_ACCOUNT_NOT_APPROVE')"
+                    type="warning">
+                  </el-alert>
+                </el-form-item>
                 <el-form-item label="Email">
                   <el-input readonly v-model="houseProfileForm.email" class="meebidFormFieldMediumLength" placeholder="Please input email address"></el-input>
-                  <el-button type="primary" size="small" @click="onRevalidate">RE-VALIDATE</el-button>
+                  <el-button v-if="userProfile.right === 4097" class="meebidFormFieldRevalidateButton" type="primary" size="small" ref="houseRevalidate" :disabled="houseRevalidateButtonDisabled" @click="onHouseRevalidate">{{revalidateHouseLabel}}</el-button>
                 </el-form-item>
                 <el-form-item label="First Name & Last Name">
                   <el-input v-model="houseProfileForm.firstName" class="meebidUserProfileUserName meebidFormFieldSmallLength" placeholder="Please input First Name"></el-input>
@@ -237,9 +256,11 @@ export default {
       previewDialogImageUrl: "",
       defaultActiveProfile: 'memberProfile',
       revalidateMemberLabel: "RE-VALIDATE",
+      revalidateHouseLabel: "RE-VALIDATE",
       userType: window.meebidConstant.userType,
       loginUser: loginUtils.getLoginUser(),
       memberRevalidateButtonDisabled: false,
+      houseRevalidateButtonDisabled: false,
       firstName: "User",
       active: "memberProfile",
       isProfilePage: true,
@@ -509,7 +530,8 @@ export default {
         
       }, 1000);
     },
-    onRevalidate() {
+    onHouseRevalidate() {
+      this.houseRevalidateButtonDisabled = true;
       $.ajax({
         type: "POST",
         url: "/api/user/revalidate",
@@ -548,6 +570,18 @@ export default {
       }).done(function(){
         console.log("Re-send Validation Email done");
       });
+      var count = 60;
+      var me = this;
+      var interval = setInterval(function(){
+        if (count === 0){
+          me.revalidateHouseLabel = "RE-VALIDATE";
+          me.houseRevalidateButtonDisabled = false;
+          window.clearInterval(interval);
+          return;
+        }
+        me.revalidateHouseLabel = (count-- - 1) + 's';
+        
+      }, 1000);
     },
     handleUploadSuccess(response, file, fileList, fieldName) {
       var res = response;

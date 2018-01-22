@@ -8,5 +8,10 @@ meebidConstant.uploadType = {
     "LotExcel": 1,
     "Image": 3
 }
+meebidConstant.userRight = {
+	"invalid": 4097,
+	"valid": 4098,
+	"houseApproved": 4099
+}
 window.meebidConstant = meebidConstant;
 
