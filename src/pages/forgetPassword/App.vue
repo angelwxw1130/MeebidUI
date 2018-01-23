@@ -7,19 +7,19 @@
       </div>
     </div>
     <div id="content" class="meebidAdminContentWrapper" >
-      <el-container v-loading="loading" class="meebidValidationPageContainer meebidPaddingTopMedium" :element-loading-text="loadingText" element-loading-spinner="el-icon-loading">
+      <el-container class="meebidValidationPageContainer meebidPaddingTopMedium">
         <el-main>
-          <!--<div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">Account Validateion</div>
-          <div class="meebidRegisterHeaderLabel">Using validation code to activate your account</div>
-          <el-form ref="validateionForm" :model="validateionForm" label-width="150px" class="meebidPaddingTopMedium">
-            <el-form-item label="Validation Code" prop="code">
-              <el-input v-model="validateionForm.code" placeholder="Please input your validation code here"></el-input>
+          <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">Forget Password</div>
+          <div class="meebidRegisterHeaderLabel">{{$t('meebid.forgetPassword.MSG_FORGET_PASSWORD_HEADER_TEXT')}}</div>
+          <el-form ref="forgetPasswordFormRef" :model="forgetPasswordForm" label-width="180px" class="meebidPaddingTopMedium">
+            <el-form-item label="Email Account" prop="email">
+              <el-input v-model="forgetPasswordForm.email" placeholder="Please input your email account"></el-input>
             </el-form-item>
 
             <el-form-item>
-              <el-button type="primary" @click="onValidate">VALIDATE ACCOUNT</el-button>
+              <el-button type="primary" @click="onSend">SEND EMAIL</el-button>
             </el-form-item>
-          </el-form>-->
+          </el-form>
         </el-main>
       </el-container>
     </div>
@@ -34,65 +34,54 @@ import urlUtils from './../../utils/urlUtils'
 export default {
   data () {
     return {
-      loading: false,
-      loadingText: "We are validating your account, please wait...",
-      validateionForm: {
-        code: ""
+      forgetPasswordForm: {
+        email: ""
       },
       loginUser: loginUtils.getLoginUser()
     }
   },
   mounted() {
-    var me = this;
-    this.loading = true;
-    var paramterStr = window.location.search;
-    var code = urlUtils.getUrlParameter('code');
-    $.ajax({  
-      url : "/api/user/activate",  
-      type : 'POST',  
-      data : JSON.stringify({  
-        code : code
-      }),
-      context: this,
-      contentType : "application/json", 
-      success : function(data) {
-        if (data.code == '1'){
-          let currentDate = new Date()
-          currentDate.setTime(currentDate.getTime() + data.content.expiredAt * 1000)
-          loginUtils.setLoginUser({
-            expireTime: currentDate.getTime(),
-            token: data.content.token
-          })
-          this.loadingText = "Validation Successful, will redirect to Home page in 3 seconds"
-          setTimeout(function(){
-            window.location.href = "./home.html";
-          }, 3000);
-        } else {
-          this.loading = false;
-          this.$notify.error({
-            title: 'Failure',
-            message: 'Validation failure, please check your validation url.',
-            duration: 5000
-          })
-        }
-
-        
-      },  
-      error : function(data) {
-        this.validateionForm.code = "";
-        this.$notify.error({
-          title: 'Failed',
-          message: 'Validation failure, please check your validation url.',
-          duration: 5000
-        })
-      },  
-      dataType : 'json' 
-    })  
+    var me = this;    
   },
 
   methods: {
-    onValidate() {
-      
+    onSend() {
+      $.ajax({
+        type: "POST",
+        url: "/api/email/send",
+        contentType : "application/json", 
+        context: this,
+        headers: {
+          token: this.loginUser.token
+        },
+        data: JSON.stringify({
+          email: this.forgetPasswordForm.email
+        }),
+        success(data) {
+          if (data.code === 1){
+            this.$notify({
+              type: 'success',
+              title: 'Success',
+              message: data.msg,
+              duration: 5000
+            })
+          } else {
+            this.$notify.error({
+              title: 'Failure',
+              message: data.msg,
+              duration: 5000
+            })
+          }
+          
+        },
+        error() {
+          this.$notify.error({
+            title: 'Failure',
+            message: 'Send Forget Password Email failure',
+            duration: 5000
+          })
+        }
+      })
     },
     redirectToHome() {
       window.location.href = "./home.html";

@@ -109,9 +109,9 @@
                   <el-select v-model="userProfileForm.topRegion" placeholder="Select...">
                     <el-option
                       v-for="item in regionOptions"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
                     </el-option>
                   </el-select>
                 </el-form-item>
@@ -163,13 +163,13 @@
                   <el-input v-model="houseProfileForm.cellphone" placeholder="Please input Cellphone"></el-input>
                 </el-form-item>
                 
-                <el-form-item label="Country">
-                  <el-select v-model="houseProfileForm.country" placeholder="Select...">
+                <el-form-item label="Region">
+                  <el-select v-model="houseProfileForm.topRegion" placeholder="Select...">
                     <el-option
-                      v-for="item in countryOptions"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
+                      v-for="item in regionOptions"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
                     </el-option>
                   </el-select>
                 </el-form-item>
@@ -264,44 +264,7 @@ export default {
       firstName: "User",
       active: "memberProfile",
       isProfilePage: true,
-      regionOptions: [{
-        value: 0,
-        label: "China"
-      },{
-        value: 1,
-        label: "United States"
-      },{
-        value: 2,
-        label: "Canada"
-      },{
-        value: 3,
-        label: "England"
-      },{
-        value: 4,
-        label: "Franch"
-      },{
-        value: 5,
-        label: "Germany"
-      }],
-      countryOptions: [{
-        value: 0,
-        label: "China"
-      },{
-        value: 1,
-        label: "United States"
-      },{
-        value: 2,
-        label: "Canada"
-      },{
-        value: 3,
-        label: "England"
-      },{
-        value: 4,
-        label: "Franch"
-      },{
-        value: 5,
-        label: "Germany"
-      }],
+      regionOptions: [],
       userProfile: {},
       userProfileForm: {
       },
@@ -322,6 +285,9 @@ export default {
 
   },
   beforeMount() {
+    if (this.$parent.$data && this.$parent.$data.regions && this.$parent.$data.regions.length){
+      this.regionOptions = this.$parent.$data.regions;
+    }
     if (this.$parent.$data && this.$parent.$data.user){
       this.userProfile = this.$parent.$data.user;
       if (this.userProfile.firstName){
