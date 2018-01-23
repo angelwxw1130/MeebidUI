@@ -759,6 +759,14 @@ import i18n from './../../i18n/i18n'
 import errorUtils from './../../utils/errorUtils'
 export default {
   data () {
+    var validateLoginEmail = (rule, value, callback) => {
+      var regex = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
+      if (!value.match(regex)){
+        callback(new Error('Please input correct email.'));
+      } else {
+        callback();   
+      }
+    }
     var validateEmail = (rule, value, callback) => {
       var regex = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
 
@@ -883,16 +891,16 @@ export default {
                 })
                 this.$refs.loginFormRef.resetFields()
                 window.location.href = "./home.html"
+              } else if (data.code === -4) {
+                var messageKey = 'meebid.alertMessage.' + data.msg;
+                this.$message.error(i18n.t(messageKey));
               } else {  
-                this.$message.error(i18n.t('meebid.alertMessage.MSG_LOGIN_ACCOUNT_NOT_EXIST'));
-
-                /*this.$notify({
+                this.$notify({
                   title: 'Failure',
                   message: 'Login failed',
                   duration: 5000
-                })*/
-              }        
-              
+                })
+              }              
             },  
             error : function(data) {  
               alert(data);  

@@ -304,18 +304,16 @@ export default {
               })
               this.$refs.loginFormRef.resetFields()
               window.location.reload()
+            } else if (data.code === -4) {
+              var messageKey = 'meebid.alertMessage.' + data.msg;
+              this.$message.error(i18n.t(messageKey));
             } else {  
-              this.$message.error(i18n.t('meebid.alertMessage.MSG_LOGIN_ACCOUNT_NOT_EXIST'));
-              
-              /* 
-              this.$notify.error({
+              this.$notify({
                 title: 'Failure',
                 message: 'Login failed',
                 duration: 5000
-              }) */
-            }
-            
-
+              })
+            }    
           },  
           error : function(data) {  
             alert(data);  
