@@ -31,7 +31,7 @@
         </meebid-button>
       </div>
       <div class="meebidListItemMaskSaveButtonWrapper">
-        <meebid-button icon-type="save" button-type="red" text="Save">
+        <meebid-button icon-type="save" button-type="orange" text="Save">
         </meebid-button>
       </div>
     </div>

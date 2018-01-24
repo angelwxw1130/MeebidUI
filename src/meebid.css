@@ -193,6 +193,13 @@ body {
   padding: 6px 12px;
 }
 
+.meebidButtonOrange {
+  border-radius: 8px;
+  color: #ffffff;
+  background-color: #ff5242;
+  padding: 6px 12px;
+}
+
 .meebidButtonWhite {
   border-radius: 8px;
   color: #555555;
@@ -206,6 +213,14 @@ body {
 
 .meebidButtonRed:hover {
   background-color: #9d081c;
+}
+
+.meebidButtonOrange:hover {
+  background-color: #ef4d3e;
+}
+
+.meebidButton.meebidButtonOrange .meebidButtonWithText {
+  color: #ffffff;
 }
 
 .meebidButton.meebidButtonRed .glyphicon{

@@ -66,6 +66,8 @@ export default {
           return "meebidButtonRed"; 
         case 'white':
           return "meebidButtonWhite";
+        case 'orange':
+          return "meebidButtonOrange";
       }
     },
     iconTypeCls () {
