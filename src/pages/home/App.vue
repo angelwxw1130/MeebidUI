@@ -65,6 +65,7 @@
           <el-form-item prop="password">
             <el-input v-model="loginForm.password" type="password" placeholder="Please input password" auto-complete="new-password"></el-input>
           </el-form-item>
+          <a class="meebidLink" @click="onForgetPassword">{{$t('meebid.common.MSG_FORGET_PASSWORD_LINK_TEXT')}}</a>
         </el-form>
         
 
@@ -327,6 +328,9 @@ export default {
     },
     openUserProfile() {
       window.location.href = "./admin.html";
+    },
+    onForgetPassword() {
+      window.location.href = "./forgetPassword.html";
     },
     startHacking () {
       this.$notify({

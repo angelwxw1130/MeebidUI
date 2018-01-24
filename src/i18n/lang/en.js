@@ -1,6 +1,9 @@
 import enLocale from 'element-ui/lib/locale/lang/en'
 const en = {
     meebid: {
+        common: {
+            MSG_FORGET_PASSWORD_LINK_TEXT: "Forget your password?"
+        },
         upload: {
         	deleteTip: "Press enter to delete"
         },

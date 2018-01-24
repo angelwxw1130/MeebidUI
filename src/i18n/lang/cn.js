@@ -3,6 +3,9 @@
 import zhLocale from 'element-ui/lib/locale/lang/zh-CN'
 const cn = {
     meebid: {
+        common: {
+            MSG_FORGET_PASSWORD_LINK_TEXT: "Forget your password?"
+        },
         upload: {
         	deleteTip: "按回车删除"
         },

@@ -20,6 +20,7 @@
             <el-form-item label="Password" prop="password">
               <el-input v-model="loginForm.password" type="password" auto-complete="new-password"></el-input>
             </el-form-item>
+            <a class="meebidLink meebidRegisterHeaderLabel meebidPaddingBottomMedium" style="display: block;" @click="onForgetPassword">{{$t('meebid.common.MSG_FORGET_PASSWORD_LINK_TEXT')}}</a>
             <el-form-item>
               <el-button type="primary" @click="onLogin">LOGGED IN</el-button>
             </el-form-item>
@@ -947,6 +948,9 @@ export default {
         return false;
       }
 
+    },
+    onForgetPassword() {
+      window.location.href = "./forgetPassword.html";
     },
     showTermConditionDialog() {
       this.ruleDialogVisible = true;

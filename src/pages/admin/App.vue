@@ -57,32 +57,23 @@
             </el-menu-item>
           </template>
           <el-menu-item index="message">
-            <i class="el-icon-setting"></i>
+            <i class="el-icon-bell"></i>
             <span slot="title" class="meebidAdminMenuLabel">Messages</span>
           </el-menu-item>
-          <!--<el-submenu index="1">
-            <i class="el-icon-location"></i>
-            <template slot="title">             
-              <span>Sub Menu</span>
+          <el-submenu index="settings">
+            <template slot="title">
+              <i class="el-icon-setting"></i>
+              <span class="meebidAdminMenuLabel">Settings</span>
             </template>
-            <el-menu-item-group>
-              <template slot="title">分组一</template>
-              <el-menu-item index="1-1">选项1</el-menu-item>
-              <el-menu-item index="1-2">选项2</el-menu-item>
+            <el-menu-item-group>           
+              <el-menu-item index="changePassword">Change Password</el-menu-item>
+              <el-menu-item index="changeLanguage">Languages</el-menu-item>
             </el-menu-item-group>
-            <el-menu-item-group title="分组2">
-              <el-menu-item index="1-3">选项3</el-menu-item>
-            </el-menu-item-group>
-            <el-submenu index="1-4">
-              <template slot="title">选项4</template>
-              <el-menu-item index="1-4-1">选项1</el-menu-item>
-            </el-submenu>
-          </el-submenu>-->
+          </el-submenu>
         </el-menu>
       </div>
       <div class="meebidAdminContent">
         <div v-if="active === 'memberProfile'" class="meebidProfileFormWrapper">
-          
           <el-row>
             <el-col :span="24" class="meebidUserProfileFormWrapper">
               <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">User Profile</div>
@@ -160,7 +151,7 @@
                   <el-input v-model="houseProfileForm.lastName" class="meebidUserProfileUserName meebidFormFieldSmallLength" placeholder="Please input Last Name"></el-input>
                 </el-form-item>
                 <el-form-item label="Contact Cellphone">
-                  <el-input v-model="houseProfileForm.cellphone" placeholder="Please input Cellphone"></el-input>
+                  <el-input v-model="houseProfileForm.contact_cellphone" placeholder="Please input Cellphone"></el-input>
                 </el-form-item>
                 
                 <el-form-item label="Region">
@@ -338,10 +329,7 @@ export default {
     }
   },
   mounted() {
-    console.log("Profile App ready");
     
-    
-
   },
 
   methods: {
@@ -385,7 +373,7 @@ export default {
           topRegion: this.userProfile.topRegion,
           firstName: this.userProfile.firstName,
           lastName: this.userProfile.lastName,
-          cellphone: this.userProfile.cellphone,
+          cellphone: this.userProfile.contact_cellphone,
           //email: this.userProfile.email,
           //logo: this.userProfile.logo,
           //contact: this.userProfile.contact,

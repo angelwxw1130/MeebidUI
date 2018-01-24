@@ -21,7 +21,7 @@
       <img
         class="el-upload-list__item-thumbnail"
         v-if="file.status !== 'uploading' && ['picture-card', 'picture'].indexOf(listType) > -1"
-        :src="file.url" alt=""
+        :src="file.url + (['picture-card'].indexOf(listType) > -1 ? '?x-oss-process=image/resize,m_lfit,h_146,w_146' : '')" alt=""
       >
       <a class="el-upload-list__item-name" @click="handleClick(file)">
         <i class="el-icon-document"></i>{{file.name}}

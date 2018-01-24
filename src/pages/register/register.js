@@ -9,10 +9,10 @@ import MeebidButton from './../../component/button/meebidButton.vue'
 import MeebidDropdown from './../../component/dropdown/meebidDropdown.vue'
 import MeebidBusyIndicator from './../../component/busyindicator/meebidBusyIndicator.vue'
 import App from './App.vue'
-import locale from 'element-ui/lib/locale/lang/en'
+import i18n from './../../i18n/i18n'
 
 
-Vue.use(ElementUI, {locale});
+Vue.use(ElementUI);
 Vue.component(MeebidButton.name, MeebidButton);
 Vue.component(MeebidDropdown.name, MeebidDropdown);
 Vue.component(MeebidBusyIndicator.name, MeebidBusyIndicator);
@@ -20,6 +20,7 @@ Vue.component(MeebidBusyIndicator.name, MeebidBusyIndicator);
 
 var appVue = new Vue({
   el: '#app',
+  i18n,
   render: h => h(App),
   
 });

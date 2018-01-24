@@ -18,10 +18,10 @@ import App from './App.vue'
 import loginUtils from './../../utils/loginUtils'
 import errorUtils from './../../utils/errorUtils'
 import { MessageBox } from 'element-ui'
-import locale from 'element-ui/lib/locale/lang/en'
+import i18n from './../../i18n/i18n'
 
 
-Vue.use(ElementUI, {locale});
+Vue.use(ElementUI);
 Vue.component(MeebidButton.name, MeebidButton);
 Vue.component(MeebidDropdown.name, MeebidDropdown);
 Vue.component(MeebidTypeahead.name, MeebidTypeahead);
@@ -50,6 +50,7 @@ if (loginUser.token){
 		        }
          		var appVue = new Vue({
 					el: '#app',
+               i18n,
 					render: h => h(App),
 					data: data.content
 				});
@@ -66,6 +67,7 @@ if (loginUser.token){
 } else {
 	var appVue = new Vue({
 	  el: '#app',
+     i18n,
 	  render: h => h(App),
 	  
 	});

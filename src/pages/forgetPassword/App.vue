@@ -48,7 +48,7 @@ export default {
     onSend() {
       $.ajax({
         type: "POST",
-        url: "/api/email/send",
+        url: "/api/public/email/send",
         contentType : "application/json", 
         context: this,
         headers: {
