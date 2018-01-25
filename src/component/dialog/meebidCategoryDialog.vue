@@ -9,7 +9,7 @@
       </div>
     </div>
     <span slot="footer" class="dialog-footer">
-      <!--<el-button @click="categoryDialogVisible = false">Cancel</el-button>-->
+      <el-button v-if="isProfilePage" @click="onCancel">Cancel</el-button>
       <el-button type="primary" @click="onSave" :disabled="noItemSelected">Save</el-button>
     </span>
   </el-dialog>
@@ -45,7 +45,17 @@
     //  }
     //},
     mounted () {
-      
+      if (this.isProfilePage){
+        var originalItem = [];
+        for (var i = 0; i < this.items.length; i++){
+          const item = this.items[i];
+          originalItem.push({
+            selected: item.selected,
+            description: item.description,
+            imgUrl: item.imgUrl
+          })
+        }
+      }
     },
     methods: {
       validateSelectedItem() {
@@ -60,6 +70,9 @@
       selectItem(item, index) {
         item.selected = !item.selected;
         this.validateSelectedItem();
+      },
+      onCancel() {
+
       },
       onSave() {
         if (!this.noItemSelected) {
