@@ -11,7 +11,7 @@
         <el-main>
           <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">Reset Password</div>
           <div class="meebidRegisterHeaderLabel">{{$t('meebid.resetPassword.MSG_RESET_PASSWORD_HEADER_TEXT')}}</div>
-          <el-form ref="resetPasswordFormRef" :model="resetPasswordForm" label-width="180px" class="meebidPaddingTopMedium">
+          <el-form ref="resetPasswordFormRef" :model="resetPasswordForm" :rules="resetPasswordFormRules" label-width="180px" class="meebidPaddingTopMedium">
             <el-form-item label="Password" prop="password">
               <el-input v-model="resetPasswordForm.password" type="password" auto-complete="new-password"></el-input>
             </el-form-item>
@@ -33,6 +33,7 @@
 import $ from 'jquery'
 import loginUtils from './../../utils/loginUtils'
 import urlUtils from './../../utils/urlUtils'
+import i18n from './../../i18n/i18n'
 export default {
   data () {
     var validatePassword = (rule, value, callback) => {
@@ -85,18 +86,27 @@ export default {
             headers: {
               token: me.loginUser.token
             },
+            dataType : 'json',
             data: JSON.stringify({
-              email: me.forgetPasswordForm.email,
+              password: me.resetPasswordForm.password,
               code: code
             }),
             success(data) {
               if (data.code === 1){
-                this.$notify({
+                this.$message({
                   type: 'success',
-                  title: 'Success',
-                  message: data.msg,
-                  duration: 5000
+                  message: i18n.t('meebid.alertMessage.MSG_RESET_PASSWORD_SUCCESS')
                 })
+                let currentDate = new Date()
+                currentDate.setTime(currentDate.getTime() + data.content.expiredAt * 1000)
+                loginUtils.setLoginUser({
+                  expireTime: currentDate.getTime(),
+                  token: data.content.token
+                });
+                setTimeout(function(){
+                  me.redirectToHome();
+                }, 3000);
+                
               } else {
                 this.$notify.error({
                   title: 'Failure',

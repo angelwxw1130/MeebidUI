@@ -30,6 +30,7 @@
 <script>
 import $ from 'jquery'
 import loginUtils from './../../utils/loginUtils'
+import i18n from './../../i18n/i18n'
 import urlUtils from './../../utils/urlUtils'
 export default {
   data () {
@@ -54,17 +55,20 @@ export default {
         headers: {
           token: this.loginUser.token
         },
+        dataType : 'json',
         data: JSON.stringify({
+          type: window.meebidConstant.emailType.ResetPassword,
           email: this.forgetPasswordForm.email
         }),
         success(data) {
           if (data.code === 1){
-            this.$notify({
+            this.$message({
               type: 'success',
-              title: 'Success',
-              message: data.msg,
-              duration: 5000
-            })
+              message: i18n.t('meebid.alertMessage.MSG_FORGET_PASSWORD_SEND_EMAIL_SUCCESS'),
+            });
+          } else if (data.code === -4) {
+            var messageKey = 'meebid.alertMessage.' + data.msg;
+            this.$message.error(i18n.t(messageKey));
           } else {
             this.$notify.error({
               title: 'Failure',

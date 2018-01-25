@@ -13,5 +13,9 @@ meebidConstant.userRight = {
 	"valid": 4098,
 	"houseApproved": 4099
 }
+meebidConstant.emailType = {
+	"ValidateUrl": 1,
+	"ResetPassword": 2
+}
 window.meebidConstant = meebidConstant;
 

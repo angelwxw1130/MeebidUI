@@ -444,6 +444,7 @@ export default {
         data: JSON.stringify({
           email: this.userProfile.email
         }),
+        dataType : 'json',
         success(data) {
           if (data.code === 1){
             this.$notify({
@@ -494,6 +495,7 @@ export default {
         headers: {
           token: this.loginUser.token
         },
+        dataType : 'json',
         data: JSON.stringify({
           email: this.userProfile.email
         }),
