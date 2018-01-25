@@ -239,6 +239,7 @@
 <script>
 import loginUtils from './../../utils/loginUtils'
 import meebidUtils from './../../utils/meebidUtils'
+import i18n from './../../i18n/i18n'
 import $ from 'jquery'
 export default {
   data () {
@@ -404,11 +405,9 @@ export default {
         data: JSON.stringify(this.buildRequest()),
         success(data) {
           if (data.code === 1){
-            this.$notify({
-              title: 'Success',
+            this.$message({
               type: 'success',
-              message: 'Update successful',
-              duration: 5000
+              message: i18n.t('meebid.alertMessage.MSG_ADMIN_USER_UPDATE_PROFILE_SUCCESS')
             })
             this.firstName = this.userProfile.firstName;
           } else {
@@ -447,11 +446,9 @@ export default {
         dataType : 'json',
         success(data) {
           if (data.code === 1){
-            this.$notify({
+            this.$message({
               type: 'success',
-              title: 'Success',
-              message: data.msg,
-              duration: 5000
+              message: data.msg
             })
           } else {
             this.$notify.error({
@@ -501,11 +498,9 @@ export default {
         }),
         success(data) {
           if (data.code === 1){
-            this.$notify({
+            this.$message({
               type: 'success',
-              title: 'Success',
-              message: data.msg,
-              duration: 5000
+              message: data.msg
             })
           } else {
             this.$notify.error({

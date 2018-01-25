@@ -2,7 +2,7 @@
   <el-dialog title="Category" :visible.sync="categoryDialogVisible" width="800px" :show-close="false" :close-on-click-modal="false" :close-on-press-escape="false">
     <div class="categoryDialogInfoLabel">Please select at least one interested category</div>
     <div class="categoryDialogItemsWrapper">
-      <div v-for="(item,index) in items" :class="{selected:items[index].selected===true}" :title="item.description" class="meebidCategoryItem" @click="selectItem(item, index)">
+      <div v-for="(item,index) in categoryItems" :class="{selected:categoryItems[index].selected===true}" :title="item.description" class="meebidCategoryItem" @click="selectItem(item, index)">
         <img class="meebidCategoryItemImage" :src="item.imgUrl">
         <span class="meebidCategoryItemLabel" >{{item.description}}</span>
         <div class="meebidCategoryItemMask"></div>
@@ -33,6 +33,7 @@
     },
     data () {
       return {
+        categoryItems: [],
         categoryDialogVisible: false,
         noItemSelected: true
       }
@@ -45,17 +46,16 @@
     //  }
     //},
     mounted () {
-      if (this.isProfilePage){
-        var originalItem = [];
-        for (var i = 0; i < this.items.length; i++){
-          const item = this.items[i];
-          originalItem.push({
-            selected: item.selected,
-            description: item.description,
-            imgUrl: item.imgUrl
-          })
-        }
+      var categoryItems = [];
+      for (var i = 0; i < this.items.length; i++){
+        const item = this.items[i];
+        categoryItems.push({
+          selected: item.selected,
+          description: item.description,
+          imgUrl: item.imgUrl
+        })
       }
+      this.categoryItems = categoryItems;
     },
     methods: {
       validateSelectedItem() {
@@ -72,9 +72,19 @@
         this.validateSelectedItem();
       },
       onCancel() {
-
+        var me = this;
+        this.items.forEach(function(item, index, array){
+          var categoryItem = me.categoryItems[index];
+          categoryItem.selected = item.selected;
+        });
+        this.categoryDialogVisible = false;
       },
       onSave() {
+        var me = this;
+        this.items.forEach(function(item, index, array){
+          var categoryItem = me.categoryItems[index];
+          item.selected = categoryItem.selected;
+        });
         if (!this.noItemSelected) {
           if (this.isProfilePage){
             this.categoryDialogVisible = false;
