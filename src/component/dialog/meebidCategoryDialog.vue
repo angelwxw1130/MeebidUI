@@ -1,5 +1,5 @@
 <template>
-  <el-dialog title="Category" :visible.sync="categoryDialogVisible" width="800px" :show-close="false" :close-on-click-modal="false" :close-on-press-escape="false">
+  <el-dialog title="Category" :visible.sync="categoryDialogVisible" width="800px" :show-close="isProfile" :close-on-click-modal="isProfile" :close-on-press-escape="isProfile">
     <div class="categoryDialogInfoLabel">Please select at least one interested category</div>
     <div class="categoryDialogItemsWrapper">
       <div v-for="(item,index) in categoryItems" :class="{selected:categoryItems[index].selected===true}" :title="item.description" class="meebidCategoryItem" @click="selectItem(item, index)">
@@ -60,7 +60,7 @@
     methods: {
       validateSelectedItem() {
         var hasItemSelected = false;
-        this.items.forEach(function(value, index, array){
+        this.categoryItems.forEach(function(value, index, array){
           if (value.selected){
             hasItemSelected = true;
           }

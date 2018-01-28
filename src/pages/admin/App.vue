@@ -129,7 +129,7 @@
               <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">Auction House Information</div>
               <div class="meebidRegisterHeaderLabel">You can update your Auction House Information here.</div>
               
-              <el-form ref="houseProfileForm" :model="houseProfileForm" label-width="180px" class="meebidHouseProfileForm">
+              <el-form ref="houseProfileForm" :model="houseProfileForm" :rules="houseProfileFormRules" label-width="180px" class="meebidHouseProfileForm">
                 <el-form-item label="" v-if="userProfile.right === 4097">
                   <el-alert class="meebidAlertMessage" :closable="false"
                     :title="$t('meebid.alertMessage.MSG_PROFILE_ACCOUNT_NOT_ACTIVATE')"
@@ -146,11 +146,17 @@
                   <el-input readonly v-model="houseProfileForm.email" class="meebidFormFieldMediumLength" placeholder="Please input email address"></el-input>
                   <el-button v-if="userProfile.right === 4097" class="meebidFormFieldRevalidateButton" type="primary" size="small" ref="houseRevalidate" :disabled="houseRevalidateButtonDisabled" @click="onHouseRevalidate">{{revalidateHouseLabel}}</el-button>
                 </el-form-item>
-                <el-form-item label="First Name & Last Name">
+                <el-form-item label="Auction House Name" prop="name">
+                  <el-input v-model="houseProfileForm.name" placeholder="Please input Auction House Name"></el-input>
+                </el-form-item>
+                <el-form-item label="Auction Website Address">
+                  <el-input v-model="houseProfileForm.websiteAddress" placeholder="Please input Auction Website Address"></el-input>
+                </el-form-item>
+                <el-form-item label="Contact Name">
                   <el-input v-model="houseProfileForm.firstName" class="meebidUserProfileUserName meebidFormFieldSmallLength" placeholder="Please input First Name"></el-input>
                   <el-input v-model="houseProfileForm.lastName" class="meebidUserProfileUserName meebidFormFieldSmallLength" placeholder="Please input Last Name"></el-input>
                 </el-form-item>
-                <el-form-item label="Contact Cellphone">
+                <el-form-item label="Auction Contact Number" class="">
                   <el-input v-model="houseProfileForm.contact_cellphone" placeholder="Please input Cellphone"></el-input>
                 </el-form-item>
                 
@@ -198,7 +204,7 @@
                     <i class="el-icon-plus" ></i>
                   </meebid-upload>
                 </el-form-item>
-                <el-form-item class="meebidUserProfileLongLabel" label="Auction House Representative">
+                <el-form-item class="meebidUserProfileLongLabel" label="Auction House Representative Legal ID">
                   <meebid-upload
                     class="upload-demo"
                     ref="idUpload"
@@ -269,6 +275,11 @@ export default {
         ]
       },
       houseProfileForm: {
+      },
+      houseProfileFormRules: {
+        name: [
+          { required: true, message: 'Please input Auction House Name', trigger: 'blur' }          
+        ]
       },
       categoryItems: []
     }

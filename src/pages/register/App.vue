@@ -32,7 +32,7 @@
           <el-form ref="form" status-icon :rules="formRules" :model="form" label-width="180px" >
             <el-form-item label="Register Type" prop="type">
               <el-radio-group v-model="form.type">
-                <el-radio label="member">Member User</el-radio>
+                <el-radio label="member">Bidder</el-radio>
                 <el-radio label="house">Auction House User</el-radio>
               </el-radio-group>
             </el-form-item>
