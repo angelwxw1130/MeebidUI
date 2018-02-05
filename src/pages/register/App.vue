@@ -46,7 +46,7 @@
               <el-input v-model="form.confirmPassword" type="password" auto-complete="new-password"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="onSubmit">REGISTER & CONTINUE</el-button>
+              <el-button type="primary" @click="onSubmit" ref="registerButton">REGISTER & CONTINUE</el-button>
             </el-form-item>
             <el-form-item>
               By clicking "Register & Continue" I agree to this auction's <el-button type="text" size="mini" @click="showTermConditionDialog">Terms and Conditions.</el-button>
@@ -926,8 +926,7 @@ export default {
             type: this.form.type
           }),
           success() {
-            this.$notify({
-              title: 'Success',
+            this.$message({
               duration: 0,
               message: 'Register successful. Please check your email to activate your accout.',
               showClose: true,

@@ -15,6 +15,7 @@ import MeebidCategoryDialog from './../../component/dialog/meebidCategoryDialog.
 import MeebidUpload from './../../component/upload/meebidUpload.vue'
 import App from './App.vue'
 import loginUtils from './../../utils/loginUtils'
+import meebidUtils from './../../utils/meebidUtils'
 import errorUtils from './../../utils/errorUtils'
 import { MessageBox } from 'element-ui'
 import i18n from './../../i18n/i18n'
@@ -34,6 +35,7 @@ Vue.component(MeebidUpload.name, MeebidUpload);
 
 //Vue.use(MeebidButton);
 
+
 var loginUser = loginUtils.getLoginUser();
 if (loginUser.token){
 	 jquery.ajax({  
@@ -50,6 +52,12 @@ if (loginUser.token){
 				for (var i = 0; i < categoryItems.length; i++){
 					categoryItems[i].selected = false;
 		        }
+                var user = data.content.user;
+                if (!user.contact_users) {
+                    user.contact_users = [];
+                }
+                meebidUtils.refreshRegions(data.content.regions);
+                user.originalContactUsers = [].concat(user.contact_users);
         		var appVue = new Vue({
 					el: '#app',
                     i18n,

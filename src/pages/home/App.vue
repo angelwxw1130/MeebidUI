@@ -35,10 +35,10 @@
             <meebid-button icon-type="user" button-type="round" :text="firstName" :button-click="openUserProfile">
             </meebid-button>
           </el-tooltip>
-          <meebid-button icon-type="bell" button-type="round" ref="hintButton" data-role="trigger" :button-click="openCategoryDialog">
+          <!--<meebid-button icon-type="bell" button-type="round" ref="hintButton" data-role="trigger" :button-click="openCategoryDialog">
           </meebid-button>
           <meebid-button icon-type="menu-hamburger" button-type="round" :button-click="showAlert" >
-          </meebid-button>
+          </meebid-button>-->
           <meebid-button icon-type="log-out" button-type="round" text="Logout" :button-click="onLogout" >
           </meebid-button>
         </template>
@@ -278,8 +278,14 @@ export default {
       this.loginDialogVisible = true;
     },
     onLogout () {
-      loginUtils.setLoginUser()
-      window.location.reload()
+      this.$confirm(i18n.t('meebid.alertMessage.MSG_LOGOUT_CONFIRMATION_TEXT'), 'LOGOUT', {
+        confirmButtonText: 'Confirm',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      }).then(() => {
+        loginUtils.setLoginUser()
+        window.location.reload()
+      });
     },
     onLogin: function(){
       var me = this;
@@ -351,7 +357,60 @@ export default {
       }
       
       //this.$set('alertIsOpen',true);
-    }
+    },
+    getSelectedRegionOptions(regions, regionOptions){
+      for (var i = 0; i < regionOptions.length; i++){
+        var regionOption = regionOptions[i];
+        if (regionOption.id === regions[0]){
+          var nextRegions = regions.splice(0, 1);
+          if (nextRegions && nextRegions.length > 0){
+            return this.getSelectedRegionOptions(nextRegions, regionOption.childrens);
+          } else {
+            return regionOption;
+          }
+        }
+      }
+    },
+    handleAddressChange(val) {
+      if (val && val.length > 0){
+        var regionOption = this.getSelectedRegionOptions(val, this.regionOptions);
+        if (regionOption.childrens && regionOption.childrens.length === 0){
+          $.ajax({
+            type: "GET",
+            url: "/api/public/regions",
+            contentType : "application/json", 
+            context: this,
+            data: {
+              upperLevel: val[0],
+              level: val.length
+            },
+            dataType: 'json',
+            success(data) {
+              if (data.code === 1){
+                for (var i = 0; i < data.content.regions.length;i++){
+                  data.content.regions[i].childrens = [];
+                }
+                regionOption.childrens = data.content.regions;
+              } else {
+                this.$notify.error({
+                  title: 'Failure',
+                  message: 'Get Region Data failure',
+                  duration: 5000
+                })
+              }
+              
+            },
+            error() {
+              this.$notify.error({
+                title: 'Failure',
+                message: 'Get Region Data failure',
+                duration: 5000
+              })
+            }
+          });
+        }
+      }
+    },
   }
 }
 /**

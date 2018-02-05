@@ -14,6 +14,18 @@ body {
   padding-top: 30px;
 }
 
+.meebidPaddingLeftMedium {
+  padding-left: 20px;
+}
+
+.meebidPaddingLeftSmall {
+  padding-left: 10px;
+}
+
+.meebidPaddingLeftLarge{
+  padding-left: 30px;
+}
+
 .meebidPaddingBottomMedium {
   padding-bottom: 20px;
 }
@@ -26,6 +38,29 @@ body {
   padding-bottom: 30px;
 }
 
+.meebidPaddingBottomMedium {
+  padding-bottom: 20px;
+}
+
+.meebidPaddingBottomSmall {
+  padding-bottom: 10px;
+}
+
+.meebidPaddingBottomLarge{
+  padding-bottom: 30px;
+}
+
+.meebidMarginLeftMedium {
+  margin-left: 20px;
+}
+
+.meebidMarginLeftSmall{
+  margin-left: 10px;
+}
+
+.meebidMarginLeftLarge{
+  margin-left: 30px;
+}
 
 .meebidMarginBottomMedium {
   margin-bottom: 20px;
@@ -39,10 +74,22 @@ body {
   margin-bottom: 30px;
 }
 
+.meebidMarginTopMedium {
+  margin-top: 20px;
+}
+
+.meebidMarginTopSmall{
+  margin-top: 10px;
+}
+
+.meebidMarginTopLarge{
+  margin-top: 30px;
+}
+
 .meebidLink {
   cursor: pointer;
 }
-
+/*
 .meebid .el-radio__input.is-checked+.el-radio__label {
   color: #606266;
 }
@@ -90,6 +137,15 @@ body {
 .meebid .el-upload--picture-card:hover, .meebid .el-upload:focus {
     border-color: #ff5242;
     color: #ff5242;
+}
+*/
+
+.meebid .meebidNoBorderButton {
+  border-color: transparent;
+}
+
+.meebid .meebidNoBorderButton.el-button--small, .meebid .meebidNoBorderButton.el-button--small.is-round {
+    padding: 9px 9px;
 }
 
 .meebidHomeHeader {
@@ -368,11 +424,11 @@ body {
 }
 
 .meebidUiLocalBusyIndicatorAnimation>div::before {
-    background: #bd081c
+    background: #FF5242;
 }
 
 .meebidUiLocalBusyIndicatorAnimation>div::after {
-    box-shadow: inset 0 0 2px 1px rgba(189,8,92,0.8)
+    box-shadow: inset 0 0 2px 1px #FF5242;
 }
 
 .meebidUiLocalBusyIndicatorAnimation>div,.meebidUiLocalBusyIndicatorAnimation>div::before,.meebidUiLocalBusyIndicatorAnimation>div::after {
@@ -550,6 +606,10 @@ body {
 
 .meebid .meebidAlertMessage {
   line-height: 24px;
+}
+
+.meebid .meebidUnsavedAlertMessage {
+  line-height: 16px;
 }
 
 .meebidListItemContainer {
@@ -787,6 +847,10 @@ body {
 /**
   Admin Page Start
   */
+.meebidAddressHeaderLabel {
+  padding-left: 90px;
+}
+
 .meebidAdminContentWrapper {
   width: 100%;
   height: calc(100% - 75px);
@@ -821,6 +885,7 @@ body {
   padding-left: 10%;
   padding-right: 10%;
   overflow-x: scroll;
+  position: relative;
 }
 
 .meebidUserProfileUserName {
@@ -927,6 +992,42 @@ body {
   left: 0;
   right: 0;
   margin: auto;
+}
+
+.meebid .meebidPhoneNumberDialog .el-dialog__body {
+  padding: 20px 20px 0px 20px;
+}
+
+.meebid .meebidAdminFloatingAlert {
+  position: absolute;
+  right: 10%;
+  top: 20px;
+}
+
+.meebid-alert-top-in-enter-active {
+  transition: all .5s;
+}
+
+.meebid-alert-top-in-enter {
+  transform: translateY(-50px);
+}
+
+.meebid-alert-top-in-leave-active {
+  transition: all .5s;
+  transform: translateY(-50px);
+}
+
+.meebidAddressManagementTableHeader {
+  font-size: 20px;
+  display: inline-block;
+}
+
+.meebid .meebidMaximumAddressAlertMessage {
+  line-height: 16px;
+}
+
+.meebid .meebidAddressWrapper .el-table__empty-block {
+  min-height: 160px;
 }
 /**
   Admin Page End

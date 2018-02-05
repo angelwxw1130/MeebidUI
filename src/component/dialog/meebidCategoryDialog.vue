@@ -1,5 +1,5 @@
 <template>
-  <el-dialog title="Category" :visible.sync="categoryDialogVisible" width="800px" :show-close="isProfile" :close-on-click-modal="isProfile" :close-on-press-escape="isProfile">
+  <el-dialog title="Category" :visible.sync="categoryDialogVisible" width="800px" :show-close="isProfilePage" :close-on-click-modal="isProfilePage" :close-on-press-escape="isProfilePage">
     <div class="categoryDialogInfoLabel">Please select at least one interested category</div>
     <div class="categoryDialogItemsWrapper">
       <div v-for="(item,index) in categoryItems" :class="{selected:categoryItems[index].selected===true}" :title="item.description" class="meebidCategoryItem" @click="selectItem(item, index)">
@@ -85,6 +85,7 @@
           var categoryItem = me.categoryItems[index];
           item.selected = categoryItem.selected;
         });
+        this.$emit('update');
         if (!this.noItemSelected) {
           if (this.isProfilePage){
             this.categoryDialogVisible = false;
