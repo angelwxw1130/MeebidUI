@@ -1411,6 +1411,7 @@ export default {
       }
     },
     handleEditAddress(address) {
+      this.$refs.meebidAddressHeader.$el.scrollIntoView();
       if (!this.checkRegionAvailable(this.buildRegionArr(address.regions), this.regionOptions)){
         this.$refs.addressFormBusyIndicator.show();
         $.ajax({
@@ -1438,7 +1439,7 @@ export default {
               })
             }
             this.$refs.addressFormBusyIndicator.hide();
-            this.$refs.meebidAddressHeader.$el.scrollIntoView();
+            
           },
           error() {
             this.$refs.addressFormBusyIndicator.hide();
@@ -1455,7 +1456,6 @@ export default {
         this.addressForm.detail = address.detail;
         this.addressForm.type = address.type;
         this.addressForm.isDefault = address.isDefault;
-        this.$refs.meebidAddressHeader.$el.scrollIntoView();
       }
     },
     checkRegionAvailable(regions, regionOptions){
