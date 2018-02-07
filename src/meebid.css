@@ -89,6 +89,10 @@ body {
 .meebidLink {
   cursor: pointer;
 }
+
+.meebidHidden {
+  display: none;
+}
 /*
 .meebid .el-radio__input.is-checked+.el-radio__label {
   color: #606266;
@@ -145,6 +149,10 @@ body {
 }
 
 .meebid .meebidNoBorderButton.el-button--small, .meebid .meebidNoBorderButton.el-button--small.is-round {
+    padding: 9px 9px;
+}
+
+.meebid .meebidSquareButton.el-button--small, .meebid .meebidSquareButton.el-button--small.is-round {
     padding: 9px 9px;
 }
 
@@ -979,6 +987,10 @@ body {
 
 .meebid .el-upload {
   margin: 0 8px 23px 0;
+}
+
+.el-upload-list__item {
+  width: 60%;
 }
 
 .meebid .el-upload-list--picture-card .el-upload-list__item-thumbnail {

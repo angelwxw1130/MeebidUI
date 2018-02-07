@@ -57,13 +57,13 @@
               <span slot="title" class="meebidAdminMenuLabel">House Auction Information</span>
             </el-menu-item>
           </template>
-          <template v-if="userProfile.type === userType.member">
+          <template v-if="userProfile.type === userType.member && userProfile.right === 4098">
             <el-menu-item index="memberAddress">
               <i class="el-icon-menu"></i>
               <span slot="title" class="meebidAdminMenuLabel">Address Management</span>
             </el-menu-item>
           </template>
-          <template v-if="userProfile.type === userType.house">
+          <template v-if="userProfile.type === userType.house && userProfile.right === 2050">
             <el-menu-item index="houseAddress">
               <i class="el-icon-menu"></i>
               <span slot="title" class="meebidAdminMenuLabel">Address Management</span>
@@ -171,13 +171,13 @@
               <div class="meebidRegisterHeaderLabel">You can update your Auction House Information here.</div>
               
               <el-form ref="houseProfileForm" :model="houseProfileForm" :rules="houseProfileFormRules" label-width="180px" class="meebidHouseProfileForm">
-                <el-form-item label="" v-if="userProfile.right === 4097">
+                <el-form-item label="" v-if="userProfile.right === 2049">
                   <el-alert class="meebidAlertMessage" :closable="false"
                     :title="$t('meebid.alertMessage.MSG_PROFILE_ACCOUNT_NOT_ACTIVATE')"
                     type="warning">
                   </el-alert>
                 </el-form-item>
-                <el-form-item label="" v-if="userProfile.right === 4098">
+                <el-form-item label="" v-if="userProfile.right === 2050">
                   <el-alert class="meebidAlertMessage" :closable="false"
                     :title="$t('meebid.alertMessage.MSG_PROFILE_ACCOUNT_NOT_APPROVE')"
                     type="warning">
@@ -185,7 +185,7 @@
                 </el-form-item>
                 <el-form-item label="Email">
                   <el-input readonly v-model="houseProfileForm.email" class="meebidFormFieldMediumLength" placeholder="Please input email address"></el-input>
-                  <el-button v-if="userProfile.right === 4097" class="meebidFormFieldRevalidateButton" type="primary" size="small" ref="houseRevalidate" :disabled="houseRevalidateButtonDisabled" @click="onHouseRevalidate">{{revalidateHouseLabel}}</el-button>
+                  <el-button v-if="userProfile.right === 2049" class="meebidFormFieldRevalidateButton" type="primary" size="small" ref="houseRevalidate" :disabled="houseRevalidateButtonDisabled" @click="onHouseRevalidate">{{revalidateHouseLabel}}</el-button>
                 </el-form-item>
                 <el-form-item label="Auction House Name" prop="name">
                   <el-input v-model="houseProfileForm.name" placeholder="Please input Auction House Name"></el-input>
@@ -234,7 +234,6 @@
                     :on-exceed="handleUploadExceed"
                     :on-success="handleUploadSuccess"
                     :on-preview="handlePictureCardPreview"
-                    list-type="picture-card"
                     :on-error="handleUploadError"
                     :file-list="houseProfileForm.bLicenseUpload"
                     >
@@ -251,7 +250,6 @@
                     :on-exceed="handleUploadExceed"
                     :on-success="handleUploadSuccess"
                     :on-preview="handlePictureCardPreview"
-                    list-type="picture-card"
                     :on-error="handleUploadError"
                     :file-list="houseProfileForm.qualiDocUpload"
                     >
@@ -268,11 +266,10 @@
                     :on-exceed="handleUploadExceed"
                     :on-success="handleUploadSuccess"
                     :on-preview="handlePictureCardPreview"
-                    list-type="picture-card"
                     :on-error="handleUploadError"
                     :file-list="houseProfileForm.idUpload"
                     >
-                    <i class="el-icon-plus" ></i>
+                    <el-button size="small" type="primary" icon="el-icon-plus">Click to upload</el-button>
                   </meebid-upload>
                 </el-form-item>
                 
@@ -283,23 +280,21 @@
             </el-col>
           </el-row>
         </div>
-        <div v-if="active === 'memberAddress' || active === 'houseAddress'" class="meebidPaddingTopSmall meebidAddressWrapper">
+        <!-- Element UI Bug, when form doesn't rendered first time, rules check will not be applied correctly-->
+        <div class="meebidPaddingTopSmall meebidAddressWrapper">
           <el-row ref="meebidAddressHeader">
             <el-col :span="24" class="meebidUserProfileFormWrapper">
               <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">Address Management</div>
               <div class="meebidRegisterHeaderLabel" v-if="active === 'memberAddress'">You can manage your Billing Address and Shipping Address.</div>
               <div class="meebidRegisterHeaderLabel" v-if="active === 'houseAddress'">You can manage your Exhibition Address, Bidding Venue Address and Pick-up Warehouse Address.</div>
-              <el-form ref="addressFormRef" :model="addressForm" :rules="addressFormRules" label-width="180px" class="meebidHouseProfileForm">
-                <meebid-busy-indicator ref="addressFormBusyIndicator" size="Medium"></meebid-busy-indicator>
-                <el-form-item label="Country/City/District">
+              <el-form ref="addressForm" status-icon :rules="addressFormRules" :model="addressForm" label-width="180px" class="meebidHouseProfileForm">
+                
+                <el-form-item label="Country/City/District" prop="regions">
                   <el-cascader change-on-select @change="handleAddressChange" :options="regionOptions" style="width: 300px;" :props="regionProp" v-model="addressForm.regions" placeholder="Select...">
                   </el-cascader>
-                  
                 </el-form-item>
-                <el-form-item label="Address">
-                  <el-input v-model="addressForm.detail" placeholder="Please input address">
-                    
-                  </el-input>
+                <el-form-item label="Address" prop="detail">
+                  <el-input v-model="addressForm.detail" placeholder="Please input address"></el-input>
                 </el-form-item>
                 <el-form-item label="Address Type">
                   <el-select v-model="addressForm.type" placeholder="Select..." :disabled="addressForm.addressId > 0">
@@ -324,6 +319,7 @@
                     </el-alert>
                   </div>
                 </el-form-item>
+                <meebid-busy-indicator ref="addressFormBusyIndicator" size="Medium"></meebid-busy-indicator>
               </el-form>
             </el-col>
           </el-row>
@@ -350,9 +346,9 @@
                 width="240"
                 >
                 <template slot-scope="scope">
-                  <el-button size="small" class="meebidNoBorderButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
-                  <el-button size="small" class="meebidNoBorderButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
-                  <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidNoBorderButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
+                  <el-button size="small" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
+                  <el-button size="small" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
+                  <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -380,9 +376,9 @@
                 width="240"
                 >
                 <template slot-scope="scope">
-                  <el-button size="small" class="meebidNoBorderButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
-                  <el-button size="small" class="meebidNoBorderButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
-                  <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidNoBorderButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
+                  <el-button size="small" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
+                  <el-button size="small" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
+                  <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -411,9 +407,9 @@
                 width="240"
                 >
                 <template slot-scope="scope">
-                  <el-button size="small" class="meebidNoBorderButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
-                  <el-button size="small" class="meebidNoBorderButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
-                  <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidNoBorderButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
+                  <el-button size="small" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
+                  <el-button size="small" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
+                  <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -441,9 +437,9 @@
                 width="240"
                 >
                 <template slot-scope="scope">
-                  <el-button size="small" class="meebidNoBorderButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
-                  <el-button size="small" class="meebidNoBorderButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
-                  <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidNoBorderButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
+                  <el-button size="small" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
+                  <el-button size="small" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
+                  <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -471,16 +467,16 @@
                 width="240"
                 >
                 <template slot-scope="scope">
-                  <el-button size="small" class="meebidNoBorderButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
-                  <el-button size="small" class="meebidNoBorderButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
-                  <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidNoBorderButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
+                  <el-button size="small" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
+                  <el-button size="small" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
+                  <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
                 </template>
               </el-table-column>
             </el-table>
           </div>
           <div style="height: 50px;"></div>
         </div>
-        <div v-else-if="active === 'message'">
+        <div v-if="active === 'message'">
           Placeholder for Message Box
         </div>
       </div>
@@ -553,11 +549,19 @@
 
 <script>
 import loginUtils from './../../utils/loginUtils'
+import errorUtils from './../../utils/errorUtils'
 import meebidUtils from './../../utils/meebidUtils'
 import i18n from './../../i18n/i18n'
 import $ from 'jquery'
 export default {
   data () {
+    var validateRegions = (rule, value, callback) => {
+      if (value && value.length > 0) {
+        callback();
+      } else {
+        callback(new Error('Please select regions.'));
+      }
+    };
     return {
       hasPendingChange: false,
       updatePhoneIndex: -1,
@@ -586,9 +590,18 @@ export default {
       addressForm: {
         addressId: 0,
         regions: [],
-        detail: "",
+        detail: '',
         type: meebidConstant.addressType.Shipping,
         isDefault: false
+      },
+      addressFormRules: {
+        regions: [
+          { required: true, message: 'Please select Country/City/District', trigger: 'input' },
+          { validator: validateRegions, trigger: 'input' }
+        ],
+        detail: [
+          { required: true, message: 'Please input address', trigger: 'blur' }
+        ]
       },
       memberAddressOptions: [{
         id: meebidConstant.addressType.Shipping,
@@ -637,12 +650,6 @@ export default {
       userProfileForm: {
       },
       userProfileFormRules: {
-        email: [
-          { required: true, message: 'Please input email', trigger: 'blur' }
-        ],
-        region: [
-          { required: true, message: 'Please select region', trigger: 'change' }
-        ]
       },
       houseProfileForm: {
       },
@@ -650,9 +657,6 @@ export default {
         name: [
           { required: true, message: 'Please input Auction House Name', trigger: 'blur' }          
         ]
-      },
-      addressFormRules: {
-
       },
       categoryItems: []
     }
@@ -697,21 +701,24 @@ export default {
           this.userProfile.bLicenseUpload = [];
         } else {
           this.userProfile.bLicenseUpload = [{
-              url: this.userProfile.blicenseUrl
+              url: this.userProfile.blicenseUrl,
+              name: this.userProfile.blicenseName
           }];
         }
         if (!this.userProfile.qualiDocUrl) {
           this.userProfile.qualiDocUpload = [];
         } else {
           this.userProfile.qualiDocUpload = [{
-              url: this.userProfile.qualiDocUrl
+              url: this.userProfile.qualiDocUrl,
+              name: this.userProfile.qualiDocName
           }];
         }
         if (!this.userProfile.idUrl) {
           this.userProfile.idUpload = [];
         } else {
           this.userProfile.idUpload = [{
-              url: this.userProfile.idUrl
+              url: this.userProfile.idUrl,
+              name: this.userProfile.idName
           }];
         }
         this.houseProfileForm = this.userProfile;
@@ -723,7 +730,7 @@ export default {
     }
   },
   mounted() {
-    
+    this.$refs.meebidAddressHeader.$el.style = "display: none;";
   },
 
   methods: {
@@ -770,6 +777,7 @@ export default {
       this.active = key;
       switch (key){
         case 'memberAddress':
+          this.$refs.meebidAddressHeader.$el.style = "";
           this.addressForm = {
             addressId: 0,
             regions: [],
@@ -777,6 +785,7 @@ export default {
             type: meebidConstant.addressType.Shipping,
             isDefault: false
           };
+          this.$refs.addressForm.clearValidate();
           this.$refs.busyIndicator.show();
           $.ajax({
             type: "GET",
@@ -815,15 +824,12 @@ export default {
             },
             error() {
               this.$refs.busyIndicator.hide();
-              this.$notify.error({
-                title: 'Failure',
-                message: 'Fetch Address Data failure',
-                duration: 5000
-              })
+              errorUtils.requestError(data);
             }
           });
           break;
         case 'houseAddress':
+          this.$refs.meebidAddressHeader.$el.style = "";
           this.addressForm = {
             addressId: 0,
             regions: [],
@@ -831,6 +837,7 @@ export default {
             type: meebidConstant.addressType.Exhibition,
             isDefault: false
           };
+          this.$refs.addressForm.clearValidate();
           this.$refs.busyIndicator.show();
           $.ajax({
             type: "GET",
@@ -869,13 +876,12 @@ export default {
             },
             error() {
               this.$refs.busyIndicator.hide();
-              this.$notify.error({
-                title: 'Failure',
-                message: 'Fetch Address Data failure',
-                duration: 5000
-              })
+              errorUtils.requestError(data);
             }
           });
+          break;
+        default:
+          this.$refs.meebidAddressHeader.$el.style = "display: none;";
           break;
       }
     },
@@ -928,12 +934,15 @@ export default {
         };
         if (this.userProfile.bLicenseUpload.length && this.userProfile.bLicenseUpload[0] && this.userProfile.bLicenseUpload[0].rUid){
           returnObj.blicenseUrl = this.userProfile.bLicenseUpload[0].rUid;
+          returnObj.blicenseName = this.userProfile.bLicenseUpload[0].name;
         }
         if (this.userProfile.qualiDocUpload.length && this.userProfile.qualiDocUpload[0] && this.userProfile.qualiDocUpload[0].rUid){
           returnObj.qualiDocUrl = this.userProfile.qualiDocUpload[0].rUid;
+          returnObj.qualiDocName = this.userProfile.qualiDocUpload[0].name;
         }
         if (this.userProfile.idUpload.length && this.userProfile.idUpload[0] && this.userProfile.idUpload[0].rUid){
           returnObj.idUrl = this.userProfile.idUpload[0].rUid;
+          returnObj.idName = this.userProfile.idUpload[0].name;
         }
         return returnObj;
       }
@@ -968,11 +977,7 @@ export default {
           
         },
         error() {
-          this.$notify.error({
-            title: 'Failure',
-            message: 'Update failure',
-            duration: 5000
-          })
+          errorUtils.requestError(data);
         }
       }).done(function(){
         console.log("Update Profile done");
@@ -1009,11 +1014,7 @@ export default {
               
             },
             error() {
-              this.$notify.error({
-                title: 'Failure',
-                message: 'Update failure',
-                duration: 5000
-              })
+              errorUtils.requestError(data);
             }
           })
         }
@@ -1024,13 +1025,14 @@ export default {
       this.memberRevalidateButtonDisabled = true;
       $.ajax({
         type: "POST",
-        url: "/api/user/revalidate",
+        url: "/api/public/email/send",
         contentType : "application/json", 
         context: this,
         headers: {
           token: this.loginUser.token
         },
         data: JSON.stringify({
+          type: meebidConstant.emailType.ValidateUrl,
           email: this.userProfile.email
         }),
         dataType : 'json',
@@ -1038,7 +1040,7 @@ export default {
           if (data.code === 1){
             this.$message({
               type: 'success',
-              message: data.msg
+              message: i18n.t('meebid.alertMessage.MSG_REVALIDATE_EMAIL_SEND_SUCCESS')
             })
           } else {
             this.$notify.error({
@@ -1050,14 +1052,8 @@ export default {
           
         },
         error() {
-          this.$notify.error({
-            title: 'Failure',
-            message: 'Re-send Validation Email failure',
-            duration: 5000
-          })
+          errorUtils.requestError(data);
         }
-      }).done(function(){
-        console.log("Re-send Validation Email done");
       });
       var count = 60;
       var me = this;
@@ -1076,7 +1072,7 @@ export default {
       this.houseRevalidateButtonDisabled = true;
       $.ajax({
         type: "POST",
-        url: "/api/user/revalidate",
+        url: "/api/public/email/send",
         contentType : "application/json", 
         context: this,
         headers: {
@@ -1084,13 +1080,14 @@ export default {
         },
         dataType : 'json',
         data: JSON.stringify({
+          type: meebidConstant.emailType.ValidateUrl,
           email: this.userProfile.email
         }),
         success(data) {
           if (data.code === 1){
             this.$message({
               type: 'success',
-              message: data.msg
+              message: i18n.t('meebid.alertMessage.MSG_REVALIDATE_EMAIL_SEND_SUCCESS')
             })
           } else {
             this.$notify.error({
@@ -1102,11 +1099,7 @@ export default {
           
         },
         error() {
-          this.$notify.error({
-            title: 'Failure',
-            message: 'Re-send Validation Email failure',
-            duration: 5000
-          })
+          errorUtils.requestError(data);
         }
       }).done(function(){
         console.log("Re-send Validation Email done");
@@ -1140,8 +1133,9 @@ export default {
       
     },
     handlePictureCardPreview (file) {
-      this.previewDialogVisible = true;
-      this.previewDialogImageUrl = file.url;
+      window.open(file.url, '_blank');
+      //this.previewDialogVisible = true;
+      //this.previewDialogImageUrl = file.url;
     },
     onAddPhoneNumber() {
       this.updatePhoneIndex = -1;
@@ -1292,11 +1286,7 @@ export default {
               
             },
             error() {
-              this.$notify.error({
-                title: 'Failure',
-                message: 'Get Region Data failure',
-                duration: 5000
-              })
+              errorUtils.requestError(data);
             }
           });
         }
@@ -1333,64 +1323,75 @@ export default {
         detail: this.addressForm.detail,
         type: this.addressForm.isDefault ? this.addressForm.type + 1 : this.addressForm.type
       };
-      $.ajax({
-        type: "POST",
-        url: "/api/user/address/insupd",
-        contentType : "application/json", 
-        context: this,
-        headers: {
-          token: this.loginUser.token
-        },
-        data: JSON.stringify(requestObj),
-        success(data) {
-          if (data.code === 1){
-            if (this.addressForm.addressId === 0){
-              var addressObj = {
-                ID: data.content.addressId.addressId,
-                regions: this.buildRegionWithLabelArr(this.addressForm.regions),
-                detail: this.addressForm.detail,
-                isDefault: this.addressForm.isDefault,
-                type: this.addressForm.type
-              }
-              this.addresses[this.addressForm.type].push(addressObj);
-            } else {
-              this.addresses[this.addressForm.type].forEach(address => {
-                if (address.ID === this.addressForm.addressId){
-                  address.regions = this.buildRegionWithLabelArr(this.addressForm.regions);
-                  address.detail = this.addressForm.detail;
-                  address.isDefault = this.addressForm.isDefault;
+      this.$refs.addressForm.validate(function(isValid){
+        if (isValid){
+          $.ajax({
+            type: "POST",
+            url: "/api/user/address/insupd",
+            contentType : "application/json", 
+            context: me,
+            headers: {
+              token: me.loginUser.token
+            },
+            data: JSON.stringify(requestObj),
+            success(data) {
+              if (data.code === 1){
+                var currentAddressId;
+                if (this.addressForm.addressId === 0){
+                  var addressObj = {
+                    ID: data.content.addressId,
+                    regions: this.buildRegionWithLabelArr(this.addressForm.regions),
+                    detail: this.addressForm.detail,
+                    isDefault: this.addressForm.isDefault,
+                    type: this.addressForm.type
+                  }
+                  currentAddressId = data.content.addressId.addressId;
+                  this.addresses[this.addressForm.type].push(addressObj);
+                } else {
+                  this.addresses[this.addressForm.type].forEach(address => {
+                    if (address.ID === this.addressForm.addressId){
+                      address.regions = this.buildRegionWithLabelArr(this.addressForm.regions);
+                      address.detail = this.addressForm.detail;
+                      address.isDefault = this.addressForm.isDefault;
+                    }
+                  });
+                  currentAddressId = this.addressForm.addressId;
                 }
-              });
+                if (this.addressForm.isDefault){
+                  this.addresses[this.addressForm.type].forEach(addressObj => {
+                    if (addressObj.ID !== currentAddressId){
+                      addressObj.isDefault = false;
+                    }
+                  });
+                }
+                this.$message({
+                  type: 'success',
+                  message: i18n.t('meebid.alertMessage.MSG_ADMIN_USER_UPDATE_ADDRESS_SUCCESS')
+                })
+                var currentType = this.addressForm.type;
+                this.addressForm = {
+                  addressId: 0,
+                  regions: [],
+                  detail: "",
+                  type: currentType,
+                  isDefault: false
+                };
+              } else {
+                this.$notify.error({
+                  title: 'Failure',
+                  message: 'Update Address failure',
+                  duration: 5000
+                })
+              }
+              
+            },
+            error() {
+              errorUtils.requestError(data);
             }
-            this.$message({
-              type: 'success',
-              message: i18n.t('meebid.alertMessage.MSG_ADMIN_USER_UPDATE_ADDRESS_SUCCESS')
-            })
-            var currentType = this.addressForm.type;
-            this.addressForm = {
-              addressId: 0,
-              regions: [],
-              detail: "",
-              type: currentType,
-              isDefault: false
-            };
-          } else {
-            this.$notify.error({
-              title: 'Failure',
-              message: 'Update Address failure',
-              duration: 5000
-            })
-          }
-          
-        },
-        error() {
-          this.$notify.error({
-            title: 'Failure',
-            message: 'Update Address failure',
-            duration: 5000
-          })
+          });
         }
       });
+      
     },
     buildRegionOptions: function(regionsDataArr, regionOptions, regions){
       for (var i = 0; i < regionsDataArr[0].length; i++){
@@ -1443,11 +1444,7 @@ export default {
           },
           error() {
             this.$refs.addressFormBusyIndicator.hide();
-            me.$notify.error({
-              title: 'Failure',
-              message: 'Fetch Address failure',
-              duration: 5000
-            })
+            errorUtils.requestError(data);
           }
         });
       } else {
@@ -1535,11 +1532,7 @@ export default {
             
           },
           error() {
-            me.$notify.error({
-              title: 'Failure',
-              message: 'Update Address failure',
-              duration: 5000
-            })
+            errorUtils.requestError(data);
           }
         });
         
@@ -1608,11 +1601,7 @@ export default {
             
           },
           error() {
-            this.$notify.error({
-              title: 'Failure',
-              message: 'Set as Default Address failure',
-              duration: 5000
-            })
+            errorUtils.requestError(data);
           }
         });
       }).catch(() => {

@@ -91,6 +91,7 @@
 
 <script>
 import loginUtils from './../../utils/loginUtils'
+import errorUtils from './../../utils/errorUtils'
 import i18n from './../../i18n/i18n'
 import $ from 'jquery'
 export default {
@@ -127,6 +128,9 @@ export default {
     if (this.$parent.$data && this.$parent.$data.user){
       this.userProfile = this.$parent.$data.user;
       if (this.userProfile.type === window.meebidConstant.userType.member){
+        if (this.userProfile.firstName){
+          this.firstName = this.userProfile.firstName;
+        }
         this.userProfileForm = this.userProfile;
         var categoryItems = this.$parent.$data.categories;
         var selectedItems = this.userProfileForm && this.userProfileForm.favorCategories ? this.userProfileForm.favorCategories.split(";") : [];
@@ -140,14 +144,15 @@ export default {
           }
         }
         this.categoryItems = categoryItems;
-      } 
+      } else if (this.userProfile.type === window.meebidConstant.userType.house){
+        if (this.userProfile.name){
+          this.firstName = this.userProfile.name;
+        }
+      }
       if (this.userProfile.type === window.meebidConstant.userType.member && (this.userProfile.favorCategories === "" || this.userProfile.favorCategories === null || this.userProfile.favorCategories === undefined)){
         this.$refs.categoryDialog.categoryDialogVisible = true;
         this.profileTooltipVisible = true;
         this.profileTooltipDisabled = false;
-      }
-      if (this.userProfile.firstName){
-        this.firstName = this.userProfile.firstName;
       }
     }
   },
@@ -323,7 +328,7 @@ export default {
             }    
           },  
           error : function(data) {  
-            alert(data);  
+            errorUtils.requestError(data);
           },  
           dataType : 'json' 
         })  

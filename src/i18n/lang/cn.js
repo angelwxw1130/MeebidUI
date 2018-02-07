@@ -12,6 +12,7 @@ const cn = {
         alertMessage: {
         	MSG_LOGIN_ACCOUNT_NOT_EXIST: "账号不存在，请再次尝试",
             MSG_LOGIN_PASSWORD_INCORRECT: "密码错误，请再次尝试",
+            MSG_REVALIDATE_EMAIL_SEND_SUCCESS: "Send validation email success, please check your mail account.",
         	MSG_PROFILE_ACCOUNT_NOT_ACTIVATE: "Account hasn't been activated, please check your email and activate your account",
         	MSG_PROFILE_ACCOUNT_NOT_APPROVE: "Account hasn't been approved, please upload license and ask administrator for approval",
             MSG_FORGET_PASSWORD_SEND_EMAIL_SUCCESS: "We have sent an email to your account for reseting password, please check your mail account.",
