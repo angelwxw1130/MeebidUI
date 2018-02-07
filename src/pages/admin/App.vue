@@ -237,7 +237,7 @@
                     :on-error="handleUploadError"
                     :file-list="houseProfileForm.bLicenseUpload"
                     >
-                    <i class="el-icon-plus" ></i>
+                    <el-button size="small" type="primary" icon="el-icon-plus">Click to upload</el-button>
                   </meebid-upload>
                 </el-form-item>
                 <el-form-item class="meebidUserProfileLongLabel" label="Certification of Registed Auction House">
@@ -253,7 +253,7 @@
                     :on-error="handleUploadError"
                     :file-list="houseProfileForm.qualiDocUpload"
                     >
-                    <i class="el-icon-plus" ></i>
+                    <el-button size="small" type="primary" icon="el-icon-plus">Click to upload</el-button>
                   </meebid-upload>
                 </el-form-item>
                 <el-form-item class="meebidUserProfileLongLabel" label="Auction House Representative Legal ID">
