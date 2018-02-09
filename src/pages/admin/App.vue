@@ -285,7 +285,7 @@
           </el-row>
         </div>
         <!-- Element UI Bug, when form doesn't rendered first time, rules check will not be applied correctly-->
-        <div class="meebidPaddingTopMedium meebidMarginTopLarge meebidAddressWrapper">
+        <div v-if="active === 'houseProfile' || active === 'memberProfile'" class="meebidPaddingTopMedium meebidMarginTopLarge meebidAddressWrapper">
           <el-row ref="meebidAddressHeader">
             <el-col :span="24" class="meebidUserProfileFormWrapper">
               <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">Address Management</div>
@@ -860,6 +860,7 @@ export default {
       this.active = key;
       /*
       switch (key){
+        
         case 'memberAddress':
           this.$refs.meebidAddressHeader.$el.style = "";
           this.addressForm = {
@@ -964,11 +965,12 @@ export default {
             }
           });
           break;
+          
         default:
           this.$refs.meebidAddressHeader.$el.style = "display: none;";
           break;
-      }
-      */
+      }*/
+      
     },
     openUserProfile() {
       //window.open("./admin.html", '_blank');
