@@ -57,6 +57,12 @@ if (loginUser.token){
                     user.contact_users = [];
                 }
                 meebidUtils.refreshRegions(data.content.regions);
+
+                if (data.content.addresses && data.content.addresses.length){
+                    for (var i = 0; i < data.content.addresses.length; i++){
+                        data.content.addresses[i].isDefault = false;
+                    }
+                }
                 user.originalContactUsers = [].concat(user.contact_users);
         		var appVue = new Vue({
 					el: '#app',

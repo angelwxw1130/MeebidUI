@@ -803,7 +803,6 @@ export default {
         
         for (var i = 0; i < this.$parent.$data.addresses.length; i++){
           var address = this.$parent.$data.addresses[i];
-          
           address.isDefault = address.type % 2 === 1;
           address.type = address.type - address.type % 2;
           this.addresses[address.type].push(address);
@@ -1425,6 +1424,7 @@ export default {
           };
           break;
       }
+      this.$refs.addressForm.resetFields();
     },
     onUpdateAddress() {
       var me = this;
@@ -1487,6 +1487,7 @@ export default {
                   type: currentType,
                   isDefault: false
                 };
+                this.$refs.addressForm.resetFields();
               } else {
                 this.$notify.error({
                   title: 'Failure',
@@ -1633,6 +1634,7 @@ export default {
             if (data.code === 1){
               var index = this.addresses[address.type].indexOf(address);
               this.addresses[address.type].splice(index, 1);
+              this.onResetAddress();
             } else {
               this.$notify.error({
                 title: 'Failure',
@@ -1702,6 +1704,7 @@ export default {
                 type: 'success',
                 message: i18n.t('meebid.alertMessage.MSG_ADMIN_USER_DEFAULT_ADDRESS_SUCCESS')
               })
+              this.onResetAddress();
             } else {
               this.$notify.error({
                 title: 'Failure',
