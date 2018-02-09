@@ -835,13 +835,13 @@ export default {
           { validator: validateEmail, trigger: 'blur'}      
         ],
         password: [
-          { required: true, message: 'Please input password.', trigger: 'blur' },
-          { min: 6, max: 255, message: 'Password cannot be less than 6 characters', trigger: 'blur' },
-          { validator: validatePassword, trigger: 'blur' }
+          { required: true, message: 'Please input password.', trigger: 'change' },
+          { min: 6, max: 255, message: 'Password cannot be less than 6 characters', trigger: 'change' },
+          { validator: validatePassword, trigger: 'change' }
         ],
         confirmPassword: [
-          { required: true, message: 'Please input password again.', trigger: 'blur' },
-          { validator: validateConfirmPassword, trigger: 'blur' }
+          { required: true, message: 'Please input password again.', trigger: 'change' },
+          { validator: validateConfirmPassword, trigger: 'change' }
         ]
       }
     }

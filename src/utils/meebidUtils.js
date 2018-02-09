@@ -11,6 +11,9 @@ export default {
     return selectedItems.join(";");
   },
   convertPhoneObjToStr (region, phone, regionOptions){
+    if (phone === null || phone === ""){
+      return "";
+    }
     for (var i = 0; i < regionOptions.length; i++){
       if (regionOptions[i].id === region){
         return regionOptions[i].telCode + " " + phone;
@@ -19,6 +22,13 @@ export default {
     
   },
   convertPhoneStrToObj (str, regionOptions){
+    if (str === null || str === ""){
+      return {
+        //us as default
+        region: 36,
+        phone: null
+      }
+    }
     var regionTelCode = str.split(' ')[0];
     var region;
     for (var i = 0; i < regionOptions.length; i++){

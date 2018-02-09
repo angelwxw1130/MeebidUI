@@ -1,5 +1,10 @@
 body {
   font-family: "Helvetica Neue", "Helvetica", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ", "Meiryo", "ＭＳ Ｐゴシック", arial, sans-serif;
+  min-width: 1024px;
+}
+
+.meebidVerticalAlignTop {
+  vertical-align: top;
 }
 
 .meebidPaddingTopMedium {
@@ -908,6 +913,10 @@ body {
   width: 70%;
 }
 
+.meebid .meebidFormFieldLargeLength {
+  width: 80%;
+}
+
 .meebid .el-upload__input {
   display: none;
 }
@@ -1040,6 +1049,10 @@ body {
 
 .meebid .meebidAddressWrapper .el-table__empty-block {
   min-height: 160px;
+}
+
+.meebid .meebidAddressWrapper {
+  border-top: 1px solid #efefef; 
 }
 /**
   Admin Page End

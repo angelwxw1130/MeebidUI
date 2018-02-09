@@ -57,7 +57,7 @@
               <span slot="title" class="meebidAdminMenuLabel">House Auction Information</span>
             </el-menu-item>
           </template>
-          <template v-if="userProfile.type === userType.member && userProfile.right === 4098">
+          <!--<template v-if="userProfile.type === userType.member && userProfile.right === 4098">
             <el-menu-item index="memberAddress">
               <i class="el-icon-menu"></i>
               <span slot="title" class="meebidAdminMenuLabel">Address Management</span>
@@ -68,7 +68,7 @@
               <i class="el-icon-menu"></i>
               <span slot="title" class="meebidAdminMenuLabel">Address Management</span>
             </el-menu-item>
-          </template>
+          </template>-->
           <el-menu-item index="message">
             <i class="el-icon-bell"></i>
             <span slot="title" class="meebidAdminMenuLabel">Messages</span>
@@ -188,10 +188,10 @@
                   <el-button v-if="userProfile.right === 2049" class="meebidFormFieldRevalidateButton" type="primary" size="small" ref="houseRevalidate" :disabled="houseRevalidateButtonDisabled" @click="onHouseRevalidate">{{revalidateHouseLabel}}</el-button>
                 </el-form-item>
                 <el-form-item label="Auction House Name" prop="name">
-                  <el-input v-model="houseProfileForm.name" placeholder="Please input Auction House Name"></el-input>
+                  <el-input v-model="houseProfileForm.name" @change="onFieldDataChange" placeholder="Please input Auction House Name"></el-input>
                 </el-form-item>
                 <el-form-item label="Auction Website Address">
-                  <el-input v-model="houseProfileForm.website" placeholder="Please input Auction Website Address"></el-input>
+                  <el-input v-model="houseProfileForm.website" @change="onFieldDataChange" placeholder="Please input Auction Website Address"></el-input>
                 </el-form-item>
                 <!--<el-form-item label="Contact Name">
                   <el-input v-model="houseProfileForm.firstName" class="meebidUserProfileUserName meebidFormFieldSmallLength" placeholder="Please input First Name"></el-input>
@@ -202,12 +202,16 @@
                 </el-form-item>-->
                 <el-form-item label="Contact Users">
                   <div v-for="(item,index) in houseProfileForm.contact_users" class="{meebidPaddingBottomSmall: index === houseProfileForm.contact_users.length}">
-                    <span style="display: inline-block; width: 40px;" >{{getTitleLabel(item.titleId)}}</span>
-                    <span style="display: inline-block; width: 150px;" >{{item.firstName}} {{item.lastName}}</span>
-                    <span style="display: inline-block; width: 150px;" >{{item.phone}}</span>
-                    <span class="meebidPaddingLeftSmall">
-                      <el-button size="small" class="meebidNoBorderButton" icon="el-icon-edit" @click="onEditContactUser(index, item)"></el-button>
-                      <el-button size="small" icon="el-icon-delete" class="meebidNoBorderButton" @click="onDeleteContactUser(index, item)"></el-button>
+                    <span style="display: inline-block; width: 40px;" class="meebidVerticalAlignTop">{{getTitleLabel(item.titleId)}}</span>
+                    <span style="display: inline-block; width: 150px;" class="meebidVerticalAlignTop">{{item.firstName}} {{item.lastName}}</span>
+                    <span style="display: inline-block; width: 200px;" class="meebidVerticalAlignTop">
+                      <span style="display: block">Phone 1: {{item.phone}}</span>
+                      <span style="display: block" v-if="item.phone1 !== null && item.phone1 !== ''">Phone 2: {{item.phone1}}</span>
+                      <span style="display: block" v-if="item.email !== null && item.email !== ''">Email: {{item.email}}</span>
+                    </span>
+                    <span class="meebidPaddingLeftSmall meebidVerticalAlignTop">
+                      <el-button size="small" class="meebidNoBorderButton meebidVerticalAlignTop" icon="el-icon-edit" @click="onEditContactUser(index, item)"></el-button>
+                      <el-button size="small" icon="el-icon-delete" class="meebidNoBorderButton meebidVerticalAlignTop" @click="onDeleteContactUser(index, item)"></el-button>
                     </span>
                   </div>
                   <div class="" v-if="houseProfileForm.contact_users.length < 5"><el-button size="small" type="primary" @click="onAddContactUser">Add Contact User</el-button></div>
@@ -281,12 +285,12 @@
           </el-row>
         </div>
         <!-- Element UI Bug, when form doesn't rendered first time, rules check will not be applied correctly-->
-        <div class="meebidPaddingTopSmall meebidAddressWrapper">
+        <div class="meebidPaddingTopMedium meebidMarginTopLarge meebidAddressWrapper">
           <el-row ref="meebidAddressHeader">
             <el-col :span="24" class="meebidUserProfileFormWrapper">
               <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">Address Management</div>
-              <div class="meebidRegisterHeaderLabel" v-if="active === 'memberAddress'">You can manage your Billing Address and Shipping Address.</div>
-              <div class="meebidRegisterHeaderLabel" v-if="active === 'houseAddress'">You can manage your Exhibition Address, Bidding Venue Address and Pick-up Warehouse Address.</div>
+              <div class="meebidRegisterHeaderLabel" v-if="active === 'memberProfile'">You can manage your Billing Address and Shipping Address.</div>
+              <div class="meebidRegisterHeaderLabel" v-if="active === 'houseProfile'">You can manage your Exhibition Address, Bidding Venue Address and Pick-up Warehouse Address.</div>
               <el-form ref="addressForm" status-icon :rules="addressFormRules" :model="addressForm" label-width="180px" class="meebidHouseProfileForm">
                 
                 <el-form-item label="Country/City/District" prop="regions">
@@ -299,7 +303,7 @@
                 <el-form-item label="Address Type">
                   <el-select v-model="addressForm.type" placeholder="Select..." :disabled="addressForm.addressId > 0">
                     <el-option
-                      v-for="item in (active === 'memberAddress' ? memberAddressOptions : houseAddressOptions)"
+                      v-for="item in (active === 'memberProfile' ? memberAddressOptions : houseAddressOptions)"
                       :key="item.id"
                       :label="item.label"
                       :value="item.id">
@@ -323,7 +327,7 @@
               </el-form>
             </el-col>
           </el-row>
-          <div v-if="active === 'memberAddress'">
+          <div v-if="active === 'memberProfile'">
             <span class="meebidAddressManagementTableHeader meebidPaddingLeftSmall meebidPaddingBottomSmall meebidPaddingTopMedium">Shipping Address</span>
             <el-table
               :data="addresses[16]"
@@ -353,7 +357,7 @@
               </el-table-column>
             </el-table>
           </div>
-          <div v-if="active === 'memberAddress'" class="meebidPaddingTopMedium">
+          <div v-if="active === 'memberProfile'" class="meebidPaddingTopMedium">
             <span class="meebidAddressManagementTableHeader meebidPaddingLeftSmall meebidPaddingBottomSmall meebidPaddingTopMedium">Billing Address</span>
             <el-table
               :data="addresses[8]"
@@ -383,7 +387,7 @@
               </el-table-column>
             </el-table>
           </div>
-          <div v-if="active === 'houseAddress'">
+          <div v-if="active === 'houseProfile'">
             <span class="meebidAddressManagementTableHeader meebidPaddingLeftSmall meebidPaddingBottomSmall meebidPaddingTopMedium">Pick-up Warehouse Address</span>
             <span style="display: block;" class="meebidPaddingLeftSmall meebidPaddingBottomSmall" >You <b>cannot</b> create Auction without Pick-up Warehouse Address.</span>
             <el-table
@@ -414,7 +418,7 @@
               </el-table-column>
             </el-table>
           </div>
-          <div v-if="active === 'houseAddress'" class="meebidPaddingTopMedium">
+          <div v-if="active === 'houseProfile'" class="meebidPaddingTopMedium">
             <span class="meebidAddressManagementTableHeader meebidPaddingLeftSmall meebidPaddingBottomSmall meebidPaddingTopMedium">Exhibition Address</span>
             <el-table
               :data="addresses[32]"
@@ -444,7 +448,7 @@
               </el-table-column>
             </el-table>
           </div>
-          <div v-if="active === 'houseAddress'" class="meebidPaddingTopMedium">
+          <div v-if="active === 'houseProfile'" class="meebidPaddingTopMedium">
             <span class="meebidAddressManagementTableHeader meebidPaddingLeftSmall meebidPaddingBottomSmall meebidPaddingTopMedium">Bidding Venue Address</span>
             <el-table
               :data="addresses[64]"
@@ -485,7 +489,7 @@
       </el-dialog>
 
       <el-dialog :visible.sync="phoneNumberDialogVisible" class="meebidPhoneNumberDialog" title="Phone Number" width="500px">
-        <el-form ref="phoneFormRef" :model="phoneForm" class="" label-width="0px">
+        <el-form ref="phoneFormRef" :model="phoneForm" :rules="phoneFormRules" class="" label-width="0px">
           <el-form-item prop="phone">
             <el-input v-model="phoneForm.phone" placeholder="Please input phone number">
               <el-select v-model="phoneForm.region" style="width:110px;" slot="prepend" placeholder="Select...">
@@ -506,7 +510,7 @@
       </el-dialog>
 
       <el-dialog :visible.sync="contactUserDialogVisible" class="meebidPhoneNumberDialog" title="Contact User" width="800px">
-        <el-form ref="contactUserFormRef" :model="contactUserForm" class="" label-width="180px">
+        <el-form ref="contactUserFormRef" :model="contactUserForm" :rules="contactUserFormRules" class="" label-width="190px">
           <el-form-item label="Title" prop="title">
             <el-select v-model="contactUserForm.titleId" placeholder="Select...">
               <el-option
@@ -517,11 +521,20 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="First Name & Last Name">
-            <el-input v-model="contactUserForm.firstName" class="meebidUserProfileUserName meebidFormFieldSmallLength" placeholder="Please input First Name"></el-input>
-            <el-input v-model="contactUserForm.lastName" class="meebidUserProfileUserName meebidFormFieldSmallLength" placeholder="Please input Last Name"></el-input>
+          <el-form-item label="First Name & Last Name" required>
+            <el-col :span="11">
+              <el-form-item prop="firstName">
+                <el-input v-model="contactUserForm.firstName" class="meebidUserProfileUserName meebidFormFieldLargeLength" placeholder="Please input First Name"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="11">
+              <el-form-item prop="lastName">
+                <el-input v-model="contactUserForm.lastName" class="meebidUserProfileUserName meebidFormFieldLargeLength" placeholder="Please input Last Name"></el-input>
+              </el-form-item>
+            </el-col>
+            
           </el-form-item>
-          <el-form-item prop="phone" label="Phone Number">
+          <el-form-item prop="phone" label="Phone Number 1">
             <el-input v-model="contactUserForm.phone" placeholder="Please input phone number">
               <el-select v-model="contactUserForm.region" style="width:110px;" slot="prepend" placeholder="Select...">
                 <el-option
@@ -532,6 +545,21 @@
                 </el-option>
               </el-select>
             </el-input>
+          </el-form-item>
+          <el-form-item prop="phone1" label="Phone Number 2">
+            <el-input v-model="contactUserForm.phone1" placeholder="Please input phone number">
+              <el-select v-model="contactUserForm.region1" style="width:110px;" slot="prepend" placeholder="Select...">
+                <el-option
+                  v-for="item in regionOptions"
+                  :key="item.id"
+                  :label="item.telCode"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-input>
+          </el-form-item>
+          <el-form-item label="Email" prop="email">
+            <el-input v-model="contactUserForm.email" placeholder="Please input email address"></el-input>
           </el-form-item>
         </el-form>
 
@@ -600,7 +628,7 @@ export default {
           { validator: validateRegions, trigger: 'input' }
         ],
         detail: [
-          { required: true, message: 'Please input address', trigger: 'blur' }
+          { required: true, message: 'Please input address', trigger: 'change' }
         ]
       },
       memberAddressOptions: [{
@@ -638,14 +666,33 @@ export default {
         //36 is for US
         region: 36
       },
+      phoneFormRules: {
+        phone: [
+          { required: true, message: 'Please input Phone number', trigger: 'change' }          
+        ]
+      },
       contactUserForm: {
         firstName: "",
         lastName: "",
+        email: "",
         //Mr.
         titleId: 2,
         phone: "",
         //36 is for US
-        region: 36
+        region: 36,
+        phone1: "",
+        region1: 36
+      },
+      contactUserFormRules: {
+        firstName: [
+          { required: true, message: 'Please input First Name', trigger: 'change' }
+        ],
+        lastName: [
+          { required: true, message: 'Please input Last Name', trigger: 'change' }
+        ],
+        phone: [
+          { required: true, message: 'Please input Phone number', trigger: 'change' }          
+        ]
       },
       userProfileForm: {
       },
@@ -655,7 +702,7 @@ export default {
       },
       houseProfileFormRules: {
         name: [
-          { required: true, message: 'Please input Auction House Name', trigger: 'blur' }          
+          { required: true, message: 'Please input Auction House Name', trigger: 'change' }          
         ]
       },
       categoryItems: []
@@ -693,6 +740,24 @@ export default {
           }
         }
         this.categoryItems = categoryItems;
+
+        this.addressForm = {
+            addressId: 0,
+            regions: [],
+            detail: "",
+            type: meebidConstant.addressType.Shipping,
+            isDefault: false
+          };
+        this.addresses[meebidConstant.addressType.Shipping] = [];
+        this.addresses[meebidConstant.addressType.Billing] = [];
+        for (var i = 0; i < this.$parent.$data.addresses.length; i++){
+          var address = this.$parent.$data.addresses[i];
+          
+          address.isDefault = address.type % 2 === 1;
+          address.type = address.type - address.type % 2;
+          this.addresses[address.type].push(address);
+        }
+          
       } else if (this.userProfile.type === window.meebidConstant.userType.house){
         if (this.userProfile.name){
           this.firstName = this.userProfile.name;
@@ -724,13 +789,31 @@ export default {
         this.houseProfileForm = this.userProfile;
         this.defaultActiveProfile = 'houseProfile';
         this.active = 'houseProfile';
-
+        this.addressForm = {
+          addressId: 0,
+          regions: [],
+          detail: "",
+          type: meebidConstant.addressType.Exhibition,
+          isDefault: false
+        };
+          
+        this.addresses[meebidConstant.addressType.Exhibition] = [];
+        this.addresses[meebidConstant.addressType.BiddingVenue] = [];
+        this.addresses[meebidConstant.addressType.PickupWarehouse] = [];
+        
+        for (var i = 0; i < this.$parent.$data.addresses.length; i++){
+          var address = this.$parent.$data.addresses[i];
+          
+          address.isDefault = address.type % 2 === 1;
+          address.type = address.type - address.type % 2;
+          this.addresses[address.type].push(address);
+        }
       }
       
     }
   },
   mounted() {
-    this.$refs.meebidAddressHeader.$el.style = "display: none;";
+    //this.$refs.meebidAddressHeader.$el.style = "display: none;";
   },
 
   methods: {
@@ -775,6 +858,7 @@ export default {
     },
     switchToView(key) {
       this.active = key;
+      /*
       switch (key){
         case 'memberAddress':
           this.$refs.meebidAddressHeader.$el.style = "";
@@ -884,6 +968,7 @@ export default {
           this.$refs.meebidAddressHeader.$el.style = "display: none;";
           break;
       }
+      */
     },
     openUserProfile() {
       //window.open("./admin.html", '_blank');
@@ -1144,6 +1229,8 @@ export default {
       this.phoneNumberDialogVisible = true;
     },
     onEditPhoneNumber(index, item){
+      var me = this;
+      
       this.updatePhoneIndex = index;
       var phoneObj = meebidUtils.convertPhoneStrToObj(item.phone, this.regionOptions);
       this.phoneForm.phone = phoneObj.phone;
@@ -1155,35 +1242,47 @@ export default {
       this.onFieldDataChange();
     },
     onSavePhoneNumber() {
-      if (this.updatePhoneIndex === -1){
-        this.userProfileForm.contact_users.push({
-          id: 0,
-          phone: meebidUtils.convertPhoneObjToStr(this.phoneForm.region, this.phoneForm.phone, this.regionOptions)
-        });
-        this.phoneNumberDialogVisible = false;
-      } else {
-        this.userProfileForm.contact_users[this.updatePhoneIndex].phone = meebidUtils.convertPhoneObjToStr(this.phoneForm.region, this.phoneForm.phone, this.regionOptions);
-        this.phoneNumberDialogVisible = false;
-      }
-      this.onFieldDataChange();
+      var me = this;
+      this.$refs.phoneFormRef.validate(function(isValid){
+        if (isValid){
+          if (me.updatePhoneIndex === -1){
+            me.userProfileForm.contact_users.push({
+              id: 0,
+              phone: meebidUtils.convertPhoneObjToStr(me.phoneForm.region, me.phoneForm.phone, me.regionOptions)
+            });
+            me.phoneNumberDialogVisible = false;
+          } else {
+            me.userProfileForm.contact_users[this.updatePhoneIndex].phone = meebidUtils.convertPhoneObjToStr(me.phoneForm.region, me.phoneForm.phone, me.regionOptions);
+            me.phoneNumberDialogVisible = false;
+          }
+          me.onFieldDataChange();
+        }
+      });
     },
     onAddContactUser() {
       this.updateContactUserIndex = -1;
       this.contactUserForm.phone = "";
       this.contactUserForm.region = this.regionOptions[0].id;
+      this.contactUserForm.phone1 = "";
+      this.contactUserForm.region1 = this.regionOptions[0].id;
       this.contactUserForm.titleId = this.titleOptions[0].id;
       this.contactUserForm.firstName = "";
       this.contactUserForm.lastName = "";
+      this.contactUserForm.email = "";
       this.contactUserDialogVisible = true;
     },
     onEditContactUser(index, item){
       this.updateContactUserIndex = index;
       var phoneObj = meebidUtils.convertPhoneStrToObj(item.phone, this.regionOptions);
+      var phoneObj1 = meebidUtils.convertPhoneStrToObj(item.phone1, this.regionOptions);
       this.contactUserForm.phone = phoneObj.phone;
       this.contactUserForm.region = phoneObj.region;
+      this.contactUserForm.phone1 = phoneObj1.phone;
+      this.contactUserForm.region1 = phoneObj1.region;
       this.contactUserForm.firstName = item.firstName;
       this.contactUserForm.lastName = item.lastName;
       this.contactUserForm.titleId = item.titleId || null;
+      this.contactUserForm.email = item.email || "";
       this.contactUserDialogVisible = true;
     },
     onDeleteContactUser(index, item){
@@ -1191,23 +1290,33 @@ export default {
       this.onFieldDataChange();
     },
     onSaveContactUser() {
-      if (this.updateContactUserIndex === -1){
-        this.houseProfileForm.contact_users.push({
-          id: 0,
-          firstName: this.contactUserForm.firstName,
-          lastName: this.contactUserForm.lastName,
-          titleId: this.contactUserForm.titleId,
-          phone: meebidUtils.convertPhoneObjToStr(this.contactUserForm.region, this.contactUserForm.phone, this.regionOptions)
-        });
-        this.contactUserDialogVisible = false;
-      } else {
-        this.houseProfileForm.contact_users[this.updateContactUserIndex].phone = meebidUtils.convertPhoneObjToStr(this.contactUserForm.region, this.contactUserForm.phone, this.regionOptions);
-        this.houseProfileForm.contact_users[this.updateContactUserIndex].firstName = this.contactUserForm.firstName;
-        this.houseProfileForm.contact_users[this.updateContactUserIndex].lastName = this.contactUserForm.lastName;
-        this.houseProfileForm.contact_users[this.updateContactUserIndex].titleId = this.contactUserForm.titleId;
-        this.contactUserDialogVisible = false;
-      }
-      this.onFieldDataChange();
+      var me = this;
+      this.$refs.contactUserFormRef.validate(function(isValid){
+        if (isValid){
+          if (me.updateContactUserIndex === -1){
+            me.houseProfileForm.contact_users.push({
+              id: 0,
+              firstName: me.contactUserForm.firstName,
+              lastName: me.contactUserForm.lastName,
+              titleId: me.contactUserForm.titleId,
+              email: me.contactUserForm.email,
+              phone: meebidUtils.convertPhoneObjToStr(me.contactUserForm.region, me.contactUserForm.phone, me.regionOptions),
+              phone1: meebidUtils.convertPhoneObjToStr(me.contactUserForm.region1, me.contactUserForm.phone1, me.regionOptions)
+            });
+            me.contactUserDialogVisible = false;
+          } else {
+            me.houseProfileForm.contact_users[me.updateContactUserIndex].phone = meebidUtils.convertPhoneObjToStr(me.contactUserForm.region, me.contactUserForm.phone, me.regionOptions);
+            me.houseProfileForm.contact_users[me.updateContactUserIndex].phone1 = meebidUtils.convertPhoneObjToStr(me.contactUserForm.region1, me.contactUserForm.phone1, me.regionOptions);
+            me.houseProfileForm.contact_users[me.updateContactUserIndex].firstName = me.contactUserForm.firstName;
+            me.houseProfileForm.contact_users[me.updateContactUserIndex].lastName = me.contactUserForm.lastName;
+            me.houseProfileForm.contact_users[me.updateContactUserIndex].titleId = me.contactUserForm.titleId;
+            me.houseProfileForm.contact_users[me.updateContactUserIndex].email = me.contactUserForm.email || "";
+            me.contactUserDialogVisible = false;
+          }
+          me.onFieldDataChange();
+        }
+      })
+      
     },
     cleanFieldDChangeFlag() {
       this.hasPendingChange = false;
@@ -1295,7 +1404,7 @@ export default {
     onResetAddress() {
       var currentType = this.addressForm.type;
       switch (this.active){
-        case 'memberAddress':
+        case 'memberProfile':
           this.addressForm = {
             addressId: 0,
             regions: [],
@@ -1304,7 +1413,7 @@ export default {
             isDefault: false
           };
           break;
-        case 'houseAddress':
+        case 'houseProfile':
           this.addressForm = {
             addressId: 0,
             regions: [],
