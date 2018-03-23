@@ -35,6 +35,7 @@
       </div>
     </div>
     <div id="content" class="meebidAdminContentWrapper">
+      <meebid-busy-indicator ref="busyIndicator" size="Medium"></meebid-busy-indicator>
       <div class="meebidAdminMenu">
         <el-menu
         :default-active="defaultActiveProfile"
@@ -55,6 +56,18 @@
             <el-menu-item index="houseProfile">
               <i class="el-icon-menu"></i>
               <span slot="title" class="meebidAdminMenuLabel">House Auction Information</span>
+            </el-menu-item>
+          </template>
+          <template v-if="userProfile.type === userType.house && userProfile.right === 2052">
+            <el-menu-item index="houseDefaultSetting">
+              <i class="el-icon-setting"></i>
+              <span slot="title" class="meebidAdminMenuLabel">Default Setting</span>
+            </el-menu-item>
+          </template>
+          <template v-if="userProfile.type === userType.house && userProfile.right === 2052">
+            <el-menu-item index="auctionManagement">
+              <i class="el-icon-goods"></i>
+              <span slot="title" class="meebidAdminMenuLabel">Auction Management</span>
             </el-menu-item>
           </template>
           <!--<template v-if="userProfile.type === userType.member && userProfile.right === 4098">
@@ -85,8 +98,7 @@
           </el-submenu>-->
         </el-menu>
       </div>
-      <div class="meebidAdminContent">
-        <meebid-busy-indicator ref="busyIndicator" size="Medium"></meebid-busy-indicator>
+      <div ref="meebidAdminContent" class="meebidAdminContent">
         <div class="meebidAdminFloatingAlert">
           <transition name="meebid-alert-top-in">
             <el-alert show-icon v-show="hasPendingChange" class="meebidUnsavedAlertMessage" :closable="false"
@@ -133,7 +145,7 @@
                       <el-button size="small" icon="el-icon-delete" class="meebidNoBorderButton" @click="onDeletePhoneNumber(index, item)"></el-button>
                     </span>
                   </div>
-                  <div class="" v-if="userProfileForm.contact_users.length < 5"><el-button size="small" type="primary" @click="onAddPhoneNumber">Add Phone</el-button></div>
+                  <div class="" v-if="userProfileForm.contact_users && userProfileForm.contact_users.length < 5"><el-button size="small" type="primary" @click="onAddPhoneNumber">Add Phone</el-button></div>
                   <div v-if="userProfileForm.contact_users.length === 5">You cannot have more than <b>5</b> phone numbers</div>
                   
                 </el-form-item>     
@@ -235,6 +247,7 @@
                     field-name="bLicenseUpload"
                     :multiple="false"
                     :limit="1"
+                    :on-remove="handleUploadRemove"
                     :on-exceed="handleUploadExceed"
                     :on-success="handleUploadSuccess"
                     :on-preview="handlePictureCardPreview"
@@ -251,6 +264,7 @@
                     field-name="qualiDocUpload"
                     :multiple="false"
                     :limit="1"
+                    :on-remove="handleUploadRemove"
                     :on-exceed="handleUploadExceed"
                     :on-success="handleUploadSuccess"
                     :on-preview="handlePictureCardPreview"
@@ -267,6 +281,7 @@
                     field-name="idUpload"
                     :multiple="false"
                     :limit="1"
+                    :on-remove="handleUploadRemove"
                     :on-exceed="handleUploadExceed"
                     :on-success="handleUploadSuccess"
                     :on-preview="handlePictureCardPreview"
@@ -284,6 +299,78 @@
             </el-col>
           </el-row>
         </div>
+        <div v-else-if="active === 'houseDefaultSetting'" class="meebidProfileFormWrapper">
+          <el-row>
+            <el-col :span="24" class="meebidHouseProfileFormWrapper">
+              <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">Auction House Default Setting</div>
+              <div class="meebidRegisterHeaderLabel">You can set default Terms and Condition, Payment Info and Shipping Info here.</div>
+              <el-form ref="houseDefaultSettingForm" :model="houseDefaultSettingForm" label-width="180px" class="meebidHouseProfileForm">
+                <el-form-item label="Terms and Condition">
+                  <meebid-text-editor ref="termsEditor" compId="terms" v-model="houseDefaultSettingForm.terms" class="meebidFormFieldMediumLength meebidTextEditorInForm" placeholder="Please input Terms and Condition"></meebid-text-editor>
+                </el-form-item>
+                <el-form-item label="Payment Info">
+                  <meebid-text-editor ref="paymentEditor" compId="paymentInfo" v-model="houseDefaultSettingForm.paymentInfo" class="meebidFormFieldMediumLength meebidTextEditorInForm" placeholder="Please input Payment Info"></meebid-text-editor>
+                </el-form-item>
+                <el-form-item label="Shipping Info">
+                  <meebid-text-editor ref="shipingEditor" compId="shippingInfo" v-model="houseDefaultSettingForm.shippingInfo" class="meebidFormFieldMediumLength meebidTextEditorInForm" placeholder="Please input Shipping Info"></meebid-text-editor>
+                </el-form-item>
+                <el-form-item>
+                  <el-button type="primary" @click="onUpdateDefaultSetting">UPDATE</el-button>
+                </el-form-item>
+              </el-form>
+            </el-col>
+          </el-row>
+        </div>
+        <div v-else-if="active === 'auctionManagement'" class="meebidProfileFormWrapper">
+          <el-row>
+            <el-col :span="24" class="meebidHouseProfileFormWrapper" style="position: relative;">
+              <div class="meebidLoginDialogLabel">Auction Management</div>
+              <div class="">You can manage your auction here.</div>
+              <div style="position: absolute; right: 0px; top: 0px;"> 
+                <el-button class="meebidMarginTopMedium" type="primary" @click="onCreateAuction">CREATE AUCTION</el-button>
+              </div>
+              <div class="meebidMarginTopMedium">
+
+                <div v-for="(item,index) in auctionList" class="">
+                  <div style="border-top: 1px solid #eeeeee;" class="meebidMarginBottomMedium meebidPaddingTopMedium">
+                    <a class="meebidAuctionImageContainer">
+                      <img :src="item.logo">
+                    </a>
+                    <div class="meebidPaddingLeftMedium" style="display: inline-block; width: calc(100% - 300px); vertical-align: top;">
+                      <span style="font-size: 20px; display: block; font-weight: bolder;">{{item.name}}</span>
+                      <span style="font-size: 16px; display: block;" class="meebidMarginTopSmall">{{formatDate(item.startAt)}}</span>
+                      <span style="font-size: 16px; display: inline-block; font-weight: bolder;" class="meebidMarginTopSmall meebidPaddingRightSmall">{{getAuctionType(item.type)}}</span>
+                      <span style="font-size: 16px; display: inline-block;" :style="{background: getStateColor(item.state)}" class="meebidPaddingLeftSmall meebidPaddingRightSmall meebidMarginTopSmall">{{getStateLabel(item.state)}}</span>
+                      <span style="font-size: 16px; display: inline-block;" v-if="(item.state & 2) != 0" :style="{background: getStateColor(2)}" class="meebidPaddingLeftSmall meebidPaddingRightSmall meebidMarginTopSmall">{{getStateLabel(2)}}</span>
+                    </div>
+                    <div style="width: 100px; display: inline-block; float: right;">
+                      <el-dropdown @command="handleAuctionItemCommand($event, item)" v-if="item.state != 0">
+                        <el-button type="primary" size="small" class="meebidAuctionListButton">
+                          Actions<i class="el-icon-arrow-down el-icon--right"></i>
+                        </el-button>
+                        <el-dropdown-menu slot="dropdown">
+                          <el-dropdown-item command="edit">Edit</el-dropdown-item>
+                          <el-dropdown-item command="delete">Delete</el-dropdown-item>
+                          <el-dropdown-item v-if="(item.state & 1) != 0" command="announce">Announce</el-dropdown-item>
+                          <el-dropdown-item v-if="(item.state & 16) != 0" command="deList">De-List</el-dropdown-item>
+                          <el-dropdown-item v-if="(item.state & 32) == 0" command="publish">Publish</el-dropdown-item>
+                        </el-dropdown-menu>
+                      </el-dropdown>
+                      <el-button type="primary" size="small" v-if="item.state != 0" class="meebidMarginTopMedium meebidAuctionListButton meebidMarginLeftClean">Manage Lots</el-button>
+                    </div>
+                  </div>
+                </div>
+                <el-pagination
+                  @current-change="onAuctionCurrentPageChange"
+                  :current-page.sync="currentPageForAuction"
+                  :page-size="20"
+                  layout="prev, pager, next, jumper"
+                  :total="totalCountForAuction">
+                </el-pagination>
+              </div>
+            </el-col>
+          </el-row>
+        </div>
         <!-- Element UI Bug, when form doesn't rendered first time, rules check will not be applied correctly-->
         <div v-if="active === 'houseProfile' || active === 'memberProfile'" class="meebidPaddingTopMedium meebidMarginTopLarge meebidAddressWrapper">
           <el-row ref="meebidAddressHeader">
@@ -291,44 +378,16 @@
               <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">Address Management</div>
               <div class="meebidRegisterHeaderLabel" v-if="active === 'memberProfile'">You can manage your Billing Address and Shipping Address.</div>
               <div class="meebidRegisterHeaderLabel" v-if="active === 'houseProfile'">You can manage your Exhibition Address, Bidding Venue Address and Pick-up Warehouse Address.</div>
-              <el-form ref="addressForm" status-icon :rules="addressFormRules" :model="addressForm" label-width="180px" class="meebidHouseProfileForm">
-                
-                <el-form-item label="Country/City/District" prop="regions">
-                  <el-cascader change-on-select @change="handleAddressChange" :options="regionOptions" style="width: 300px;" :props="regionProp" v-model="addressForm.regions" placeholder="Select...">
-                  </el-cascader>
-                </el-form-item>
-                <el-form-item label="Address" prop="detail">
-                  <el-input v-model="addressForm.detail" placeholder="Please input address"></el-input>
-                </el-form-item>
-                <el-form-item label="Address Type">
-                  <el-select v-model="addressForm.type" placeholder="Select..." :disabled="addressForm.addressId > 0">
-                    <el-option
-                      v-for="item in (active === 'memberProfile' ? memberAddressOptions : houseAddressOptions)"
-                      :key="item.id"
-                      :label="item.label"
-                      :value="item.id">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item label="Set as default">
-                  <el-checkbox v-model="addressForm.isDefault"></el-checkbox>
-                </el-form-item>
-                <el-form-item>
-                  <el-button type="primary" :disabled="isUpdateAddressButtonDisabled" @click="onUpdateAddress">SAVE</el-button>
-                  <el-button type="primary" :disabled="isUpdateAddressButtonDisabled" @click="onResetAddress">RESET</el-button>
-                  <div style="width: 100%; height: 34px; margin-top: 10px;">
-                    <el-alert show-icon v-if="isUpdateAddressButtonDisabled" class="meebidMarginTopSmall meebidMaximumAddressAlertMessage" :closable="false"
-                      title="You cannot have more than 5 same type addresses."
-                      type="warning">
-                    </el-alert>
-                  </div>
-                </el-form-item>
-                <meebid-busy-indicator ref="addressFormBusyIndicator" size="Medium"></meebid-busy-indicator>
-              </el-form>
             </el-col>
           </el-row>
           <div v-if="active === 'memberProfile'">
+            <el-button size="small" type="primary" v-if="this.addresses[16].length < 5" class="meebidSquareButton meebidMarginBottomSmall meebidMarginLeftSmall" @click="handleAddAddress(16)">Add</el-button>
             <span class="meebidAddressManagementTableHeader meebidPaddingLeftSmall meebidPaddingBottomSmall meebidPaddingTopMedium">Shipping Address</span>
+            <!-- Shipping Address -->
+            <el-alert show-icon v-if="this.addresses[16].length === 5" class="meebidMarginBottomSmall meebidMaximumAddressAlertMessage" :closable="false"
+                title="You cannot have more than 5 same type addresses."
+                type="warning">
+            </el-alert>
             <el-table
               :data="addresses[16]"
               border
@@ -359,6 +418,11 @@
           </div>
           <div v-if="active === 'memberProfile'" class="meebidPaddingTopMedium">
             <span class="meebidAddressManagementTableHeader meebidPaddingLeftSmall meebidPaddingBottomSmall meebidPaddingTopMedium">Billing Address</span>
+            <el-button size="small" type="primary" v-if="this.addresses[8].length < 5" class="meebidSquareButton meebidMarginBottomSmall meebidMarginLeftSmall" @click="handleAddAddress(8)">Add</el-button>
+            <el-alert show-icon v-if="this.addresses[8].length === 5" class="meebidMarginBottomSmall meebidMaximumAddressAlertMessage" :closable="false"
+                title="You cannot have more than 5 same type addresses."
+                type="warning">
+            </el-alert>
             <el-table
               :data="addresses[8]"
               border
@@ -389,7 +453,12 @@
           </div>
           <div v-if="active === 'houseProfile'">
             <span class="meebidAddressManagementTableHeader meebidPaddingLeftSmall meebidPaddingBottomSmall meebidPaddingTopMedium">Pick-up Warehouse Address</span>
+            <el-button size="small" type="primary" v-if="this.addresses[128].length < 5" class="meebidSquareButton meebidMarginBottomSmall meebidMarginLeftSmall" @click="handleAddAddress(128)">Add</el-button>
             <span style="display: block;" class="meebidPaddingLeftSmall meebidPaddingBottomSmall" >You <b>cannot</b> create Auction without Pick-up Warehouse Address.</span>
+            <el-alert show-icon v-if="this.addresses[128].length === 5" class="meebidMarginBottomSmall meebidMaximumAddressAlertMessage" :closable="false"
+                title="You cannot have more than 5 same type addresses."
+                type="warning">
+            </el-alert>
             <el-table
               :data="addresses[128]"
               border
@@ -420,6 +489,11 @@
           </div>
           <div v-if="active === 'houseProfile'" class="meebidPaddingTopMedium">
             <span class="meebidAddressManagementTableHeader meebidPaddingLeftSmall meebidPaddingBottomSmall meebidPaddingTopMedium">Exhibition Address</span>
+            <el-button size="small" type="primary" v-if="this.addresses[32].length < 5" class="meebidSquareButton meebidMarginBottomSmall meebidMarginLeftSmall" @click="handleAddAddress(32)">Add</el-button>
+            <el-alert show-icon v-if="this.addresses[32].length === 5" class="meebidMarginBottomSmall meebidMaximumAddressAlertMessage" :closable="false"
+                title="You cannot have more than 5 same type addresses."
+                type="warning">
+            </el-alert>
             <el-table
               :data="addresses[32]"
               border
@@ -450,6 +524,11 @@
           </div>
           <div v-if="active === 'houseProfile'" class="meebidPaddingTopMedium">
             <span class="meebidAddressManagementTableHeader meebidPaddingLeftSmall meebidPaddingBottomSmall meebidPaddingTopMedium">Bidding Venue Address</span>
+            <el-button size="small" type="primary" v-if="this.addresses[64].length < 5" class="meebidSquareButton meebidMarginBottomSmall meebidMarginLeftSmall" @click="handleAddAddress(64)">Add</el-button>
+            <el-alert show-icon v-if="this.addresses[64].length === 5" class="meebidMarginBottomSmall meebidMaximumAddressAlertMessage" :closable="false"
+                title="You cannot have more than 5 same type addresses."
+                type="warning">
+            </el-alert>
             <el-table
               :data="addresses[64]"
               border
@@ -568,6 +647,175 @@
           <el-button type="primary" @click="onSaveContactUser" class="">Save</el-button>
         </span>
       </el-dialog>
+      <el-dialog :visible.sync="addressDialogVisible" class="" title="Address" width="800px">
+        <el-form ref="addressForm" status-icon :rules="addressFormRules" :model="addressForm" label-width="180px" class="meebidHouseProfileForm">
+                
+          <el-form-item label="Country/City/District" prop="regions">
+            <el-cascader change-on-select @change="handleAddressChange" :options="regionOptions" style="width: 300px;" :props="regionProp" v-model="addressForm.regions" placeholder="Select...">
+            </el-cascader>
+          </el-form-item>
+          <el-form-item label="Address" prop="detail">
+            <el-input v-model="addressForm.detail" placeholder="Please input address"></el-input>
+          </el-form-item>
+          <el-form-item label="Address Type">
+            <el-select v-model="addressForm.type" placeholder="Select..." :disabled="true">
+              <el-option
+                v-for="item in (active === 'memberProfile' ? memberAddressOptions : houseAddressOptions)"
+                :key="item.id"
+                :label="item.label"
+                :value="item.id">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="Set as default">
+            <el-checkbox v-model="addressForm.isDefault"></el-checkbox>
+          </el-form-item>
+          <!--<el-form-item>
+            <el-button type="primary" :disabled="isUpdateAddressButtonDisabled" @click="onUpdateAddress">SAVE</el-button>
+            <el-button type="primary" :disabled="isUpdateAddressButtonDisabled" @click="onResetAddress">RESET</el-button>
+            <div style="width: 100%; height: 34px; margin-top: 10px;">
+              <el-alert show-icon v-if="isUpdateAddressButtonDisabled" class="meebidMarginTopSmall meebidMaximumAddressAlertMessage" :closable="false"
+                title="You cannot have more than 5 same type addresses."
+                type="warning">
+              </el-alert>
+            </div>
+          </el-form-item>-->
+          <meebid-busy-indicator ref="addressFormBusyIndicator" size="Medium"></meebid-busy-indicator>
+        </el-form>
+
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="addressDialogVisible = false" class="">Cancel</el-button>
+          <el-button type="primary" @click="onUpdateAddress()" class="">Save</el-button>
+        </span>
+      </el-dialog>
+
+      <el-dialog :visible.sync="auctionDialogVisible" class="meebidAuctionDialog" title="Auction" width="800px" height="600px">
+        <el-tabs type="border-card" v-model="auctionDialogActiveTab" @tab-click="handleAuctionDialogTabClick">
+          <el-tab-pane name="auctionBasic">
+            <span slot="label">Basic</span>
+            <el-alert v-if="isAddAuction" show-icon class="meebidUnsavedAlertMessage" :closable="false"
+              :title="$t('meebid.alertMessage.MSG_ADMIN_USING_DEFAULT_HOUSE_TERMS_TEXT')"
+              type="info">
+            </el-alert>
+            <el-form ref="auctionForm" status-icon :rules="auctionFormRules" style="width: 80%;" :model="auctionForm" label-width="180px" class="meebidHouseProfileForm">        
+              <el-form-item label="Name" prop="name">
+                <el-input v-model="auctionForm.name" placeholder="Please input auction name"></el-input>
+              </el-form-item>
+              <el-form-item label="Description" prop="description">
+                <el-input v-model="auctionForm.description" placeholder="Please input description"></el-input>
+              </el-form-item>
+              <el-form-item label="Auction Type" prop="type">
+                <el-select v-model="auctionForm.type" placeholder="Select...">
+                  <el-option
+                    v-for="item in auctionTypeOptions"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="Logo" prop="bLogo" required>
+                <meebid-upload
+                  class="upload-demo"
+                  ref="bAuctionLogo"
+                  field-name="bLogo"
+                  list-type="picture-card"
+                  :multiple="false"
+                  :limit="1"
+                  :on-exceed="handleUploadExceed"
+                  :on-remove="handleUploadLogoSuccess"
+                  :on-success="handleUploadLogoSuccess"
+                  :on-preview="handlePictureCardPreview"
+                  :on-error="handleUploadError"
+                  :file-list="auctionForm.bLogo"
+                  >
+                  <i class="el-icon-plus"></i>
+                </meebid-upload>
+              </el-form-item>
+              <el-form-item label="Auction Time" prop="startAt">
+                <el-form-item >
+                  <el-date-picker type="datetime" placeholder="Select date" v-model="auctionForm.startAt" style="width: 100%;"></el-date-picker>
+                </el-form-item>
+              </el-form-item>
+              <el-form-item label="Pick-up Warehouse Address" class="meebidUserProfileLongLabel" prop="pickupLocId">
+                <el-select v-model="auctionForm.pickupLocId" placeholder="Select..." v-if="addresses[128] && addresses[128].length > 0">
+                  <el-option
+                    v-for="item in addresses[128]"
+                    :key="item.ID"
+                    :label="getAddressLabel(item)"
+                    :value="item.ID">
+                  </el-option>
+                </el-select>
+                <el-alert v-else show-icon class="meebidUnsavedAlertMessage" :closable="false"
+                  :title="$t('meebid.alertMessage.MSG_ADMIN_NO_PICK_UP_WAREHOUSE_ADDRESS_SELECTABLE')"
+                  type="error">
+                </el-alert>
+              </el-form-item>
+              <el-form-item label="Bidding Venue Address" class="meebidUserProfileLongLabel" prop="biddingLocId">
+                <el-select v-model="auctionForm.biddingLocId" clearable placeholder="Select..." v-if="addresses[64] && addresses[64].length > 0">
+                  <el-option
+                    v-for="item in addresses[64]"
+                    :key="item.ID"
+                    :label="getAddressLabel(item)"
+                    :value="item.ID">
+                  </el-option>
+                </el-select>
+                <el-alert v-else show-icon class="meebidUnsavedAlertMessage" :closable="false"
+                  :title="$t('meebid.alertMessage.MSG_ADMIN_NO_ADDRESS_SELECTABLE')"
+                  type="warning">
+                </el-alert>
+              </el-form-item>
+              <el-form-item label="Exhibition Address" class="meebidUserProfileLongLabel" prop="exhLocId">
+                <el-select v-model="auctionForm.exhLocId" clearable placeholder="Select..." v-if="addresses[32] && addresses[32].length > 0">
+                  <el-option
+                    v-for="item in addresses[32]"
+                    :key="item.ID"
+                    :label="getAddressLabel(item)"
+                    :value="item.ID">
+                  </el-option>
+                </el-select>
+                <el-alert v-else show-icon class="meebidUnsavedAlertMessage" :closable="false"
+                  :title="$t('meebid.alertMessage.MSG_ADMIN_NO_ADDRESS_SELECTABLE')"
+                  type="warning">
+                </el-alert>
+              </el-form-item>
+              <el-form-item label="Exhibition Time" prop="exhTime">
+                <el-form-item prop="exhTime" v-if="addresses[32] && addresses[32].length > 0">
+                  <el-date-picker type="datetime" placeholder="Select date" v-model="auctionForm.exhTime" style="width: 100%;"></el-date-picker>
+                </el-form-item>
+                <el-alert v-else show-icon class="meebidUnsavedAlertMessage" :closable="false"
+                  :title="$t('meebid.alertMessage.MSG_ADMIN_NO_ADDRESS_SELECTABLE')"
+                  type="warning">
+                </el-alert>
+              </el-form-item>
+              <meebid-busy-indicator ref="auctionFormBusyIndicator" size="Medium"></meebid-busy-indicator>
+            </el-form>
+          </el-tab-pane>
+          <el-tab-pane label="Terms" name="auctionTerms">
+            <meebid-busy-indicator ref="auctionDialogTermsIndicator" size="Medium"></meebid-busy-indicator>
+            <el-alert v-if="isAddAuction" show-icon class="meebidUnsavedAlertMessage" :closable="false"
+              :title="$t('meebid.alertMessage.MSG_ADMIN_USING_DEFAULT_HOUSE_TERMS_TEXT')"
+              type="info">
+            </el-alert>
+            <el-form label-width="180px" ref="auctionTermsForm" class="meebidHouseProfileForm" :model="auctionForm" :rules="auctionFormRules" status-icon>
+              <el-form-item label="Terms and Condition" prop="termsAndCondition">
+                <meebid-text-editor ref="termsEditorAuction" style="height: 200px;" compId="termsAuction" v-model="auctionForm.termsAndCondition" class="meebidFormFieldMediumLength" placeholder="Please input Terms and Condition"></meebid-text-editor>
+              </el-form-item>
+              <el-form-item label="Payment Info" prop="paymentInfo">
+                <meebid-text-editor ref="paymentEditorAuction" compId="paymentInfoAuction" style="height: 200px;" v-model="auctionForm.paymentInfo" class="meebidFormFieldMediumLength" placeholder="Please input Payment Info"></meebid-text-editor>
+              </el-form-item>
+              <el-form-item label="Shipping Info" prop="shippingInfo">
+                <meebid-text-editor ref="shipingEditorAuction" compId="shippingInfoAuction" style="height: 200px;" v-model="auctionForm.shippingInfo" class="meebidFormFieldMediumLength" placeholder="Please input Shipping Info"></meebid-text-editor>
+              </el-form-item>
+            </el-form>
+          </el-tab-pane>
+        </el-tabs>
+
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="auctionDialogVisible = false" class="">Cancel</el-button>
+          <el-button type="primary" @click="onUpdateAuction()" :disabled="!(addresses[128] && addresses[128].length > 0)">{{getAuctionDialogSubmitText(auctionForm.state)}}</el-button>
+        </span>
+      </el-dialog>
 
       <meebid-category-dialog :items="categoryItems" :isProfilePage="isProfilePage" @update="onFieldDataChange" ref="categoryDialog">
       </meebid-category-dialog>
@@ -590,7 +838,47 @@ export default {
         callback(new Error('Please select regions.'));
       }
     };
+
+    var validateAuctionTerms = (rule, value, callback) => {
+      if (value && value.ops && value.ops.length > 0 && value.ops[0].insert !== "\n") {
+        callback();
+      } else {
+        callback(new Error('Please input Terms and Condition.'));
+      }
+    };
+    var validateAuctionPaymentInfo = (rule, value, callback) => {
+      if (value && value.ops && value.ops.length > 0 && value.ops[0].insert !== "\n") {
+        callback();
+      } else {
+        callback(new Error('Please input Payment Info.'));
+      }
+    };
+    var validateAuctionShippingInfo = (rule, value, callback) => {
+      if (value && value.ops && value.ops.length > 0 && value.ops[0].insert !== "\n") {
+        callback();
+      } else {
+        callback(new Error('Please input Shipping Info.'));
+      }
+    };
+    var validateExhTime = (rule, value, callback) => {
+      if (this.auctionForm.exhLocId){
+        if (value) {
+          callback();
+        } else {
+          callback(new Error('Please select Exhibition Time for Exhibition Address.'));
+        }
+      } else {
+        callback();
+      }
+    };
     return {
+      isAuctionBasicInvalid: false,
+      currentPageForAuction: 1,
+      totalCountForAuction: 0,
+      isAddAuction: true,
+      auctionDialogActiveTab: "auctionBasic",
+      auctionDialogVisible: false,
+      addressDialogVisible: false,
       hasPendingChange: false,
       updatePhoneIndex: -1,
       phoneNumberDialogVisible: false,
@@ -610,11 +898,22 @@ export default {
       isProfilePage: true,
       regionOptions: [],
       titleOptions: [],
+      auctionTypeOptions: [{
+        id: window.meebidConstant.auctionType.Timed,
+        name: i18n.t('meebid.auctionManagement.MSG_AUCTION_TYPE_TIMED_TEXT')
+      }, {
+        id: window.meebidConstant.auctionType.Live,
+        name: i18n.t('meebid.auctionManagement.MSG_AUCTION_TYPE_LIVE_TEXT')
+      }, {
+        id: window.meebidConstant.auctionType.CategoryOnly,
+        name: i18n.t('meebid.auctionManagement.MSG_AUCTION_TYPE_CATEGORY_ONLY_TEXT')
+      }],
       regionProp: {
         value: 'id',
         label: 'name',
         children: 'childrens'
       },
+      auctionList: [],
       addressForm: {
         addressId: 0,
         regions: [],
@@ -705,7 +1004,43 @@ export default {
           { required: true, message: 'Please input Auction House Name', trigger: 'change' }          
         ]
       },
-      categoryItems: []
+      houseDefaultSettingForm: {
+
+      },
+      categoryItems: [],
+      auctionForm: {},
+      auctionFormRules: {
+        name: [
+          { required: true, message: 'Please input Auction Name', trigger: 'change' }          
+        ],
+        description: [
+          { required: true, message: 'Please input Description', trigger: 'change' }          
+        ],
+        startAt: [
+          { type: "date", required: true, message: 'Please input Start Date', trigger: 'change' }          
+        ],
+        exhTime: [
+          { validator: validateExhTime, trigger: 'change' }     
+        ],
+        type: [
+          { required: true, message: 'Please select Auction Type', trigger: 'change' }          
+        ],
+        bLogo: [
+          { required: true, message: 'Please upload Auction Logo', trigger: 'on-change' }          
+        ],
+        pickupLocId: [
+          { required: true, message: 'Please select Pick-up Warehouse Address', trigger: 'change' }          
+        ],
+        termsAndCondition: [
+          { validator: validateAuctionTerms, trigger: 'change' }     
+        ],
+        paymentInfo: [
+          { validator: validateAuctionPaymentInfo, trigger: 'change' }     
+        ],
+        shippingInfo: [
+          { validator: validateAuctionShippingInfo, trigger: 'change' }     
+        ]
+      }
     }
   },
   computed: {
@@ -721,7 +1056,16 @@ export default {
       this.titleOptions = this.$parent.$data.titles;
     }
     if (this.$parent.$data && this.$parent.$data.user){
-      this.userProfile = this.$parent.$data.user;
+      this._buildUserProfile(this.$parent.$data)
+    }
+  },
+  mounted() {
+    //this.$refs.meebidAddressHeader.$el.style = "display: none;";
+  },
+
+  methods: {
+    _buildUserProfile(data){
+      this.userProfile = data.user;
       
       if (this.userProfile.type === window.meebidConstant.userType.member){
         if (this.userProfile.firstName){
@@ -742,12 +1086,12 @@ export default {
         this.categoryItems = categoryItems;
 
         this.addressForm = {
-            addressId: 0,
-            regions: [],
-            detail: "",
-            type: meebidConstant.addressType.Shipping,
-            isDefault: false
-          };
+          addressId: 0,
+          regions: [],
+          detail: "",
+          type: meebidConstant.addressType.Shipping,
+          isDefault: false
+        };
         this.addresses[meebidConstant.addressType.Shipping] = [];
         this.addresses[meebidConstant.addressType.Billing] = [];
         for (var i = 0; i < this.$parent.$data.addresses.length; i++){
@@ -801,21 +1145,14 @@ export default {
         this.addresses[meebidConstant.addressType.BiddingVenue] = [];
         this.addresses[meebidConstant.addressType.PickupWarehouse] = [];
         
-        for (var i = 0; i < this.$parent.$data.addresses.length; i++){
-          var address = this.$parent.$data.addresses[i];
+        for (var i = 0; i < data.addresses.length; i++){
+          var address = data.addresses[i];
           address.isDefault = address.type % 2 === 1;
           address.type = address.type - address.type % 2;
           this.addresses[address.type].push(address);
         }
       }
-      
-    }
-  },
-  mounted() {
-    //this.$refs.meebidAddressHeader.$el.style = "display: none;";
-  },
-
-  methods: {
+    },
     redirectToHome() {
       window.location.href = "./home.html";
     },
@@ -827,6 +1164,8 @@ export default {
       }).then(() => {
         loginUtils.setLoginUser()
         window.location.href = "./home.html";
+      }).catch(() => {
+        
       });
     },
     openCategoryDialog() {
@@ -856,119 +1195,92 @@ export default {
       }
     },
     switchToView(key) {
+      var me = this;
       this.active = key;
-      /*
+      
       switch (key){
         
-        case 'memberAddress':
-          this.$refs.meebidAddressHeader.$el.style = "";
-          this.addressForm = {
-            addressId: 0,
-            regions: [],
-            detail: "",
-            type: meebidConstant.addressType.Shipping,
-            isDefault: false
-          };
-          this.$refs.addressForm.clearValidate();
+        case 'memberProfile':
+        case 'houseProfile':
+          this.$refs.meebidAdminContent.className = "meebidAdminContent meebidAdminContentInLoading";
           this.$refs.busyIndicator.show();
-          $.ajax({
-            type: "GET",
-            url: "/api/user/addresses",
-            contentType : "application/json", 
+          $.ajax({  
+            url : "/api/user/profile",  
+            type : 'GET',
             headers: {
               token: this.loginUser.token
             },
-            context: this,
-            data: {
-              type: meebidConstant.addressType.Shipping|meebidConstant.addressType.Billing,
-              offset: 0,
-              count: 20
-            },
-            dataType: 'json',
-            success(data) {
-              this.$refs.busyIndicator.hide();
-              this.addresses[meebidConstant.addressType.Shipping] = [];
-              this.addresses[meebidConstant.addressType.Billing] = [];
-              if (data.code === 1){
-                for (var i = 0; i < data.content.addresses.length; i++){
-                  var address = data.content.addresses[i];
-                  
-                  address.isDefault = address.type % 2 === 1;
-                  address.type = address.type - address.type % 2;
-                  this.addresses[address.type].push(address);
+            contentType : "application/json", 
+            success : function(data) {
+
+              if (data.code == 1){
+                var categoryItems = data.content.categories;
+                for (var i = 0; i < categoryItems.length; i++){
+                  categoryItems[i].selected = false;
                 }
+                var user = data.content.user;
+                if (!user.contact_users) {
+                  user.contact_users = [];
+                }
+
+                if (data.content.addresses && data.content.addresses.length){
+                  for (var i = 0; i < data.content.addresses.length; i++){
+                    data.content.addresses[i].isDefault = false;
+                  }
+                }
+                user.originalContactUsers = [].concat(user.contact_users);
+                me._buildUserProfile(data.content);
               } else {
-                this.$notify.error({
-                  title: 'Failure',
-                  message: 'Fetch Address Data failure',
-                  duration: 5000
-                })
+                errorUtils.requestDataError(data)
               }
-              
-            },
-            error() {
-              this.$refs.busyIndicator.hide();
+            },  
+            error : function(data) {  
               errorUtils.requestError(data);
-            }
+            },  
+            dataType : 'json' 
+          }).done(function(){
+            me.$refs.busyIndicator.hide();
+            me.$refs.meebidAdminContent.className = "meebidAdminContent";
           });
           break;
-        case 'houseAddress':
-          this.$refs.meebidAddressHeader.$el.style = "";
-          this.addressForm = {
-            addressId: 0,
-            regions: [],
-            detail: "",
-            type: meebidConstant.addressType.Exhibition,
-            isDefault: false
-          };
-          this.$refs.addressForm.clearValidate();
+        case 'houseDefaultSetting':
+          this.$refs.meebidAdminContent.className = "meebidAdminContent meebidAdminContentInLoading";
           this.$refs.busyIndicator.show();
-          $.ajax({
-            type: "GET",
-            url: "/api/user/addresses",
-            contentType : "application/json", 
+          $.ajax({  
+            url : "/api/public/pts/settings",  
+            type : 'GET',
             headers: {
               token: this.loginUser.token
             },
-            context: this,
+            contentType : "application/json", 
             data: {
-              type: meebidConstant.addressType.Exhibition|meebidConstant.addressType.BiddingVenue|meebidConstant.addressType.PickupWarehouse,
-              offset: 0,
-              count: 20
+              houseId: this.userProfile.ID
             },
-            dataType: 'json',
-            success(data) {
-              this.$refs.busyIndicator.hide();
-              this.addresses[meebidConstant.addressType.Exhibition] = [];
-              this.addresses[meebidConstant.addressType.BiddingVenue] = [];
-              this.addresses[meebidConstant.addressType.PickupWarehouse] = [];
-              if (data.code === 1){
-                for (var i = 0; i < data.content.addresses.length; i++){
-                  var address = data.content.addresses[i];
-                  
-                  address.isDefault = address.type % 2 === 1;
-                  address.type = address.type - address.type % 2;
-                  this.addresses[address.type].push(address);
-                }
+            success : function(data) {
+              if (data.code == 1){
+                me.$refs.termsEditor.setValue(JSON.parse(data.content.termsAndCondition));
+                me.$refs.paymentEditor.setValue(JSON.parse(data.content.paymentInfo));
+                me.$refs.shipingEditor.setValue(JSON.parse(data.content.shippingInfo));
               } else {
-                this.$notify.error({
-                  title: 'Failure',
-                  message: 'Fetch Address Data failure',
-                  duration: 5000
-                })
+                errorUtils.requestDataError(data)
               }
-            },
-            error() {
-              this.$refs.busyIndicator.hide();
+            },  
+            error : function(data) {  
               errorUtils.requestError(data);
-            }
+            },  
+            dataType : 'json' 
+          }).done(function(){
+            me.$refs.busyIndicator.hide();
+            me.$refs.meebidAdminContent.className = "meebidAdminContent";
           });
           break;
-          
+        case 'auctionManagement':
+          this.refreshAuctions();
+          break;
         default:
-          this.$refs.meebidAddressHeader.$el.style = "display: none;";
+          //this.$refs.meebidAddressHeader.$el.style = "display: none;";
           break;
-      }*/
+      }
       
     },
     openUserProfile() {
@@ -1021,14 +1333,23 @@ export default {
         if (this.userProfile.bLicenseUpload.length && this.userProfile.bLicenseUpload[0] && this.userProfile.bLicenseUpload[0].rUid){
           returnObj.blicenseUrl = this.userProfile.bLicenseUpload[0].rUid;
           returnObj.blicenseName = this.userProfile.bLicenseUpload[0].name;
+        } else if (this.userProfile.bLicenseUpload.length == 0){
+          returnObj.blicenseUrl = "";
+          returnObj.blicenseName = "";
         }
         if (this.userProfile.qualiDocUpload.length && this.userProfile.qualiDocUpload[0] && this.userProfile.qualiDocUpload[0].rUid){
           returnObj.qualiDocUrl = this.userProfile.qualiDocUpload[0].rUid;
           returnObj.qualiDocName = this.userProfile.qualiDocUpload[0].name;
+        } else if (this.userProfile.qualiDocUpload.length == 0){
+          returnObj.qualiDocUrl = "";
+          returnObj.qualiDocName = "";
         }
         if (this.userProfile.idUpload.length && this.userProfile.idUpload[0] && this.userProfile.idUpload[0].rUid){
           returnObj.idUrl = this.userProfile.idUpload[0].rUid;
           returnObj.idName = this.userProfile.idUpload[0].name;
+        } else if (this.userProfile.idUpload.length == 0){
+          returnObj.idUrl = "";
+          returnObj.idName = "";
         }
         return returnObj;
       }
@@ -1203,6 +1524,9 @@ export default {
         
       }, 1000);
     },
+    handleUploadRemove(file, fileList, fieldName){
+      this.userProfile[fieldName] = fileList;
+    },
     handleUploadSuccess(response, file, fileList, fieldName) {
       var res = response;
       this.userProfile[fieldName] = fileList;
@@ -1341,6 +1665,9 @@ export default {
         }
       }
       return regionLabel;
+    },
+    getAddressLabel(address){
+      return this.getRegionLabel(address.regions) + " " + address.detail;
     },
     onFieldDataChange() {
       var me = this;
@@ -1488,6 +1815,7 @@ export default {
                   isDefault: false
                 };
                 this.$refs.addressForm.resetFields();
+                this.addressDialogVisible = false;
               } else {
                 this.$notify.error({
                   title: 'Failure',
@@ -1523,10 +1851,28 @@ export default {
         this.buildRegionOptions(regionsDataArr.slice(1), regionOption.childrens, regions.slice(1));
       }
     },
+    handleAddAddress(type){
+      this.addressForm = {
+        addressId: 0,
+        regions: [],
+        detail: "",
+        type: type,
+        isDefault: false
+      };
+      this.addressDialogVisible = true;
+    },
     handleEditAddress(address) {
-      this.$refs.meebidAddressHeader.$el.scrollIntoView();
+      var me = this;
+      //this.$refs.meebidAddressHeader.$el.scrollIntoView();
+      this.addressDialogVisible = true;
       if (!this.checkRegionAvailable(this.buildRegionArr(address.regions), this.regionOptions)){
-        this.$refs.addressFormBusyIndicator.show();
+        if (this.$refs.addressFormBusyIndicator){
+          this.$refs.addressFormBusyIndicator.show();
+        } else {
+          setTimeout(function(){
+            me.$refs.addressFormBusyIndicator.show();
+          }, 200);
+        }
         $.ajax({
           type: "GET",
           url: "/api/public/regions/list",
@@ -1721,6 +2067,427 @@ export default {
       }).catch(() => {
 
       });
+    },
+    getStateColor(state) {
+      if (state !== window.meebidConstant.auctionState.Waiting && (state & window.meebidConstant.auctionState.Waiting) != 0){
+        state -= 2;
+      }
+      return window.meebidConstant.auctionStateColor[state];
+    },
+    getStateLabel(state) {
+      if (state !== window.meebidConstant.auctionState.Waiting && (state & window.meebidConstant.auctionState.Waiting) != 0){
+        state -= 2;
+      }
+      return window.meebidConstant.auctionState[state];
+    },
+    onUpdateDefaultSetting() {
+      var termsAndCondition = this.$refs.termsEditor.getValue();
+      var paymentInfo = this.$refs.paymentEditor.getValue();
+      var shippingInfo = this.$refs.shipingEditor.getValue();
+      this.$refs.busyIndicator.show();
+      $.ajax({
+        type: "POST",
+        url: "/api/public/pts/insupd",
+        contentType : "application/json", 
+        context: this,
+        headers: {
+          token: this.loginUser.token
+        },
+        data: JSON.stringify({
+          houseId: this.userProfile.ID,
+          paymentInfo: JSON.stringify(paymentInfo),
+          termsAndCondition: JSON.stringify(termsAndCondition),
+          shippingInfo: JSON.stringify(shippingInfo)
+        }),
+        success(data) {
+          if (data.code === 1){
+            this.$refs.busyIndicator.hide();
+            this.$message({
+              type: 'success',
+              message: i18n.t('meebid.alertMessage.MSG_ADMIN_USER_DEFAULT_SETTING_SUCCESS')
+            })
+          } else {
+            this.$notify.error({
+              title: 'Failure',
+              message: 'Update Default Setting failure',
+              duration: 5000
+            })
+            this.$refs.busyIndicator.hide();
+          }
+          
+        },
+        error() {
+          this.$refs.busyIndicator.hide();
+          errorUtils.requestError(data);
+        }
+      });
+    },
+    handleAuctionDialogTabClick(tab, event) {
+      var me = this;
+      switch(tab.name){
+        case 'auctionTerms':
+          if (!this.auctionForm.isTermLoaded){
+            this.$refs.auctionDialogTermsIndicator.show();
+            var data = {};
+            if (this.isAddAuction){
+              data.houseId = this.userProfile.ID;
+            } else {
+              data.sceneId = this.auctionForm.sceneId;
+            }
+            $.ajax({  
+              url : "/api/public/pts/settings",  
+              type : 'GET',
+              headers: {
+                token: this.loginUser.token
+              },
+              contentType : "application/json", 
+              data: data,
+              success : function(data) {
+
+                if (data.code == 1){
+                  me.auctionForm.termsAndCondition = JSON.parse(data.content.termsAndCondition);
+                  me.auctionForm.paymentInfo = JSON.parse(data.content.paymentInfo);
+                  me.auctionForm.shippingInfo = JSON.parse(data.content.shippingInfo);
+                  me.auctionForm.isTermLoaded = true;
+                } else {
+                  errorUtils.requestDataError(data)
+                }
+                me.$refs.auctionDialogTermsIndicator.hide();
+              },  
+              error : function(data) {  
+                errorUtils.requestError(data);
+                me.$refs.auctionDialogTermsIndicator.hide();
+              },  
+              dataType : 'json' 
+            }) 
+          }
+          break;
+      }
+    },
+    handleUploadLogoSuccess(response, file, fileList, fieldName) {
+      var res = response;
+      this.auctionForm[fieldName] = fileList;
+      this.$refs.auctionForm.validateField(fieldName);
+    },
+    onCreateAuction() {
+      this.auctionDialogVisible = true;
+      this.isAddAuction = true;
+      if (this.$refs.auctionForm){
+        this.$refs.auctionForm.clearValidate();
+      }
+      this.auctionForm = {
+        sceneId: "",
+        name: "",
+        description: "",
+        state: 1,
+        type: window.meebidConstant.auctionType.Timed,
+        pickupLocId: this.addresses[128] && this.addresses[128].length ? this.addresses[128][0].ID : 0,
+        biddingLocId: this.addresses[64] && this.addresses[64].length ? this.addresses[64][0].ID : 0,
+        exhLocId: this.addresses[32] && this.addresses[32].length ? this.addresses[32][0].ID : 0,
+        exhTime: null,
+        startAt: null,
+        termsAndCondition: "",
+        paymentInfo: "",
+        shippingInfo: "",
+        isTermLoaded: false
+      };
+
+    },
+    onUpdateAuction() {
+      var me = this;
+      this.$refs.auctionForm.validate(function(isValid){
+        if (isValid){
+          if (me.auctionForm.isTermLoaded){
+            me.$refs.auctionTermsForm.validate(function(isTermsValid){
+              if (isTermsValid){
+                me.saveAuction();
+              } else {
+                me.auctionDialogActiveTab = "auctionTerms";
+              }
+            });
+          }
+          else {
+            me.saveAuction();
+          }
+        } else {
+          me.auctionDialogActiveTab = "auctionBasic";
+        }
+      })
+    },
+    saveAuction() {
+      var requestObj = {
+        name: this.auctionForm.name,
+        description: this.auctionForm.description,
+        startAt: this.auctionForm.startAt,
+        type: this.auctionForm.type,
+        pickupLocId: this.auctionForm.pickupLocId,
+        biddingLocId: this.auctionForm.biddingLocId ? this.auctionForm.biddingLocId : "",
+        exhLocId: this.auctionForm.exhLocId ? this.auctionForm.exhLocId : "",
+        exhTime: this.auctionForm.exhTime
+      }
+
+      if (this.auctionForm.bLogo && this.auctionForm.bLogo.length && this.auctionForm.bLogo[0].rUid){
+        requestObj.logo = this.auctionForm.bLogo[0].rUid;
+      } else if (this.auctionForm.bLogo.length == 0){
+        requestObj.logo = "";
+      }
+
+      if (this.auctionForm.sceneId) {
+        requestObj.sceneId = this.auctionForm.sceneId;
+      }
+
+      if (this.auctionForm.isTermLoaded) {
+        requestObj.termsAndCondition = JSON.stringify(this.auctionForm.termsAndCondition);
+        requestObj.paymentInfo = JSON.stringify(this.auctionForm.paymentInfo);
+        requestObj.shippingInfo = JSON.stringify(this.auctionForm.shippingInfo);
+      }
+      
+      $.ajax({
+        type: "POST",
+        url: "/api/scene/insupd",
+        contentType : "application/json", 
+        context: this,
+        headers: {
+          token: this.loginUser.token
+        },
+        data: JSON.stringify(requestObj),
+        success(data) {
+          if (data.code === 1){
+            this.$message({
+              type: 'success',
+              message: i18n.t('meebid.alertMessage.MSG_ADMIN_USER_UPDATE_AUCTION_SUCCESS')
+            });
+            this.auctionDialogVisible = false;
+            if (this.isAddAuction){
+              this.currentPageForAuction = 1;
+            }
+            this.refreshAuctions();
+          } else {
+            this.$notify.error({
+              title: 'Failure',
+              message: 'Save Auction failure',
+              duration: 5000
+            })
+          }
+          
+        },
+        error() {
+          errorUtils.requestError(data);
+        }
+      });
+    },
+    getAuctionType(type) {
+      return window.meebidConstant.auctionType[type];
+    },
+    refreshAuctions() {
+      var me = this;
+      this.$refs.meebidAdminContent.className = "meebidAdminContent meebidAdminContentInLoading";
+      this.$refs.busyIndicator.show();
+      $.ajax({
+        type: "GET",
+        url: "/api/user/scenes",
+        contentType : "application/json", 
+        context: this,
+        headers: {
+          token: this.loginUser.token
+        },
+        data: {
+          offset: (this.currentPageForAuction - 1) * 20,
+          count: 20
+        },
+        success(data) {
+          if (data.code === 1){
+            this.auctionList = data.content.items;
+            this.totalCountForAuction = data.content.total;
+          } else {
+            this.$notify.error({
+              title: 'Failure',
+              message: 'Fetch Auction List failure',
+              duration: 5000
+            })
+          }
+          
+        },
+        error() {
+          errorUtils.requestError(data);
+        }
+      }).done(function(){
+        me.$refs.busyIndicator.hide();
+        me.$refs.meebidAdminContent.className = "meebidAdminContent";
+      });
+    },
+    handleAuctionItemCommand(command, item) {
+      switch(command){
+        case 'edit':
+          this.auctionDialogVisible = true;
+          this.isAddAuction = false;
+          if (this.$refs.auctionForm){
+            this.$refs.auctionForm.clearValidate();
+          }
+          this.auctionForm = {
+            sceneId: item.id,
+            name: item.name,
+            description: item.description,
+            type: item.type,
+            bLogo: [{
+              url: item.logo
+            }],
+            pickupLocId: item.pickupLocId ? item.pickupLocId : 0,
+            biddingLocId: item.biddingLocId ? item.biddingLocId : 0,
+            exhLocId: item.exhLocId ? item.exhLocId : 0,
+            exhTime: item.exhTime ? new Date(item.exhTime) : null,
+            startAt: item.startAt ? new Date(item.startAt) : null,
+            termsAndCondition: "",
+            paymentInfo: "",
+            shippingInfo: "",
+            isTermLoaded: false,
+            state: item.state
+          };
+          if (this.auctionDialogActiveTab !== "auctionBasic") {
+            this.auctionDialogActiveTab = "auctionBasic";
+          }
+          break;
+        case 'delete':
+          var me = this;
+          this.$confirm(i18n.t('meebid.alertMessage.MSG_ADMIN_DELETE_AUCTION_CONFIRMATION_TEXT'), 'Delete Auction', {
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel',
+            type: 'warning'
+          }).then(() => {
+            $.ajax({
+              type: "POST",
+              url: "/api/scene/delete",
+              contentType : "application/json", 
+              context: me,
+              headers: {
+                token: me.loginUser.token
+              },
+              data: JSON.stringify({
+                sceneId: item.id,
+              }),
+              success(data) {
+                if (data.code === 1){
+                  if (this.auctionList.length === 1){
+                    this.currentPageForAuction = 1;
+                  }
+                  this.refreshAuctions();
+                } else {
+                  this.$notify.error({
+                    title: 'Failure',
+                    message: 'Delete Auction failure',
+                    duration: 5000
+                  });
+                }
+              },
+              error() {
+                errorUtils.requestError(data);
+              }
+            });
+          }).catch(() => {
+            
+          });
+          break;
+        case 'announce':
+          $.ajax({
+            type: "POST",
+            url: "/api/scene/preview",
+            contentType : "application/json", 
+            context: this,
+            headers: {
+              token: this.loginUser.token
+            },
+            data: JSON.stringify({
+              sceneId: item.id,
+              online: true
+            }),
+            success(data) {
+              if (data.code === 1){
+                item.state = window.meebidConstant.auctionState.Preview;
+              } else {
+                this.$notify.error({
+                  title: 'Failure',
+                  message: 'Announce Auction failure',
+                  duration: 5000
+                })
+              }
+            },
+            error() {
+              errorUtils.requestError(data);
+            }
+          });
+          break;
+        case 'deList':
+          $.ajax({
+            type: "POST",
+            url: "/api/scene/preview",
+            contentType : "application/json", 
+            context: this,
+            headers: {
+              token: this.loginUser.token
+            },
+            data: JSON.stringify({
+              sceneId: item.id,
+              online: false
+            }),
+            success(data) {
+              if (data.code === 1){
+                item.state = window.meebidConstant.auctionState.Basic;
+              } else {
+                this.$notify.error({
+                  title: 'Failure',
+                  message: 'De-List Auction failure',
+                  duration: 5000
+                })
+              }
+            },
+            error() {
+              errorUtils.requestError(data);
+            }
+          });
+          break;
+        case 'publish':
+          $.ajax({
+            type: "POST",
+            url: "/api/scene/audit/submit",
+            contentType : "application/json", 
+            context: this,
+            headers: {
+              token: this.loginUser.token
+            },
+            data: JSON.stringify({
+              sceneId: item.id
+            }),
+            success(data) {
+              if (data.code === 1){
+                item.state = window.meebidConstant.auctionState.Waiting;
+              } else {
+                this.$notify.error({
+                  title: 'Failure',
+                  message: 'Publish Auction failure',
+                  duration: 5000
+                })
+              }
+            },
+            error() {
+              errorUtils.requestError(data);
+            }
+          });
+          break;
+      }
+    },
+    getAuctionDialogSubmitText(state){
+      if (state === window.meebidConstant.auctionState.Basic){
+        return "Save as Draft";
+      } else {
+        return "Update";
+      }
+    },
+    onAuctionCurrentPageChange(page) {
+      this.currentPageForAuction = page;
+      this.refreshAuctions();
+    },
+    formatDate(date){
+      return meebidUtils.formatDate(date, i18n.t('meebid.common.MSG_DATE_FORMAT'));
     }
   }
 }

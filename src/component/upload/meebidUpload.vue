@@ -189,7 +189,7 @@ export default {
         this.abort(file);
         let fileList = this.uploadFiles;
         fileList.splice(fileList.indexOf(file), 1);
-        this.onRemove(file, fileList);
+        this.onRemove(file, fileList, this.fieldName);
       };
 
       if (!this.beforeRemove) {

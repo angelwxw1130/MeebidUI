@@ -13,12 +13,14 @@ import MeebidDropdown from './../../component/dropdown/meebidDropdown.vue'
 import MeebidBusyIndicator from './../../component/busyindicator/meebidBusyIndicator.vue'
 import MeebidCategoryDialog from './../../component/dialog/meebidCategoryDialog.vue'
 import MeebidUpload from './../../component/upload/meebidUpload.vue'
+import MeebidTextEditor from './../../component/texteditor/MeebidTextEditor.vue'
 import App from './App.vue'
 import loginUtils from './../../utils/loginUtils'
 import meebidUtils from './../../utils/meebidUtils'
 import errorUtils from './../../utils/errorUtils'
 import { MessageBox } from 'element-ui'
 import i18n from './../../i18n/i18n'
+
 
 
 Vue.use(ElementUI)
@@ -30,7 +32,7 @@ Vue.component(MeebidSearchTypeahead.name, MeebidSearchTypeahead);
 Vue.component(MeebidBusyIndicator.name, MeebidBusyIndicator);
 Vue.component(MeebidCategoryDialog.name, MeebidCategoryDialog);
 Vue.component(MeebidUpload.name, MeebidUpload);
-
+Vue.component(MeebidTextEditor.name, MeebidTextEditor);
 
 
 //Vue.use(MeebidButton);
@@ -81,10 +83,5 @@ if (loginUser.token){
          dataType : 'json' 
      }) 
 } else {
-	var appVue = new Vue({
-	  el: '#app',
-      i18n,
-	  render: h => h(App),
-	  
-	});
+	window.location.href = "./home.html";
 }
