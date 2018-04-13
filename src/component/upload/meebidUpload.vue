@@ -158,17 +158,37 @@ export default {
       file.percentage = ev.percent || 0;
     },
     handleSuccess(res, rawFile) {
-      const file = this.getFile(rawFile);
+      if (this.multiple){
+        for (var key in rawFile){
+          const file = this.getFile(rawFile[key]);
+          if (file) {
+            file.status = 'success';
+            //file.response = res;
+            for (var i = 0; i < res.urls.length; i++){
+              if (res.urls[i].indexOf(rawFile[key].name) > 0){
+                file.url = res.urls[i];
+                file.rUid = res.rUid + rawFile[key].name;
+                break;
+              }
+            }
+            this.onSuccess(res, file, this.uploadFiles, this.fieldName);
+            this.onChange(file, this.uploadFiles);
+          }
+        }
+      } else {
+        const file = this.getFile(rawFile);
 
-      if (file) {
-        file.status = 'success';
-        file.response = res;
-        file.url = res.urls[0];
-        file.rUid = res.rUid;
+        if (file) {
+          file.status = 'success';
+          //file.response = res;
+          file.url = res.urls[0];
+          file.rUid = res.rUid;
 
-        this.onSuccess(res, file, this.uploadFiles, this.fieldName);
-        this.onChange(file, this.uploadFiles);
+          this.onSuccess(res, file, this.uploadFiles, this.fieldName);
+          this.onChange(file, this.uploadFiles);
+        }
       }
+      
     },
     handleError(err, rawFile) {
       const file = this.getFile(rawFile);
@@ -189,7 +209,7 @@ export default {
         this.abort(file);
         let fileList = this.uploadFiles;
         fileList.splice(fileList.indexOf(file), 1);
-        this.onRemove(file, fileList, this.fieldName);
+        this.onRemove(null, file, fileList, this.fieldName);
       };
 
       if (!this.beforeRemove) {

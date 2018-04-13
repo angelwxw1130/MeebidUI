@@ -33,8 +33,13 @@ const en = {
             MSG_ADMIN_NO_ADDRESS_SELECTABLE: "You haven't any address can be selected, please add at least one in Profile page.",
             MSG_ADMIN_NO_PICK_UP_WAREHOUSE_ADDRESS_SELECTABLE: "You cannot create Auction without Pick-up Warehouse Address, please add at least one in Profile page.",
             MSG_ADMIN_USING_DEFAULT_HOUSE_TERMS_TEXT: "House Default Terms setting will be fulfilled if no specific terms typed-in.",
+            MSG_ADMIN_USING_DEFAULT_AUCTION_TERMS_TEXT: "Auction Terms setting will be fulfilled if no specific terms typed-in.",
             MSG_ADMIN_USER_UPDATE_AUCTION_SUCCESS: "Auction information updated",
-            MSG_ADMIN_DELETE_AUCTION_CONFIRMATION_TEXT: "Are you sure to delete this auction?"
+            MSG_ADMIN_USER_UPDATE_LOT_SUCCESS: "Lot information updated",
+            MSG_ADMIN_DELETE_AUCTION_CONFIRMATION_TEXT: "Are you sure to delete this auction?",
+            MSG_ADMIN_DELETE_LOT_CONFIRMATION_TEXT: "Are you sure to delete this lot?",
+            MSG_ADMIN_AUCTION_REVIEW_ALL_LOTS_TEXT: "All un-reviewed lots have been submit for review, please wait for administrator approval.",
+            MSG_ADMIN_LOT_VALIDATION_LOT_ID_EXISTING_TEXT: "This Lot No. is already existing in Auction, please try another. Next unused Lot No. is {0}",
         },
         forgetPassword: {
             MSG_FORGET_PASSWORD_HEADER_TEXT: "Send an email to reset your password"

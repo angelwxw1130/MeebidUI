@@ -1,5 +1,6 @@
 <template>
   <div id="app" class="meebid">
+
     <div id="header" class="meebidAdminHeader">
       <meebid-search-typeahead class="meebidtypeahead"
              async-src="https://api.github.com/search/users?q="
@@ -322,14 +323,14 @@
           </el-row>
         </div>
         <div v-else-if="active === 'auctionManagement'" class="meebidProfileFormWrapper">
-          <el-row>
+          <el-row v-if="auctionManagementStep === 'auctionManagement'">
             <el-col :span="24" class="meebidHouseProfileFormWrapper" style="position: relative;">
               <div class="meebidLoginDialogLabel">Auction Management</div>
               <div class="">You can manage your auction here.</div>
               <div style="position: absolute; right: 0px; top: 0px;"> 
                 <el-button class="meebidMarginTopMedium" type="primary" @click="onCreateAuction">CREATE AUCTION</el-button>
               </div>
-              <div class="meebidMarginTopMedium">
+              <div class="meebidMarginTopMedium" v-if="auctionList && auctionList.length > 0">
 
                 <div v-for="(item,index) in auctionList" class="">
                   <div style="border-top: 1px solid #eeeeee;" class="meebidMarginBottomMedium meebidPaddingTopMedium">
@@ -353,10 +354,11 @@
                           <el-dropdown-item command="delete">Delete</el-dropdown-item>
                           <el-dropdown-item v-if="(item.state & 1) != 0" command="announce">Announce</el-dropdown-item>
                           <el-dropdown-item v-if="(item.state & 16) != 0" command="deList">De-List</el-dropdown-item>
-                          <el-dropdown-item v-if="(item.state & 32) == 0" command="publish">Publish</el-dropdown-item>
+                          <el-dropdown-item v-if="(item.state & 32) == 0 && (item.state & 2) == 0" command="publish">Publish</el-dropdown-item>
+                          <el-dropdown-item v-if="(item.state & 32) != 0" command="review">Review Lots</el-dropdown-item>
                         </el-dropdown-menu>
                       </el-dropdown>
-                      <el-button type="primary" size="small" v-if="item.state != 0" class="meebidMarginTopMedium meebidAuctionListButton meebidMarginLeftClean">Manage Lots</el-button>
+                      <el-button type="primary" size="small" v-if="item.state != 0" class="meebidMarginTopMedium meebidAuctionListButton meebidMarginLeftClean" @click="onManageLots(item)">Manage Lots</el-button>
                     </div>
                   </div>
                 </div>
@@ -367,6 +369,62 @@
                   layout="prev, pager, next, jumper"
                   :total="totalCountForAuction">
                 </el-pagination>
+              </div>
+              <div class="meebidMarginTopLarge meebidNoAuctionLotText" v-else>
+                <span>No Auction</span>
+              </div>
+            </el-col>
+          </el-row>
+          <el-row v-else-if="auctionManagementStep === 'auctionLotManagement'">
+            <el-col :span="24" class="meebidHouseProfileFormWrapper" style="position: relative;">
+              <div class="meebidLoginDialogLabel">Lots Management</div>
+              <div class="">You can manage your lots here.</div>
+              <div style="position: absolute; right: 0px; top: 0px;"> 
+                <el-button class="meebidMarginTopMedium meebidSquareButton" icon="el-icon-back" @click="onBackToAuctionList">BACK</el-button>
+                <el-button class="meebidMarginTopMedium" type="primary" @click="onCreateAuctionLot">CREATE LOT</el-button>
+              </div>
+
+              <div class="meebidMarginTopMedium" v-if="auctionLotList && auctionLotList.length > 0">
+
+                <div v-for="(item,index) in auctionLotList" class="meebidAdminLotContainer">
+                  <div style="" class="meebidMarginBottomMedium meebidPaddingTopMedium">
+                    <a class="meebidLotImageContainer">
+                      <img :src="item.imageUrls[0].url">
+                    </a>
+                    <div class="meebidLotTextContainer meebidPaddingLeftSmall meebidPaddingRightSmall">
+                      <span class="meebidAdminLotName meebidMarginTopSmall" :title="item.name">{{getLotName(item.name)}}</span>
+                      <span class="meebidAdminLotNumber" >Lot {{item.no}}</span>
+                      <span class="meebidAdminLotEstimation" >{{getLotEstimationPrice(item)}}</span>
+                      <span class="meebidAdminLotStartPrice" >{{getLotStartPrice(item)}}</span>
+                      <span :style="{background: getLotStateColor(item.state)}" class="meebidAdminLotState meebidPaddingLeftSmall meebidPaddingRightSmall">{{getLotStateLabel(item.state)}}</span>
+                      <div class="meebidLotActionButtonContainer">
+                        <el-dropdown @command="handleLotItemCommand($event, item)" v-if="item.state != 0 && currentSceneState != 8 && currentSceneState != 64">
+                          <el-button type="primary" size="super-mini">
+                            <i class="el-icon-setting"></i>
+                          </el-button>
+                          <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item command="edit">Edit</el-dropdown-item>
+                            <el-dropdown-item command="delete">Delete</el-dropdown-item>
+                            <el-dropdown-item v-if="(item.state & 1) == 1 && currentSceneState == 32" command="review">Review</el-dropdown-item>
+                            <el-dropdown-item v-if="(item.state & 4) != 0 && currentSceneState == 32" command="online">Online</el-dropdown-item>
+                            <el-dropdown-item v-if="(item.state & 8) != 0" command="offline">Offline</el-dropdown-item>
+                          </el-dropdown-menu>
+                        </el-dropdown>
+                        
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <el-pagination
+                  @current-change="onAuctionLotCurrentPageChange"
+                  :current-page.sync="currentPageForAuctionLot"
+                  :page-size="20"
+                  layout="prev, pager, next, jumper"
+                  :total="totalCountForAuctionLot">
+                </el-pagination>
+              </div>
+              <div class="meebidMarginTopLarge meebidNoAuctionLotText" v-else>
+                <span>No Lot</span>
               </div>
             </el-col>
           </el-row>
@@ -737,6 +795,16 @@
                   <el-date-picker type="datetime" placeholder="Select date" v-model="auctionForm.startAt" style="width: 100%;"></el-date-picker>
                 </el-form-item>
               </el-form-item>
+              <el-form-item label="Currency Code" prop="currencyCode">
+                <el-select v-model="auctionForm.currencyCode" placeholder="Select...">
+                  <el-option
+                    v-for="item in currencyCodeOptions"
+                    :key="item.id"
+                    :label="item.alias"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
               <el-form-item label="Pick-up Warehouse Address" class="meebidUserProfileLongLabel" prop="pickupLocId">
                 <el-select v-model="auctionForm.pickupLocId" placeholder="Select..." v-if="addresses[128] && addresses[128].length > 0">
                   <el-option
@@ -817,6 +885,94 @@
         </span>
       </el-dialog>
 
+      <el-dialog :visible.sync="lotDialogVisible" class="meebidLotDialog" title="Lot" width="820px" height="600px">
+        <el-tabs type="border-card" v-model="lotDialogActiveTab" @tab-click="handleLotDialogTabClick">
+          <el-tab-pane name="lotBasic">
+            <span slot="label">Basic</span>
+            <el-alert v-if="isAddLot" show-icon class="meebidUnsavedAlertMessage" :closable="false"
+              :title="$t('meebid.alertMessage.MSG_ADMIN_USING_DEFAULT_AUCTION_TERMS_TEXT')"
+              type="info">
+            </el-alert>
+            <el-form ref="lotForm" status-icon :rules="lotFormRules" style="width: 80%;" :model="lotForm" label-width="180px" class="meebidHouseProfileForm">        
+              <el-form-item label="Name" prop="name">
+                <el-input v-model="lotForm.name" placeholder="Please input lot name"></el-input>
+              </el-form-item>
+              <el-form-item label="Description" prop="description">
+                <el-input v-model="lotForm.description" placeholder="Please input description"></el-input>
+              </el-form-item>
+              <el-form-item label="Lot No." prop="no">
+                <el-input-number v-model="lotForm.no" :min="1" placeholder="Please input lot number"></el-input-number>
+              </el-form-item>
+              <el-form-item label="Category" prop="category">
+                <el-select v-model="lotForm.category" placeholder="Select...">
+                  <el-option
+                    v-for="item in categoryItems"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="Max Est. Price" prop="estMaxPrice">
+                <meebid-number-input v-model="lotForm.estMaxPrice" placeholder="Please input maximum estimation price"></meebid-number-input>
+              </el-form-item>
+              <el-form-item label="Min Est. Price" prop="estMinPrice">
+                <meebid-number-input v-model="lotForm.estMinPrice" placeholder="Please input minimum estimation price"></meebid-number-input>
+              </el-form-item>
+              <el-form-item label="Start Bidding Price" prop="startingBid">
+                <meebid-number-input v-model="lotForm.startingBid" placeholder="Please input start bidding price"></meebid-number-input>
+              </el-form-item>
+              <el-form-item label="Reserve Price" prop="reservePrice">
+                <meebid-number-input v-model="lotForm.reservePrice" placeholder="Please input reserve price"></meebid-number-input>
+              </el-form-item>
+              <el-form-item label="Images" prop="imageUrls" required>
+                <meebid-upload
+                  class="meebidUploadSmallPicture"
+                  ref="bImages"
+                  field-name="imageUrls"
+                  list-type="picture-card"
+                  :multiple="true"
+                  :limit="20"
+                  :on-exceed="handleUploadExceed"
+                  :on-remove="handleUploadLotImageSuccess"
+                  :on-success="handleUploadLotImageSuccess"
+                  :on-preview="handlePictureCardPreview"
+                  :on-error="handleUploadError"
+                  :file-list="lotForm.imageUrls"
+                  >
+                  <i class="el-icon-plus"></i>
+                </meebid-upload>
+              </el-form-item>
+              
+              <meebid-busy-indicator ref="auctionFormBusyIndicator" size="Medium"></meebid-busy-indicator>
+            </el-form>
+          </el-tab-pane>
+          <el-tab-pane label="Terms" name="lotTerms">
+            <meebid-busy-indicator ref="lotDialogTermsIndicator" size="Medium"></meebid-busy-indicator>
+            <el-alert v-if="isAddLot" show-icon class="meebidUnsavedAlertMessage" :closable="false"
+              :title="$t('meebid.alertMessage.MSG_ADMIN_USING_DEFAULT_AUCTION_TERMS_TEXT')"
+              type="info">
+            </el-alert>
+            <el-form label-width="180px" ref="lotTermsForm" class="meebidHouseProfileForm" :model="lotForm" :rules="lotFormRules" status-icon>
+              <el-form-item label="Terms and Condition" prop="termsAndCondition">
+                <meebid-text-editor ref="termsEditorAuction" style="height: 200px;" compId="termsAuction" v-model="lotForm.termsAndCondition" class="meebidFormFieldMediumLength" placeholder="Please input Terms and Condition"></meebid-text-editor>
+              </el-form-item>
+              <el-form-item label="Payment Info" prop="paymentInfo">
+                <meebid-text-editor ref="paymentEditorAuction" compId="paymentInfoAuction" style="height: 200px;" v-model="lotForm.paymentInfo" class="meebidFormFieldMediumLength" placeholder="Please input Payment Info"></meebid-text-editor>
+              </el-form-item>
+              <el-form-item label="Shipping Info" prop="shippingInfo">
+                <meebid-text-editor ref="shipingEditorAuction" compId="shippingInfoAuction" style="height: 200px;" v-model="lotForm.shippingInfo" class="meebidFormFieldMediumLength" placeholder="Please input Shipping Info"></meebid-text-editor>
+              </el-form-item>
+            </el-form>
+          </el-tab-pane>
+        </el-tabs>
+
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="lotDialogVisible = false" class="">Cancel</el-button>
+          <el-button type="primary" @click="onUpdateLot()">Save</el-button>
+        </span>
+      </el-dialog>
+
       <meebid-category-dialog :items="categoryItems" :isProfilePage="isProfilePage" @update="onFieldDataChange" ref="categoryDialog">
       </meebid-category-dialog>
     </div>
@@ -873,11 +1029,18 @@ export default {
     };
     return {
       isAuctionBasicInvalid: false,
+      isLotBasicInvalid: false,
       currentPageForAuction: 1,
+      currentPageForAuctionLot: 1,
       totalCountForAuction: 0,
+      totalCountForAuctionLot: 0,
       isAddAuction: true,
+      isAddLot: true,
       auctionDialogActiveTab: "auctionBasic",
+      lotDialogActiveTab: "lotBasic",
+      auctionManagementStep: "auctionManagement",
       auctionDialogVisible: false,
+      lotDialogVisible: false,
       addressDialogVisible: false,
       hasPendingChange: false,
       updatePhoneIndex: -1,
@@ -898,6 +1061,7 @@ export default {
       isProfilePage: true,
       regionOptions: [],
       titleOptions: [],
+      currencyCodeOptions: window.meebidConstant.currencyCode,
       auctionTypeOptions: [{
         id: window.meebidConstant.auctionType.Timed,
         name: i18n.t('meebid.auctionManagement.MSG_AUCTION_TYPE_TIMED_TEXT')
@@ -913,6 +1077,9 @@ export default {
         label: 'name',
         children: 'childrens'
       },
+      auctionLotList: [],
+      currentSceneId: 0,
+      currentSceneState: 0,
       auctionList: [],
       addressForm: {
         addressId: 0,
@@ -1016,6 +1183,9 @@ export default {
         description: [
           { required: true, message: 'Please input Description', trigger: 'change' }          
         ],
+        currencyCode: [
+          { required: true, message: 'Please select Currency Code', trigger: 'change' }
+        ],
         startAt: [
           { type: "date", required: true, message: 'Please input Start Date', trigger: 'change' }          
         ],
@@ -1030,6 +1200,45 @@ export default {
         ],
         pickupLocId: [
           { required: true, message: 'Please select Pick-up Warehouse Address', trigger: 'change' }          
+        ],
+        termsAndCondition: [
+          { validator: validateAuctionTerms, trigger: 'change' }     
+        ],
+        paymentInfo: [
+          { validator: validateAuctionPaymentInfo, trigger: 'change' }     
+        ],
+        shippingInfo: [
+          { validator: validateAuctionShippingInfo, trigger: 'change' }     
+        ]
+      },
+      lotForm: {},
+      lotFormRules: {
+        name: [
+          { required: true, message: 'Please input Auction Name', trigger: 'change' }          
+        ],
+        description: [
+          { required: true, message: 'Please input Description', trigger: 'change' }          
+        ],
+        no: [
+          { required: true, message: 'Please input Lot No.', trigger: 'change' }          
+        ],
+        estMinPrice: [
+          { required: true, message: 'Please input Minimum Estimation Price', trigger: 'change' }          
+        ],
+        estMaxPrice: [
+          { required: true, message: 'Please input Maximum Estimation Price', trigger: 'change' }          
+        ],
+        imageurls: [
+          { required: true, message: 'Please upload Lot Images', trigger: 'on-change' }          
+        ],
+        startingBid: [
+          { required: true, message: 'Please input Start Bidding Price', trigger: 'change' }          
+        ],
+        reservePrice: [
+          { required: true, message: 'Please input Reserve Price', trigger: 'change' }          
+        ],
+        category: [
+          { required: true, message: 'Please select Category', trigger: 'change' }          
         ],
         termsAndCondition: [
           { validator: validateAuctionTerms, trigger: 'change' }     
@@ -1114,6 +1323,7 @@ export default {
               name: this.userProfile.blicenseName
           }];
         }
+        this.categoryItems = this.$parent.$data.categories;
         if (!this.userProfile.qualiDocUrl) {
           this.userProfile.qualiDocUpload = [];
         } else {
@@ -1275,6 +1485,7 @@ export default {
           });
           break;
         case 'auctionManagement':
+          this.auctionManagementStep = "auctionManagement";
           this.refreshAuctions();
           break;
         default:
@@ -1383,7 +1594,7 @@ export default {
           }
           
         },
-        error() {
+        error(data) {
           errorUtils.requestError(data);
         }
       }).done(function(){
@@ -1420,7 +1631,7 @@ export default {
               }
               
             },
-            error() {
+            error(data) {
               errorUtils.requestError(data);
             }
           })
@@ -1458,7 +1669,7 @@ export default {
           }
           
         },
-        error() {
+        error(data) {
           errorUtils.requestError(data);
         }
       });
@@ -1505,7 +1716,7 @@ export default {
           }
           
         },
-        error() {
+        error(data) {
           errorUtils.requestError(data);
         }
       }).done(function(){
@@ -1534,7 +1745,7 @@ export default {
     handleUploadError(err, file, fileList) {
       this.$notify.error({
         title: 'Failure',
-        message: error,
+        message: err,
         duration: 5000
       })
     },
@@ -1722,7 +1933,7 @@ export default {
               }
               
             },
-            error() {
+            error(data) {
               errorUtils.requestError(data);
             }
           });
@@ -1825,7 +2036,7 @@ export default {
               }
               
             },
-            error() {
+            error(data) {
               errorUtils.requestError(data);
             }
           });
@@ -1900,7 +2111,7 @@ export default {
             this.$refs.addressFormBusyIndicator.hide();
             
           },
-          error() {
+          error(data) {
             this.$refs.addressFormBusyIndicator.hide();
             errorUtils.requestError(data);
           }
@@ -1990,7 +2201,7 @@ export default {
             }
             
           },
-          error() {
+          error(data) {
             errorUtils.requestError(data);
           }
         });
@@ -2060,7 +2271,7 @@ export default {
             }
             
           },
-          error() {
+          error(data) {
             errorUtils.requestError(data);
           }
         });
@@ -2116,7 +2327,7 @@ export default {
           }
           
         },
-        error() {
+        error(data) {
           this.$refs.busyIndicator.hide();
           errorUtils.requestError(data);
         }
@@ -2164,22 +2375,65 @@ export default {
           break;
       }
     },
+    handleLotDialogTabClick(tab, event) {
+      var me = this;
+      switch(tab.name){
+        case 'lotTerms':
+          if (!this.lotForm.isTermLoaded){
+            this.$refs.lotDialogTermsIndicator.show();
+            var data = {};
+            if (this.isAddLot){
+              data.sceneId = this.lotForm.sceneId;
+            } else {
+              data.lotId = this.lotForm.ID;
+            }
+            $.ajax({  
+              url : "/api/public/pts/settings",  
+              type : 'GET',
+              headers: {
+                token: this.loginUser.token
+              },
+              contentType : "application/json", 
+              data: data,
+              success : function(data) {
+                if (data.code == 1){
+                  me.lotForm.termsAndCondition = JSON.parse(data.content.termsAndCondition);
+                  me.lotForm.paymentInfo = JSON.parse(data.content.paymentInfo);
+                  me.lotForm.shippingInfo = JSON.parse(data.content.shippingInfo);
+                  me.lotForm.isTermLoaded = true;
+                } else {
+                  errorUtils.requestDataError(data)
+                }
+                me.$refs.lotDialogTermsIndicator.hide();
+              },  
+              error : function(data) {  
+                errorUtils.requestError(data);
+                me.$refs.auctionDialogTermsIndicator.hide();
+              },  
+              dataType : 'json' 
+            }) 
+          }
+          break;
+      }
+    },
     handleUploadLogoSuccess(response, file, fileList, fieldName) {
-      var res = response;
       this.auctionForm[fieldName] = fileList;
       this.$refs.auctionForm.validateField(fieldName);
+    },
+    handleUploadLotImageSuccess(response, file, fileList, fieldName) {
+      this.lotForm[fieldName] = fileList;
+      this.$refs.lotForm.validateField(fieldName);
     },
     onCreateAuction() {
       this.auctionDialogVisible = true;
       this.isAddAuction = true;
-      if (this.$refs.auctionForm){
-        this.$refs.auctionForm.clearValidate();
-      }
       this.auctionForm = {
         sceneId: "",
         name: "",
         description: "",
+        bLogo: [],
         state: 1,
+        currencyCode: "USD",
         type: window.meebidConstant.auctionType.Timed,
         pickupLocId: this.addresses[128] && this.addresses[128].length ? this.addresses[128][0].ID : 0,
         biddingLocId: this.addresses[64] && this.addresses[64].length ? this.addresses[64][0].ID : 0,
@@ -2191,7 +2445,41 @@ export default {
         shippingInfo: "",
         isTermLoaded: false
       };
+      if (this.$refs.auctionForm){
+        var me = this;
+        setTimeout(function(){
+          this.$refs.auctionForm.clearValidate();
+        }, 100);
+        
+      }
+    },
+    onCreateAuctionLot() {
+      this.lotDialogVisible = true;
+      this.isAddLot = true;
 
+      this.lotForm = {
+        ID: "",
+        sceneId: this.currentSceneId,
+        name: "",
+        description: "",
+        state: 1,
+        imageUrls: [],
+        category: this.categoryItems[0].id,
+        estMaxPrice: "0.00",
+        estMinPrice: "0.00",
+        startingBid: "0.00",
+        reservePrice: "0.00",
+        termsAndCondition: "",
+        paymentInfo: "",
+        shippingInfo: "",
+        isTermLoaded: false
+      };
+      if (this.$refs.lotForm){
+        var me = this;
+        setTimeout(function(){
+          me.$refs.lotForm.clearValidate();
+        }, 100);
+      }
     },
     onUpdateAuction() {
       var me = this;
@@ -2214,12 +2502,34 @@ export default {
         }
       })
     },
+    onUpdateLot() {
+      var me = this;
+      this.$refs.lotForm.validate(function(isValid){
+        if (isValid){
+          if (me.lotForm.isTermLoaded){
+            me.$refs.lotTermsForm.validate(function(isTermsValid){
+              if (isTermsValid){
+                me.saveLot();
+              } else {
+                me.lotDialogActiveTab = "lotTerms";
+              }
+            });
+          }
+          else {
+            me.saveLot();
+          }
+        } else {
+          me.lotDialogActiveTab = "lotBasic";
+        }
+      })
+    },
     saveAuction() {
       var requestObj = {
         name: this.auctionForm.name,
         description: this.auctionForm.description,
         startAt: this.auctionForm.startAt,
         type: this.auctionForm.type,
+        currencyCode: this.auctionForm.currencyCode,
         pickupLocId: this.auctionForm.pickupLocId,
         biddingLocId: this.auctionForm.biddingLocId ? this.auctionForm.biddingLocId : "",
         exhLocId: this.auctionForm.exhLocId ? this.auctionForm.exhLocId : "",
@@ -2262,7 +2572,7 @@ export default {
               this.currentPageForAuction = 1;
             }
             this.refreshAuctions();
-          } else {
+          }else {
             this.$notify.error({
               title: 'Failure',
               message: 'Save Auction failure',
@@ -2271,7 +2581,85 @@ export default {
           }
           
         },
-        error() {
+        error(data) {
+          errorUtils.requestError(data);
+        }
+      });
+    },
+    saveLot() {
+      var requestObj = {
+        sceneId: this.lotForm.sceneId,
+        name: this.lotForm.name,
+        description: this.lotForm.description,
+        no: this.lotForm.no,
+        category: this.lotForm.category,
+        estMaxPrice: parseFloat(this.lotForm.estMaxPrice),
+        estMinPrice: parseFloat(this.lotForm.estMinPrice),
+        startingBid: parseFloat(this.lotForm.startingBid),
+        reservePrice: parseFloat(this.lotForm.reservePrice)
+      }
+
+      if (this.lotForm.imageUrls && this.lotForm.imageUrls.length){
+        var imageUrlArr = [];
+        for (var i = 0; i < this.lotForm.imageUrls.length; i++){
+          imageUrlArr.push(this.lotForm.imageUrls[i].rUid ? this.lotForm.imageUrls[i].rUid : this.lotForm.imageUrls[i].url);
+        }
+        requestObj.imageUrls = imageUrlArr.join(";");
+      } else if (this.lotForm.imageUrls.length == 0){
+        requestObj.imageUrls = "";
+      }
+
+      if (this.lotForm.ID) {
+        requestObj.lotId = this.lotForm.ID;
+      }
+
+      if (this.lotForm.isTermLoaded) {
+        requestObj.termsAndCondition = JSON.stringify(this.lotForm.termsAndCondition);
+        requestObj.paymentInfo = JSON.stringify(this.lotForm.paymentInfo);
+        requestObj.shippingInfo = JSON.stringify(this.lotForm.shippingInfo);
+      }
+      
+      $.ajax({
+        type: "POST",
+        url: "/api/lot/insupd",
+        contentType : "application/json", 
+        context: this,
+        headers: {
+          token: this.loginUser.token
+        },
+        data: JSON.stringify(requestObj),
+        dataType: "json",
+        success(data) {
+          if (data.code === 1){
+            this.$message({
+              type: 'success',
+              message: i18n.t('meebid.alertMessage.MSG_ADMIN_USER_UPDATE_LOT_SUCCESS')
+            });
+            this.lotDialogVisible = false;
+            if (this.isAddLot){
+              this.currentPageForAuctionLot = 1;
+            }
+            this.refreshAuctionLots();
+          } else if (data.code === -4) {
+            var messageKey = 'meebid.alertMessage.' + data.msg;
+            var replaceObj = {};
+            if (data.content.length){
+              for (var i = 0; i < data.content.length; i++){
+                replaceObj[i] = data.content[i];
+              }
+            }
+            
+            this.$message.error(i18n.t(messageKey, replaceObj));
+          } else {
+            this.$notify.error({
+              title: 'Failure',
+              message: 'Save Lot failure',
+              duration: 5000
+            })
+          }
+          
+        },
+        error(data) {
           errorUtils.requestError(data);
         }
       });
@@ -2308,7 +2696,56 @@ export default {
           }
           
         },
-        error() {
+        error(data) {
+          errorUtils.requestError(data);
+        }
+      }).done(function(){
+        me.$refs.busyIndicator.hide();
+        me.$refs.meebidAdminContent.className = "meebidAdminContent";
+      });
+    },
+    refreshAuctionLots() {
+      var me = this;
+      this.$refs.meebidAdminContent.className = "meebidAdminContent meebidAdminContentInLoading";
+      this.$refs.busyIndicator.show();
+      $.ajax({
+        type: "GET",
+        url: "/api/user/items",
+        contentType : "application/json", 
+        context: this,
+        headers: {
+          token: this.loginUser.token
+        },
+        data: {
+          offset: (this.currentPageForAuctionLot - 1) * 20,
+          sceneId: this.currentSceneId,
+          count: 20
+        },
+        success(data) {
+          if (data.code === 1){
+            for (var i = 0; i < data.content.items.length; i++){
+              var urls = data.content.items[i].imageUrls.split(";");
+              var urlArr = [];
+              for (var j = 0; j < urls.length; j++){
+                urlArr.push({
+                  url: urls[j]
+                });
+              }
+              data.content.items[i].imageUrls = urlArr;
+            }
+            this.auctionLotList = data.content.items;
+
+            this.totalCountForAuctionLot = data.content.total;
+          } else {
+            this.$notify.error({
+              title: 'Failure',
+              message: 'Fetch Lot List failure',
+              duration: 5000
+            })
+          }
+          
+        },
+        error(data) {
           errorUtils.requestError(data);
         }
       }).done(function(){
@@ -2321,9 +2758,6 @@ export default {
         case 'edit':
           this.auctionDialogVisible = true;
           this.isAddAuction = false;
-          if (this.$refs.auctionForm){
-            this.$refs.auctionForm.clearValidate();
-          }
           this.auctionForm = {
             sceneId: item.id,
             name: item.name,
@@ -2332,6 +2766,7 @@ export default {
             bLogo: [{
               url: item.logo
             }],
+            currencyCode: item.currencyCode ? item.currencyCode: "USD",
             pickupLocId: item.pickupLocId ? item.pickupLocId : 0,
             biddingLocId: item.biddingLocId ? item.biddingLocId : 0,
             exhLocId: item.exhLocId ? item.exhLocId : 0,
@@ -2343,6 +2778,12 @@ export default {
             isTermLoaded: false,
             state: item.state
           };
+          if (this.$refs.auctionForm){
+            var me = this;
+            setTimeout(function(){
+              me.$refs.auctionForm.clearValidate()
+            }, 100);
+          }
           if (this.auctionDialogActiveTab !== "auctionBasic") {
             this.auctionDialogActiveTab = "auctionBasic";
           }
@@ -2354,6 +2795,7 @@ export default {
             cancelButtonText: 'Cancel',
             type: 'warning'
           }).then(() => {
+            me.$refs.busyIndicator.show();
             $.ajax({
               type: "POST",
               url: "/api/scene/delete",
@@ -2379,15 +2821,19 @@ export default {
                   });
                 }
               },
-              error() {
+              error(data) {
                 errorUtils.requestError(data);
               }
+            }).done(function(){
+              me.$refs.busyIndicator.hide();
             });
           }).catch(() => {
             
           });
           break;
         case 'announce':
+          var me = this;
+          this.$refs.busyIndicator.show();
           $.ajax({
             type: "POST",
             url: "/api/scene/preview",
@@ -2402,7 +2848,11 @@ export default {
             }),
             success(data) {
               if (data.code === 1){
-                item.state = window.meebidConstant.auctionState.Preview;
+                if ((item.state & 2) != 0){
+                  item.state = window.meebidConstant.auctionState.Preview + window.meebidConstant.auctionState.Waiting;
+                } else {
+                  item.state = window.meebidConstant.auctionState.Preview;
+                }
               } else {
                 this.$notify.error({
                   title: 'Failure',
@@ -2411,12 +2861,16 @@ export default {
                 })
               }
             },
-            error() {
+            error(data) {
               errorUtils.requestError(data);
             }
+          }).done(function(){
+            me.$refs.busyIndicator.hide();
           });
           break;
         case 'deList':
+          var me = this;
+          this.$refs.busyIndicator.show();
           $.ajax({
             type: "POST",
             url: "/api/scene/preview",
@@ -2431,7 +2885,12 @@ export default {
             }),
             success(data) {
               if (data.code === 1){
-                item.state = window.meebidConstant.auctionState.Basic;
+                if ((item.state & 2) != 0){
+                  item.state = window.meebidConstant.auctionState.Basic + window.meebidConstant.auctionState.Waiting;
+                } else {
+                  item.state = window.meebidConstant.auctionState.Basic;
+                }
+                
               } else {
                 this.$notify.error({
                   title: 'Failure',
@@ -2440,12 +2899,16 @@ export default {
                 })
               }
             },
-            error() {
+            error(data) {
               errorUtils.requestError(data);
             }
+          }).done(function(){
+            me.$refs.busyIndicator.hide();
           });
           break;
         case 'publish':
+          var me = this;
+          this.$refs.busyIndicator.show();
           $.ajax({
             type: "POST",
             url: "/api/scene/audit/submit",
@@ -2459,7 +2922,7 @@ export default {
             }),
             success(data) {
               if (data.code === 1){
-                item.state = window.meebidConstant.auctionState.Waiting;
+                item.state += window.meebidConstant.auctionState.Waiting;
               } else {
                 this.$notify.error({
                   title: 'Failure',
@@ -2468,11 +2931,196 @@ export default {
                 })
               }
             },
-            error() {
+            error(data) {
               errorUtils.requestError(data);
             }
+          }).done(function(){
+            me.$refs.busyIndicator.hide();
           });
           break;
+        case 'review':
+          var me = this;
+          this.$refs.busyIndicator.show();
+          $.ajax({
+            type: "POST",
+            url: "/api/lot/audit/submit",
+            contentType : "application/json", 
+            context: this,
+            headers: {
+              token: this.loginUser.token
+            },
+            data: JSON.stringify({
+              sceneId: item.id
+            }),
+            success(data) {
+              if (data.code === 1){
+                this.$message({
+                  type: 'success',
+                  message: i18n.t('meebid.alertMessage.MSG_ADMIN_AUCTION_REVIEW_ALL_LOTS_TEXT')
+                });
+              } else {
+                this.$notify.error({
+                  title: 'Failure',
+                  message: 'Publish Auction failure',
+                  duration: 5000
+                })
+              }
+            },
+            error(data) {
+              errorUtils.requestError(data);
+            }
+          }).done(function(){
+            me.$refs.busyIndicator.hide();
+          });
+          break;
+      }
+    },
+    handleLotItemCommand(command, item){
+      switch(command){
+        case 'edit':
+          this.lotDialogVisible = true;
+          this.isAddLot = false;
+          if (this.$refs.lotForm){
+            this.$refs.lotForm.clearValidate();
+          }
+          this.lotForm = {
+            ID: item.id,
+            sceneId: item.sceneId,
+            name: item.name,
+            no: item.no,
+            description: item.description,
+            category: item.category,
+            imageUrls: item.imageUrls,
+            estMaxPrice: meebidUtils.formatMoneyForNumberField("", item.estMaxPrice, true, 2),
+            estMinPrice: meebidUtils.formatMoneyForNumberField("", item.estMinPrice, true, 2),
+            startingBid: meebidUtils.formatMoneyForNumberField("", item.startingBid, true, 2),
+            reservePrice: meebidUtils.formatMoneyForNumberField("", item.reservePrice, true, 2),
+            termsAndCondition: "",
+            paymentInfo: "",
+            shippingInfo: "",
+            isTermLoaded: false,
+            state: item.state
+          };
+          if (this.$refs.lotForm){
+            var me = this;
+            setTimeout(function(){
+              me.$refs.lotForm.clearValidate()
+            }, 100);
+          }
+          if (this.lotDialogActiveTab !== "lotBasic") {
+            this.lotDialogActiveTab = "lotBasic";
+          }
+          break;
+        case 'delete':
+          var me = this;
+          this.$confirm(i18n.t('meebid.alertMessage.MSG_ADMIN_DELETE_LOT_CONFIRMATION_TEXT'), 'Delete Lot', {
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel',
+            type: 'warning'
+          }).then(() => {
+            me.$refs.busyIndicator.show();
+            $.ajax({
+              type: "POST",
+              url: "/api/lot/delete",
+              contentType : "application/json", 
+              context: me,
+              headers: {
+                token: me.loginUser.token
+              },
+              data: JSON.stringify({
+                lotId: item.id,
+              }),
+              success(data) {
+                if (data.code === 1){
+                  if (this.auctionLotList.length === 1){
+                    this.currentPageForAuctionLot = 1;
+                  }
+                  this.refreshAuctionLots();
+                } else {
+                  this.$notify.error({
+                    title: 'Failure',
+                    message: 'Delete Lot failure',
+                    duration: 5000
+                  });
+                }
+              },
+              error(data) {
+                errorUtils.requestError(data);
+              }
+            }).done(function(){
+              me.$refs.busyIndicator.hide();
+            });
+          }).catch(() => {
+            
+          });
+          break;
+        case 'review':
+          var me = this;
+          this.$refs.busyIndicator.show();
+          $.ajax({
+            type: "POST",
+            url: "/api/lot/audit/submit",
+            contentType : "application/json", 
+            context: this,
+            headers: {
+              token: this.loginUser.token
+            },
+            data: JSON.stringify({
+              itemIds: [item.id]
+            }),
+            success(data) {
+              if (data.code === 1){
+                item.state = window.meebidConstant.lotState.Waiting;
+              } else {
+                this.$notify.error({
+                  title: 'Failure',
+                  message: 'Review Lot failure',
+                  duration: 5000
+                })
+              }
+            },
+            error(data) {
+              errorUtils.requestError(data);
+            }
+          }).done(function(){
+            me.$refs.busyIndicator.hide();
+          });
+          break;
+        case 'online':
+        case 'offline':
+          var me = this;
+          this.$refs.busyIndicator.show();
+          $.ajax({
+            type: "POST",
+            url: "/api/lot/online",
+            contentType : "application/json", 
+            context: this,
+            headers: {
+              token: this.loginUser.token
+            },
+            data: JSON.stringify({
+              lotId: item.id,
+              online: command === "online"
+            }),
+            success(data) {
+              if (data.code === 1){
+                item.state = command === "online" ? window.meebidConstant.lotState.Online : window.meebidConstant.lotState.Offline;
+              } else {
+                this.$notify.error({
+                  title: 'Failure',
+                  message: command === "online" ? 'Online lot failure' : "Offline lot failure",
+                  duration: 5000
+                })
+              }
+            },
+            error(data) {
+              errorUtils.requestError(data);
+            }
+          }).done(function(){
+            me.$refs.busyIndicator.hide();
+          });
+          break;
+
       }
     },
     getAuctionDialogSubmitText(state){
@@ -2485,6 +3133,36 @@ export default {
     onAuctionCurrentPageChange(page) {
       this.currentPageForAuction = page;
       this.refreshAuctions();
+    },
+    onManageLots(item) {
+      this.auctionManagementStep = "auctionLotManagement";
+      this.currentSceneId = item.id;
+      this.currentSceneState = item.state;
+      this.currentPageForAuctionLot = 1;
+      this.totalCountForAuctionLot = 0;
+      this.refreshAuctionLots();
+    },
+    onBackToAuctionList() {
+      this.auctionManagementStep = "auctionManagement";
+    },
+    onAuctionLotCurrentPageChange(page) {
+      this.currentPageForAuctionLot = page;
+      this.refreshAuctionLots();
+    },
+    getLotName(name){
+      return meebidUtils.fitStringToHeightByRecursive(name, 50, "meebidAdminLotName", "...", "200px");
+    },
+    getLotEstimationPrice(item){
+      return "Est: " + meebidUtils.formatMoney(item.currencyCode, item.estMinPrice) + " - " + meebidUtils.formatMoney(item.currencyCode, item.estMaxPrice);
+    },
+    getLotStartPrice(item){
+      return "Start: " + meebidUtils.formatMoney(item.currencyCode, item.startingBid);
+    },
+    getLotStateColor(state) {
+      return window.meebidConstant.lotStateColor[state];
+    },
+    getLotStateLabel(state) {
+      return window.meebidConstant.lotState[state];
     },
     formatDate(date){
       return meebidUtils.formatDate(date, i18n.t('meebid.common.MSG_DATE_FORMAT'));

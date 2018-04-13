@@ -56,7 +56,8 @@ export default {
     return {
       loginUser: loginUtils.getLoginUser(),
       mouseover: false,
-      reqs: {}
+      reqs: {},
+      finishReqs: {}
     };
   },
 
@@ -71,6 +72,7 @@ export default {
       this.uploadFiles(files);
     },
     uploadFiles(files) {
+      var me = this;
       if (this.limit && this.fileList.length + files.length > this.limit) {
         this.onExceed && this.onExceed(files, this.fileList);
         return;
@@ -81,16 +83,47 @@ export default {
 
       if (postFiles.length === 0) { return; }
 
-      postFiles.forEach(rawFile => {
-        this.onStart(rawFile);
-        if (this.autoUpload) this.upload(rawFile);
+      $.ajax({
+        type: "POST",
+        url: "/api/public/resource/create",
+        contentType : "application/json", 
+        context: this,
+        headers: {
+          token: this.loginUser.token
+        },
+        data: JSON.stringify({
+          type: this.multiple ? window.meebidConstant.uploadType.LotImages : window.meebidConstant.uploadType.Image
+        }),
+        success(data) {
+          if (data.code === 1){
+            postFiles.forEach(rawFile => {
+              me.onStart(rawFile);
+              if (this.autoUpload) me.upload(rawFile, data.content);
+            });
+          } else {
+            this.$notify.error({
+              title: 'Failure',
+              message: 'Upload initialization failure',
+              duration: 5000
+            })
+          }
+          
+        },
+        error() {
+          this.$notify.error({
+            title: 'Failure',
+            message: 'Upload initialization failure',
+            duration: 5000
+          })
+        }
       });
+      
     },
-    upload(rawFile, file) {
+    upload(rawFile, content) {
       this.$refs.input.value = null;
 
       if (!this.beforeUpload) {
-        return this.post(rawFile);
+        return this.post(rawFile, content);
       }
 
       const before = this.beforeUpload(rawFile);
@@ -98,15 +131,15 @@ export default {
         before.then(processedFile => {
           const fileType = Object.prototype.toString.call(processedFile);
           if (fileType === '[object File]' || fileType === '[object Blob]') {
-            this.post(processedFile);
+            this.post(processedFile, content);
           } else {
-            this.post(rawFile);
+            this.post(rawFile, content);
           }
         }, () => {
           this.onRemove(null, rawFile);
         });
       } else if (before !== false) {
-        this.post(rawFile);
+        this.post(rawFile, content);
       } else {
         this.onRemove(null, rawFile);
       }
@@ -126,8 +159,9 @@ export default {
         });
       }
     },
-    post(rawFile) {
-      $.ajax({
+    post(rawFile, content) {
+      this.doPost(rawFile, content);
+      /** $.ajax({
         type: "POST",
         url: "/api/public/resource/create",
         contentType : "application/json", 
@@ -157,7 +191,7 @@ export default {
             duration: 5000
           })
         }
-      });
+      });*/
     },
     doPost(rawFile, content){
       var me = this;
@@ -166,24 +200,29 @@ export default {
         headers: this.headers,
         withCredentials: this.withCredentials,
         file: rawFile,
+        //contentData: content,
         data: {
           OSSAccessKeyId: content.accessid,
           policy: content.policy,
           Signature: content.signature,
-          key: content.fileKey,
+          key: this.multiple ? content.fileKey + rawFile.name : content.fileKey,
           success_action_status: 200
         },
-        filename: this.name,
+        filename: "file",
         action: content.ossUrl,
         onProgress: e => {
           this.onProgress(e, rawFile);
         },
         onSuccess: res => {
-          me.confirmPost(res, rawFile, content);
+          me.finishReqs[uid] = rawFile;
+          delete me.reqs[uid];
+          if (Object.keys(me.reqs).length === 0){
+            me.confirmPost(res, content);
+          }
         },
         onError: err => {
           this.onError(err, rawFile);
-          delete this.reqs[uid];
+          delete me.reqs[uid];
         }
       };
       const req = this.httpRequest(options);
@@ -192,7 +231,16 @@ export default {
         req.then(options.onSuccess, options.onError);
       }
     },
-    confirmPost(res, rawFile, content) {
+    confirmPost(res, content) {
+      var fileKeys = [];
+      if (this.multiple){
+        for (var key in this.finishReqs){
+          fileKeys.push(content.fileKey + this.finishReqs[key].name);
+        }
+      } else {
+        fileKeys.push(content.fileKey);
+      }
+      
       $.ajax({
         type: "POST",
         url: "/api/public/resource/confirm",
@@ -203,19 +251,20 @@ export default {
         },
         data: JSON.stringify({
           rUid: content.rUid,
-          fileKeys: [content.fileKey],
-          type: window.meebidConstant.uploadType.Image
+          fileKeys: fileKeys,
+          type: this.multiple ? window.meebidConstant.uploadType.LotImages : window.meebidConstant.uploadType.Image
         }),
         success(data) {
           if (data.code === 1){
-            this.onSuccess(data.content, rawFile);
-            delete this.reqs[rawFile.uid];
+            this.onSuccess(data.content, this.multiple ? this.finishReqs : this.finishReqs[Object.keys(this.finishReqs)[0]]);
+            this.finishReqs = {};
           } else {
             this.$notify.error({
               title: 'Failure',
               message: 'Upload confirmation failure',
               duration: 5000
-            })
+            });
+            this.finishReqs = {};
           }
           
         },
@@ -224,7 +273,8 @@ export default {
             title: 'Failure',
             message: 'Upload confirmation failure',
             duration: 5000
-          })
+          });
+          this.finishReqs = {};
         }
       })
     },

@@ -895,10 +895,13 @@ body {
 }
 
 .meebidAdminMenu {
+  background-color: rgb(230, 230, 230);
+  max-width: calc(100% - 600px);
   width: 25%;
   height: 100%;
   margin: 0;
   border-right: 1px solid #efefef; 
+  overflow: scroll;
   float: left;
 }
 
@@ -907,6 +910,7 @@ body {
 }
 
 .meebidAdminContent {
+  min-width: 600px;
   float: left;
   width: 75%;
   height: 100%;
@@ -1099,6 +1103,19 @@ body {
   outline: none;
 }
 
+.meebid .meebidLotImageContainer {
+  width: 220px;
+  height: 220px;
+  border: none;
+  position: relative;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  vertical-align: top;
+  text-decoration: none;
+  outline: none;
+}
+
 .meebid .meebidAuctionImageContainer img{
   position: absolute;
   display: block;
@@ -1112,10 +1129,125 @@ body {
   vertical-align: middle;
 }
 
+.meebid .meebidLotImageContainer img{
+  position: absolute;
+  display: block;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 100%;
+  max-height: 100%;
+  margin: auto;
+  vertical-align: middle;
+}
+
+.meebid .meebidAdminLotContainer {
+  display: inline-block;
+  vertical-align: top;
+  position: relative;
+}
+
 .meebid .meebidAuctionListButton {
   width: 100px;
 }
 
+.meebid .el-button--super-mini {
+  padding: 4px 12px;
+}
+
+.meebidAdminLotName {
+  font-size: 16px; 
+  display: block; 
+  font-weight: bolder;
+}
+
+.meebidAdminLotState {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  display: inline-block; 
+  margin-top: 5px;
+}
+
+.meebidAdminLotEstimation {
+  font-size: 16px; 
+  display: block; 
+  color: #8f8f8f;
+  font-weight: bolder;
+}
+
+.meebidAdminLotStartPrice {
+  font-size: 16px; 
+  display: block; 
+  font-weight: bolder;
+}
+
+.meebid .meebidLotTextContainer {
+  min-height: 120px;
+  width: 220px;
+}
+
+.meebid .meebidLotActionButtonContainer {
+  display: inline-block;
+  float: right;
+  margin-top: 3px;
+}
+
+@media (min-width:800px) {
+    .meebid .meebidAdminLotContainer {
+        width: 50%;
+    }
+}
+
+@media (min-width:1200px) {
+    .meebid .meebidAdminLotContainer {
+        width: 33%;
+    }
+}
+
+@media (min-width:1600px) {
+    .meebid .meebidAdminLotContainer {
+        width: 25%;
+    }
+}
+
+
+.meebid .meebidUploadSmallPicture .el-upload-list--picture-card .el-upload-list__item-thumbnail {
+  max-width: 73px;
+  max-height: 73px;
+  width: unset;
+  height: unset;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
+.meebidUploadSmallPicture .el-upload--picture-card {
+  width: 74px;
+  height: 74px;
+  line-height: 73px;
+}
+
+.meebidUploadSmallPicture .el-upload-list--picture-card .el-upload-list__item {
+  width: 74px;
+  height: 74px;
+}
+
+.meebidUploadSmallPicture .el-upload--picture-card i {
+  font-size: 20px;
+}
+
+.meebid .meebidNoAuctionLotText {
+  font-size: 24px;
+  text-align: center;
+}
+
+.meebid .meebidAdminLotNumber {
+  font-size: 12px;
+}
 /**
   Admin Page End
   */
