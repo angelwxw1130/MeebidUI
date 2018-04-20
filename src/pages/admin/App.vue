@@ -382,6 +382,7 @@
               <div style="position: absolute; right: 0px; top: 0px;"> 
                 <el-button class="meebidMarginTopMedium meebidSquareButton" icon="el-icon-back" @click="onBackToAuctionList">BACK</el-button>
                 <el-button class="meebidMarginTopMedium" type="primary" @click="onCreateAuctionLot">CREATE LOT</el-button>
+                <el-button class="meebidMarginTopMedium" type="primary" @click="onBatchUploadAuctionLot">BATCH UPLOAD</el-button>
               </div>
 
               <div class="meebidMarginTopMedium" v-if="auctionLotList && auctionLotList.length > 0">
@@ -913,11 +914,11 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="Max Est. Price" prop="estMaxPrice">
-                <meebid-number-input v-model="lotForm.estMaxPrice" placeholder="Please input maximum estimation price"></meebid-number-input>
-              </el-form-item>
               <el-form-item label="Min Est. Price" prop="estMinPrice">
                 <meebid-number-input v-model="lotForm.estMinPrice" placeholder="Please input minimum estimation price"></meebid-number-input>
+              </el-form-item>
+              <el-form-item label="Max Est. Price" prop="estMaxPrice">
+                <meebid-number-input v-model="lotForm.estMaxPrice" placeholder="Please input maximum estimation price"></meebid-number-input>
               </el-form-item>
               <el-form-item label="Start Bidding Price" prop="startingBid">
                 <meebid-number-input v-model="lotForm.startingBid" placeholder="Please input start bidding price"></meebid-number-input>
@@ -972,6 +973,140 @@
           <el-button type="primary" @click="onUpdateLot()">Save</el-button>
         </span>
       </el-dialog>
+      <el-dialog :visible.sync="batchLotDialogVisible" class="meebidBatchLotDialog" title="Batch Upload Lots" width="1100px" height="500px">
+        <meebid-busy-indicator ref="batchLotDialogBusyIndicator" size="Medium"></meebid-busy-indicator>
+        <el-steps :active="batchLotDialogStep" finish-status="success" align-center>
+          <el-step title="Upload Template"></el-step>
+          <el-step title="Upload Images"></el-step>
+          <el-step title="Review and Save"></el-step>
+        </el-steps>
+        <div v-if="batchLotDialogStep == 0" class="meebidPaddingTopMedium" style="height: 100px;">
+          <el-form ref="batchLotStep1Form" status-icon :rules="batchLotFormRules" style="width: 80%;" :model="batchLotForm" label-width="180px" class="meebidHouseProfileForm">        
+            <el-form-item label="Template" prop="batchTemplate" required>
+              <meebid-upload
+                field-name="batchTemplate"
+                :limit="1"
+                :on-exceed="handleUploadExceed"
+                :on-remove="handleUploadLotTemplateSuccess"
+                :on-success="handleUploadLotTemplateSuccess"
+                :on-preview="handlePictureCardPreview"
+                :on-error="handleUploadError"
+                :file-list="batchLotForm.batchTemplate"
+                >
+                <el-button size="small" type="primary">Click to upload template</el-button>
+              </meebid-upload>
+            </el-form-item>
+          </el-form>
+        </div>
+        <div v-if="batchLotDialogStep == 1" class="meebidPaddingTopMedium" style="">
+          <el-form ref="batchLotStep2Form" status-icon :rules="batchLotFormRules" style="width: 90%; overflow: scroll;" :model="batchLotForm" label-width="180px" class="meebidHouseProfileForm">        
+            <el-form-item label="Upload Images" prop="imageUrls" required>
+              <meebid-upload
+                class="meebidUploadMiniPicture"
+                field-name="imageUrls"
+                :uploadKey="uploadKeyForBatchImages"
+                :multiple="true"
+                :on-exceed="handleUploadExceed"
+                :on-remove="handleUploadLotsImageSuccess"
+                :on-success="handleUploadLotsImageSuccess"
+                :on-preview="handlePictureCardPreview"
+                :on-error="handleUploadError"
+                :file-list="batchLotForm.imageUrls"
+                >
+                <el-button size="small" type="primary">Click to upload images</el-button>
+              </meebid-upload>
+            </el-form-item>
+          </el-form>
+        </div>
+        <el-table
+          border
+          empty-text=" "
+          :height="batchLotDialogStep <= 1 ? 350 : 450"
+          class="meebidMarginTopLarge"
+          v-loading="batchTemplateTableLoading"
+          element-loading-text="Validating Template"
+          element-loading-spinner="el-icon-loading"
+          :data="batchLotTemplateResult"
+          style="width: 90%; margin-left: 5%;">
+          <el-table-column
+            prop="no"
+            fixed
+            label="No."
+            width="50">
+          </el-table-column>
+          <el-table-column
+            prop="name"
+            fixed
+            label="Name"
+            width="160">
+          </el-table-column>
+          <el-table-column
+            prop="category"
+            width="180"
+            label="Category">
+          </el-table-column>
+          <el-table-column
+            prop="description"
+            width="240"
+            label="Description">
+          </el-table-column>
+          <el-table-column
+            prop="estMinPrice"
+            width="180"
+            label="Min Est. Price">
+            <template slot-scope="scope">
+              <span>{{getFormattedCurrencyNumber(scope.row.estMinPrice)}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="estMaxPrice"
+            width="180"
+            label="Max Est. Price">
+            <template slot-scope="scope">
+              <span>{{getFormattedCurrencyNumber(scope.row.estMaxPrice)}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="startingBid"
+            width="180"
+            label="Start Bidding Price">
+            <template slot-scope="scope">
+              <span>{{getFormattedCurrencyNumber(scope.row.startingBid)}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="reservePrice"
+            width="180"
+            label="Reserve Price">
+            <template slot-scope="scope">
+              <span>{{getFormattedCurrencyNumber(scope.row.reservePrice)}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="imageUrls"
+            fixed="right"
+            label="Lot Images"
+            width="200"
+            class-name="meebidBatchLotUploadedImageColumn"
+            >
+            <template slot-scope="scope">
+              <div :style="{width: scope.row.imageUrls && scope.row.imageUrls.length ? (scope.row.imageUrls.length) * 68 + 'px' : 'auto'}">
+                <div v-for="(item, index) in scope.row.imageUrls" class="meebidBatchLotUploadedImageContainer">
+                  <img :src="item.url" class="meebidBatchLotUploadedImage">
+                  </img>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="batchLotDialogVisible = false" class="">Cancel</el-button>
+          <!--<el-button type="primary" v-if="batchLotDialogStep > 0" @click="onBackBatchStep()">Back</el-button>-->
+          <el-button type="primary" @click="onResetBatchStep()">Reset</el-button>
+          <el-button type="primary" v-if="batchLotDialogStep < 2" :disabled="batchLotDialogStep === 0 ? !isBatchLotFormStep1Valid : !isBatchLotFormStep2Valid" @click="onNextBatchStep()">Next</el-button>
+          <el-button type="primary" v-if="batchLotDialogStep == 2" @click="onUpdateLots()">Save</el-button>
+        </span>
+      </el-dialog>
 
       <meebid-category-dialog :items="categoryItems" :isProfilePage="isProfilePage" @update="onFieldDataChange" ref="categoryDialog">
       </meebid-category-dialog>
@@ -987,6 +1122,128 @@ import i18n from './../../i18n/i18n'
 import $ from 'jquery'
 export default {
   data () {
+    var currentDate = new Date();
+    var validateBatchTemplate = (rule, value, callback) => {
+      var me = this;
+      if (value && value.length > 0 && value[0].rUid) {
+        this.batchTemplateTableLoading = true;
+        $.ajax({
+          type: "POST",
+          url: "/api/lot/batch/info/prepare",
+          contentType : "application/json", 
+          context: this,
+          headers: {
+            token: this.loginUser.token
+          },
+          data: JSON.stringify({
+            erUid: value[0].rUid
+          }),
+          success(data) {
+            /**this.isBatchLotFormStep1Valid = true;
+            this.batchLotTemplateResult = [{
+              no: 1,
+              name: "Lot 1",
+              description: "Lot 1 Description",
+              category: "Video",
+              estMinPrice: 10,
+              estMaxPrice: 20,
+              startingBid: 10,
+              reservePrice: 20,
+              imageUrls: []
+            },{
+              no: 2,
+              name: "Lot 2",
+              description: "Lot 2 Description",
+              category: "Video",
+              estMinPrice: 10,
+              estMaxPrice: 20,
+              startingBid: 10,
+              reservePrice: 20,
+              imageUrls: []
+            },{
+              no: 3,
+              name: "Lot 3",
+              description: "Lot 3 Description",
+              category: "Video",
+              estMinPrice: 10,
+              estMaxPrice: 20,
+              startingBid: 10,
+              reservePrice: 20,
+              imageUrls: []
+            }];
+            callback();*/
+            if (data.code === 1){
+              this.isBatchLotFormStep1Valid = true;
+              for (var i = 0; i < data.content.items.length; i++){
+                data.content.items[i].imageUrls = [];
+              }
+              this.batchLotTemplateResult = data.content.items;
+              callback();
+            } else {
+              this.$notify.error({
+                title: 'Failure',
+                message: 'Validate Template failure',
+                duration: 5000
+              });
+              this.batchLotTemplateResult = [];
+              this.isBatchLotFormStep1Valid = false;
+              callback(new Error('Validate template failed'));
+            }
+
+          },
+          error(data) {
+            errorUtils.requestError(data);
+            me.batchLotTemplateResult = [];
+            me.isBatchLotFormStep1Valid = false;
+            callback(new Error('Error in validate template'));
+          }
+        }).done(function(){
+          me.batchTemplateTableLoading = false;
+        });
+      } else {
+        this.batchLotTemplateResult = [];
+        this.isBatchLotFormStep1Valid = false;
+        callback(new Error('Please upload lots template.'));
+      }
+    };
+    var validateBatchLotsImages = (rule, value, callback) => {
+      var me = this;
+      if (value && value.length > 0) {
+        for (var k = 0; k < this.batchLotTemplateResult.length; k++){
+          this.batchLotTemplateResult[k].imageUrls = [];
+        }
+        for (var i = 0; i < value.length; i++){
+          if (value[i].status !== "success"){
+            continue;
+          }
+          var imagePrefix = value[i].name.split(".")[0];
+          var imageNo = imagePrefix.split("-")[0];
+          var imageIdx = imagePrefix.split("-")[1];
+          for (var j = 0; j < this.batchLotTemplateResult.length; j++){
+            if (this.batchLotTemplateResult[j].no === parseInt(imageNo)){
+              this.batchLotTemplateResult[j].imageUrls.push({
+                name: value[i].name,
+                rUid: value[i].rUid,
+                url: value[i].url
+              });
+            }
+          }
+        }
+        for (var k = 0; k < this.batchLotTemplateResult.length; k++){
+          if(this.batchLotTemplateResult[k].imageUrls.length === 0){
+            callback(new Error('You have lot without image, please make sure every lot contains at least one image.'));
+            this.isBatchLotFormStep2Valid = false;
+            return;
+          }
+        }
+        this.isBatchLotFormStep2Valid = true;
+        callback();
+      } else {
+        this.isBatchLotFormStep2Valid = false;
+        callback(new Error('Please upload lots images.'));
+      }
+    };
+
     var validateRegions = (rule, value, callback) => {
       if (value && value.length > 0) {
         callback();
@@ -1041,6 +1298,13 @@ export default {
       auctionManagementStep: "auctionManagement",
       auctionDialogVisible: false,
       lotDialogVisible: false,
+      batchLotDialogVisible: false,
+      batchLotDialogStep: 0,
+      isBatchLotFormStep1Valid: false,
+      isBatchLotFormStep2Valid: false,
+      uploadKeyForBatchImages: "batchImages" + loginUtils.getLoginUser().token + currentDate.getTime(),
+      batchLotTemplateResult: [],
+      batchTemplateTableLoading: false,
       addressDialogVisible: false,
       hasPendingChange: false,
       updatePhoneIndex: -1,
@@ -1080,6 +1344,7 @@ export default {
       auctionLotList: [],
       currentSceneId: 0,
       currentSceneState: 0,
+      currentCurrencyCode: "",
       auctionList: [],
       addressForm: {
         addressId: 0,
@@ -1249,6 +1514,15 @@ export default {
         shippingInfo: [
           { validator: validateAuctionShippingInfo, trigger: 'change' }     
         ]
+      },
+      batchLotForm: {},
+      batchLotFormRules: {
+        batchTemplate: [
+          { required: true, validator: validateBatchTemplate, trigger: 'change' }          
+        ],
+        imageUrls: [
+          { required: true, validator: validateBatchLotsImages, trigger: 'change' }          
+        ],
       }
     }
   },
@@ -1750,8 +2024,7 @@ export default {
       })
     },
     handleUploadExceed() {
-      this.$message.warning('You can only upload one image for this field.');
-      
+      this.$message.warning('You cannot upload more files.');
     },
     handlePictureCardPreview (file) {
       window.open(file.url, '_blank');
@@ -2529,7 +2802,7 @@ export default {
         description: this.auctionForm.description,
         startAt: this.auctionForm.startAt,
         type: this.auctionForm.type,
-        currencyCode: this.auctionForm.currencyCode,
+        currencyId: this.auctionForm.currencyCode,
         pickupLocId: this.auctionForm.pickupLocId,
         biddingLocId: this.auctionForm.biddingLocId ? this.auctionForm.biddingLocId : "",
         exhLocId: this.auctionForm.exhLocId ? this.auctionForm.exhLocId : "",
@@ -2766,7 +3039,7 @@ export default {
             bLogo: [{
               url: item.logo
             }],
-            currencyCode: item.currencyCode ? item.currencyCode: "USD",
+            currencyCode: item.currencyId ? item.currencyId: "USD",
             pickupLocId: item.pickupLocId ? item.pickupLocId : 0,
             biddingLocId: item.biddingLocId ? item.biddingLocId : 0,
             exhLocId: item.exhLocId ? item.exhLocId : 0,
@@ -3138,6 +3411,7 @@ export default {
       this.auctionManagementStep = "auctionLotManagement";
       this.currentSceneId = item.id;
       this.currentSceneState = item.state;
+      this.currentCurrencyCode = item.currencyId;
       this.currentPageForAuctionLot = 1;
       this.totalCountForAuctionLot = 0;
       this.refreshAuctionLots();
@@ -3166,7 +3440,93 @@ export default {
     },
     formatDate(date){
       return meebidUtils.formatDate(date, i18n.t('meebid.common.MSG_DATE_FORMAT'));
-    }
+    },
+    onBatchUploadAuctionLot() {
+      this.batchLotDialogVisible = true;
+      this.batchLotDialogStep = 0;
+      this.isBatchLotFormStep1Valid = false;
+      this.isBatchLotFormStep2Valid = false;
+      this.batchLotTemplateResult = [];
+      this.batchLotForm = {
+        batchTemplate: [],
+        imageUrls: []
+      };
+    },
+    onBackBatchStep() {
+      this.batchLotDialogStep--;
+    },
+    onNextBatchStep() {
+      this.batchLotDialogStep++;
+    },
+    onResetBatchStep() {
+      this.batchLotDialogStep = 0;
+      this.isBatchLotFormStep1Valid = false;
+      this.isBatchLotFormStep2Valid = false;
+      this.batchLotTemplateResult = [];
+      this.batchLotForm = {
+        batchTemplate: [],
+        imageUrls: []
+      };
+    },
+    handleUploadLotTemplateSuccess(response, file, fileList, fieldName) {
+      this.batchLotForm[fieldName] = fileList;
+      this.$refs.batchLotStep1Form.validateField(fieldName);
+    },
+    handleUploadLotsImageSuccess(response, file, fileList, fieldName) {
+      this.batchLotForm[fieldName] = fileList;
+      this.$refs.batchLotStep2Form.validateField(fieldName);
+    },
+    getFormattedCurrencyNumber(price) {
+      return meebidUtils.formatMoneyForNumberField(this.currentCurrencyCode, price);
+    },
+    onUpdateLots() {
+      var me = this;
+      this.$refs.batchLotDialogBusyIndicator.show();
+      var requestObj = {
+        erUid: this.batchLotForm.batchTemplate[0].rUid,
+        irUids: [],
+        sceneId: this.currentSceneId
+      };
+      for (var i = 0; i < this.batchLotTemplateResult.length; i++){
+        for (var j = 0; j < this.batchLotTemplateResult[i].imageUrls.length; j++){
+          requestObj.irUids.push(this.batchLotTemplateResult[i].imageUrls[j].rUid);
+        }
+      }
+      $.ajax({
+        type: "POST",
+        url: "/api/lot/batch/create",
+        contentType : "application/json", 
+        context: this,
+        headers: {
+          token: this.loginUser.token
+        },
+        data: JSON.stringify(requestObj),
+        success(data) {
+          if (data.code === 1){
+            this.$message({
+              type: 'success',
+              message: i18n.t('meebid.alertMessage.MSG_ADMIN_BATCH_UPLOAD_SUCCESS', {
+                0: this.batchLotTemplateResult.length
+              })
+            });
+            this.batchLotDialogVisible = false;
+            this.currentPageForAuctionLot = 1;
+            this.refreshAuctionLots();
+          } else {
+            this.$notify.error({
+              title: 'Failure',
+              message: 'Batch Upload Lots failure',
+              duration: 5000
+            });
+          }
+        },
+        error(data) {
+          errorUtils.requestError(data);
+        }
+      }).done(function(){
+        this.$refs.batchLotDialogBusyIndicator.hide();
+      });;
+    },
   }
 }
 

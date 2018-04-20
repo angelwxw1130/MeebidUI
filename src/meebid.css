@@ -1116,7 +1116,7 @@ body {
   outline: none;
 }
 
-.meebid .meebidAuctionImageContainer img{
+.meebid .meebidAuctionImageContainer img, .meebid .meebidLotImageContainer img, .meebid .meebidBatchLotUploadedImageContainer img{
   position: absolute;
   display: block;
   top: 0;
@@ -1129,18 +1129,6 @@ body {
   vertical-align: middle;
 }
 
-.meebid .meebidLotImageContainer img{
-  position: absolute;
-  display: block;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  max-width: 100%;
-  max-height: 100%;
-  margin: auto;
-  vertical-align: middle;
-}
 
 .meebid .meebidAdminLotContainer {
   display: inline-block;
@@ -1240,6 +1228,53 @@ body {
   font-size: 20px;
 }
 
+.meebid .meebidUploadMiniPicture .el-upload-list--picture-card .el-upload-list__item-thumbnail {
+  max-width: 56px;
+  max-height: 56px;
+  width: unset;
+  height: unset;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
+.meebidUploadMiniPicture .el-upload--picture-card {
+  width: 56px;
+  height: 56px;
+  line-height: 55px;
+}
+
+.meebidUploadMiniPicture .el-upload-list--picture-card .el-upload-list__item {
+  width: 56px;
+  height: 56px;
+}
+
+.meebidUploadMiniPicture .el-upload--picture-card i {
+  font-size: 18px;
+}
+
+.meebidUploadMiniPicture .el-upload-list__item {
+  font-size: 10px;
+  line-height: 18px;
+}
+
+.meebidUploadMiniPicture .el-upload-list__item:first-child {
+  margin-top: 4px;
+}
+
+.meebidUploadMiniPicture .el-upload-list__item {
+  margin-top: 2px;
+}
+
+.meebidUploadMiniPicture .el-upload-list {
+  max-height: 80px;
+  overflow: scroll;
+}
+
+
 .meebid .meebidNoAuctionLotText {
   font-size: 24px;
   text-align: center;
@@ -1248,6 +1283,28 @@ body {
 .meebid .meebidAdminLotNumber {
   font-size: 12px;
 }
+
+.meebid .meebidBatchLotDialog .el-upload {
+  margin: 0 8px 8px 0;
+}
+
+.meebid .meebidBatchLotUploadedImageContainer {
+  width: 56px;
+  height: 56px;
+  border: none;
+  position: relative;
+  display: inline-block;
+  margin: 5px;
+  padding: 0;
+  vertical-align: top;
+  text-decoration: none;
+  outline: none;
+}
+
+.meebid .meebidBatchLotUploadedImageColumn .cell{
+  overflow: scroll;
+}
+
 /**
   Admin Page End
   */

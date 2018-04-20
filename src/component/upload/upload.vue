@@ -20,7 +20,9 @@ export default {
       type: String,
       default: 'file'
     },
+    fieldName: String,
     data: Object,
+    uploadKey: String,
     headers: Object,
     withCredentials: Boolean,
     multiple: Boolean,
@@ -82,7 +84,12 @@ export default {
       if (!this.multiple) { postFiles = postFiles.slice(0, 1); }
 
       if (postFiles.length === 0) { return; }
-
+      var requestObj = {
+        type: this.fieldName === "batchTemplate" ? window.meebidConstant.uploadType.LotExcel : this.multiple ? window.meebidConstant.uploadType.LotImages : window.meebidConstant.uploadType.Image
+      };
+      if (this.uploadKey) {
+        requestObj.key = this.uploadKey;
+      }
       $.ajax({
         type: "POST",
         url: "/api/public/resource/create",
@@ -91,9 +98,7 @@ export default {
         headers: {
           token: this.loginUser.token
         },
-        data: JSON.stringify({
-          type: this.multiple ? window.meebidConstant.uploadType.LotImages : window.meebidConstant.uploadType.Image
-        }),
+        data: JSON.stringify(requestObj),
         success(data) {
           if (data.code === 1){
             postFiles.forEach(rawFile => {
@@ -252,7 +257,7 @@ export default {
         data: JSON.stringify({
           rUid: content.rUid,
           fileKeys: fileKeys,
-          type: this.multiple ? window.meebidConstant.uploadType.LotImages : window.meebidConstant.uploadType.Image
+          type: this.fieldName === "batchTemplate" ? window.meebidConstant.uploadType.LotExcel : this.multiple ? window.meebidConstant.uploadType.LotImages : window.meebidConstant.uploadType.Image
         }),
         success(data) {
           if (data.code === 1){

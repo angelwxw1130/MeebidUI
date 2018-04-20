@@ -46,6 +46,7 @@ export default {
     drag: Boolean,
     dragger: Boolean,
     withCredentials: Boolean,
+    uploadKey: String,
     showFileList: {
       type: Boolean,
       default: true
@@ -283,12 +284,14 @@ export default {
         'with-credentials': this.withCredentials,
         overlimit: this.overlimit,
         headers: this.headers,
+        fieldName: this.fieldName,
         name: this.name,
         data: this.data,
         uploadIconVisible: this.uploadIconVisible,
         accept: this.accept,
         fileList: this.uploadFiles,
         autoUpload: this.autoUpload,
+        uploadKey: this.uploadKey,
         listType: this.listType,
         disabled: this.disabled,
         limit: this.limit,
