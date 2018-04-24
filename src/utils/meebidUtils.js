@@ -1,4 +1,5 @@
 import meebidConstant from './../constant/meebidConstants'
+import dateUtil from './date'
 
 export default {
   buildCategoryItemStr (categoryItems) {
@@ -187,8 +188,7 @@ export default {
     
   },
   formatDate (date, format) {
-    var showDate = new Date(date);
-    return showDate.format(format);
+    return dateUtil.format(new Date(date), format);
   },
 
 }

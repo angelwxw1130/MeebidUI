@@ -46,6 +46,10 @@ export default {
     drag: Boolean,
     dragger: Boolean,
     withCredentials: Boolean,
+    allowSameFileName: {
+      type: Boolean,
+      default: true
+    },
     uploadKey: String,
     showFileList: {
       type: Boolean,
@@ -290,6 +294,7 @@ export default {
         uploadIconVisible: this.uploadIconVisible,
         accept: this.accept,
         fileList: this.uploadFiles,
+        allowSameFileName: this.allowSameFileName,
         autoUpload: this.autoUpload,
         uploadKey: this.uploadKey,
         listType: this.listType,

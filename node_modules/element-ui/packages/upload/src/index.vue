@@ -19,8 +19,16 @@ export default {
     IframeUpload
   },
 
-  provide: {
-    uploader: this
+  provide() {
+    return {
+      uploader: this
+    };
+  },
+
+  inject: {
+    elForm: {
+      default: ''
+    }
   },
 
   props: {
@@ -89,7 +97,7 @@ export default {
     },
     listType: {
       type: String,
-      default: 'text'   // text,picture,picture-card
+      default: 'text' // text,picture,picture-card
     },
     httpRequest: Function,
     disabled: Boolean,
@@ -109,13 +117,19 @@ export default {
     };
   },
 
+  computed: {
+    uploadDisabled() {
+      return this.disabled || (this.elForm || {}).disabled;
+    }
+  },
+
   watch: {
     fileList: {
       immediate: true,
       handler(fileList) {
         this.uploadFiles = fileList.map(item => {
           item.uid = item.uid || (Date.now() + this.tempIndex++);
-          item.status = 'success';
+          item.status = item.status || 'success';
           return item;
         });
       }
@@ -235,7 +249,7 @@ export default {
     if (this.showFileList) {
       uploadList = (
         <UploadList
-          disabled={this.disabled}
+          disabled={this.uploadDisabled}
           listType={this.listType}
           files={this.uploadFiles}
           on-remove={this.handleRemove}
@@ -259,7 +273,7 @@ export default {
         fileList: this.uploadFiles,
         autoUpload: this.autoUpload,
         listType: this.listType,
-        disabled: this.disabled,
+        disabled: this.uploadDisabled,
         limit: this.limit,
         'on-exceed': this.onExceed,
         'on-start': this.handleStart,
@@ -275,16 +289,16 @@ export default {
 
     const trigger = this.$slots.trigger || this.$slots.default;
     const uploadComponent = (typeof FormData !== 'undefined' || this.$isServer)
-        ? <upload {...uploadData}>{trigger}</upload>
-        : <iframeUpload {...uploadData}>{trigger}</iframeUpload>;
+      ? <upload {...uploadData}>{trigger}</upload>
+      : <iframeUpload {...uploadData}>{trigger}</iframeUpload>;
 
     return (
       <div>
         { this.listType === 'picture-card' ? uploadList : ''}
         {
           this.$slots.trigger
-          ? [uploadComponent, this.$slots.default]
-          : uploadComponent
+            ? [uploadComponent, this.$slots.default]
+            : uploadComponent
         }
         {this.$slots.tip}
         { this.listType !== 'picture-card' ? uploadList : ''}

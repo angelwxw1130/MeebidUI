@@ -4,6 +4,7 @@ import UploadDragger from './upload-dragger.vue';
 import loginUtils from './../../utils/loginUtils';
 import meebidConstant from './../../constant/meebidConstants';
 import $ from 'jquery';
+import i18n from './../../i18n/i18n'
 
 export default {
   inject: ['uploader'],
@@ -21,6 +22,10 @@ export default {
       default: 'file'
     },
     fieldName: String,
+    allowSameFileName: {
+      type: Boolean,
+      default: true
+    },
     data: Object,
     uploadKey: String,
     headers: Object,
@@ -68,10 +73,42 @@ export default {
       return str.indexOf('image') !== -1;
     },
     handleChange(ev) {
+      var me = this;
       const files = ev.target.files;
 
       if (!files) return;
-      this.uploadFiles(files);
+
+      if (!this.allowSameFileName){
+        var pendingRemovedFiles = [];
+        var fileNameArr = [];
+        for (var i = 0; i < this.fileList.length; i++){
+          for (var j = 0; j < files.length; j++){
+            if (files[j].name === this.fileList[i].name){
+              pendingRemovedFiles.push(this.fileList[i]);
+              fileNameArr.push(this.fileList[i].name);
+            }
+          }
+        }
+
+        if (pendingRemovedFiles.length > 0) {
+          this.$confirm(i18n.t('meebid.alertMessage.MSG_ADMIN_BATCH_UPLOAD_NAME_CONFLICT_TEXT', {
+            0: fileNameArr.join(",")
+          }), 'WARNING', {
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel',
+            type: 'warning'
+          }).then(() => {
+            for (var i = 0; i < pendingRemovedFiles.length; i++){
+              me.onRemove(pendingRemovedFiles[i]);
+            }
+            me.uploadFiles(files);
+          });
+        } else {
+          this.uploadFiles(files);
+        }
+      } else {
+        this.uploadFiles(files);
+      }
     },
     uploadFiles(files) {
       var me = this;

@@ -2,11 +2,11 @@
   <div
     :class="[
       'el-color-picker',
-      disabled ? 'is-disabled' : '',
+      colorDisabled ? 'is-disabled' : '',
       colorSize ? `el-color-picker--${ colorSize }` : ''
     ]"
     v-clickoutside="hide">
-    <div class="el-color-picker__mask" v-if="disabled"></div>
+    <div class="el-color-picker__mask" v-if="colorDisabled"></div>
     <div class="el-color-picker__trigger" @click="handleTrigger">
       <span class="el-color-picker__color" :class="{ 'is-alpha': showAlpha }">
         <span class="el-color-picker__color-inner"
@@ -24,7 +24,8 @@
        @pick="confirmValue"
        @clear="clearValue"
        :color="color"
-       :show-alpha="showAlpha">
+       :show-alpha="showAlpha"
+       :predefine="predefine">
     </picker-dropdown>
   </div>
 </template>
@@ -43,10 +44,14 @@
       colorFormat: String,
       disabled: Boolean,
       size: String,
-      popperClass: String
+      popperClass: String,
+      predefine: Array
     },
 
     inject: {
+      elForm: {
+        default: ''
+      },
       elFormItem: {
         default: ''
       }
@@ -72,6 +77,10 @@
 
       colorSize() {
         return this.size || this._elFormItemSize || (this.$ELEMENT || {}).size;
+      },
+
+      colorDisabled() {
+        return this.disabled || (this.elForm || {}).disabled;
       }
     },
 
@@ -96,7 +105,7 @@
 
     methods: {
       handleTrigger() {
-        if (this.disabled) return;
+        if (this.colorDisabled) return;
         this.showPicker = !this.showPicker;
       },
       confirmValue(value) {

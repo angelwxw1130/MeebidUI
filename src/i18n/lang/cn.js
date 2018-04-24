@@ -3,7 +3,9 @@ const cn = {
     meebid: {
         common: {
             MSG_FORGET_PASSWORD_LINK_TEXT: "Forget your password?",
-            MSG_DATE_FORMAT: "yyyy-MM-dd hh:mm:ss"
+            MSG_DATE_FORMAT: "yyyy-MM-dd hh:mm:ss",
+            MSG_DATE_NO_SECOND_FORMAT: "yyyy-MM-dd HH:mm",
+            MSG_DATE_WITH_A_NO_SECOND_FORMAT: "yyyy-MM-dd hh:mm A"
         },
         upload: {
         	deleteTip: "按回车删除"
@@ -39,8 +41,13 @@ const cn = {
             MSG_ADMIN_DELETE_AUCTION_CONFIRMATION_TEXT: "Are you sure to delete this auction?",
             MSG_ADMIN_DELETE_LOT_CONFIRMATION_TEXT: "Are you sure to delete this lot?",
             MSG_ADMIN_BATCH_UPLOAD_TEMPLATE_TYPE_ERROR_TEXT: "Template can only be excel file, please check your uploaded file and try again.",
-            MSG_ADMIN_BATCH_UPLOAD_TEMPLATE_DATA_ERROT_TEXT: "Template data is invalid, please see below information: <br/> {0}",
+            MSG_ADMIN_BATCH_UPLOAD_TEMPLATE_DATA_ERROR_TEXT: "Template data is invalid, please see below information: <br/> {0}",
+            MSG_ADMIN_BATCH_UPLOAD_TEMPLATE_DATA_ERROR_NOT_ALLOW_EMPTY_TEXT: "{0} cannot be empty.<br/>",
+            MSG_ADMIN_BATCH_UPLOAD_TEMPLATE_DATA_ERROR_INVALID_DATA_TEXT: "{0} is invalid.<br/>",
+            MSG_ADMIN_BATCH_UPLOAD_TEMPLATE_DATA_ERROR_INVALID_LESS_THAN_TEXT: "{0} cannot less than {1}.<br/>",
+            MSG_ADMIN_BATCH_UPLOAD_TEMPLATE_DATA_ERROR_LOT_ID_CONFLICT_TEXT: "{0} {1} already exist in auction.<br/>",
             MSG_ADMIN_BATCH_UPLOAD_SUCCESS: "Batch Upload Lots successful, {0} lots added into auction.",
+            MSG_ADMIN_BATCH_UPLOAD_NAME_CONFLICT_TEXT: "File name {0} already existing, click confirm to replace existing file or click cancel to quit upload process.",
             MSG_ADMIN_AUCTION_REVIEW_ALL_LOTS_TEXT: "All un-reviewed lots have been submit for review, please wait for administrator approval.",
             MSG_ADMIN_LOT_VALIDATION_LOT_ID_EXISTING_TEXT: "This Lot No. is already existing in Auction, please try another. Next unused Lot No. is {0}",
         },

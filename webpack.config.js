@@ -2,7 +2,7 @@ const resolve = require('path').resolve
 const webpack = require('webpack')
 const glob = require('glob')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const CommonsChunkPlugin = require('webpack/lib/optimize/CommonsChunkPlugin')
+//const CommonsChunkPlugin = require('webpack/lib/optimize/CommonsChunkPlugin')
 const url = require('url')
 const publicPath = ''
 
@@ -18,12 +18,12 @@ glob.sync('./src/pages/**/**.js').forEach(path => {
 const plugins = [
   new webpack.NormalModuleReplacementPlugin(/element-ui[\/\\]lib[\/\\]locale[\/\\]lang[\/\\]zh-CN/, 'element-ui/lib/locale/lang/en')
 ]
-plugins.push(new webpack.optimize.CommonsChunkPlugin({
-  names: [/*'vendor', */'manifest']
+//plugins.push(new webpack.optimize.CommonsChunkPlugin({
+//  names: [/*'vendor', */'manifest']
 // }),
 // new HtmlWebpackPlugin({
 //   template: 'src/index.html'
-}))
+//}))
 
 glob.sync('./src/pages/**/**.html').forEach(path => {
   const chunk = path.split('./src/pages/')[1].split('.html')[0].split('/')[0]

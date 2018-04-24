@@ -107,7 +107,6 @@ meebidConstant.lotStateColor = {
 
 
 meebidConstant.currencyCode = [
-    {"name":"US Dollar","alias":"USD","id":1},
     {"name":"Australian Dollar","alias":"AUD","id":2},
     {"name":"Singapore Dollar","alias":"SGD","id":3},
     {"name":"Afghan Afghani","alias":"AFN","id":4},
@@ -255,6 +254,7 @@ meebidConstant.currencyCode = [
     {"name":"Tanzanian Shilling","alias":"TZS","id":146},
     {"name":"Ukrainian Hryvnia","alias":"UAH","id":147},
     {"name":"Ugandan Shilling","alias":"UGX","id":148},
+    {"name":"US Dollar","alias":"USD","id":1},
     {"name":"Uruguayan Peso","alias":"UYU","id":149},
     {"name":"Uzbekistani Som","alias":"UZS","id":150},
     {"name":"Venezuelan Bolívar","alias":"VEF","id":151},
@@ -276,6 +276,11 @@ meebidConstant.currencyCode = [
     {"name":"Zambian Kwacha","alias":"ZMW","id":167},
     {"name":"Zimbabwean Dollar","alias":"ZWD","id":168}
 ]
+meebidConstant.exhibitionState = {
+    "Delete": 0,
+    "New": -1,
+    "Saved": 1
+},
 /**
 meebidConstant.currencyCode = [
     {id:'AED', label:'AED', suffix: 2},
