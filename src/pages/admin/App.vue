@@ -1327,6 +1327,21 @@ export default {
         callback();
       }
     };
+    var validateEstMinPrice = (rule, value, callback) => {
+      if (this.lotForm.estMinPrice !== '' && this.lotForm.estMaxPrice !== '') {
+        this.$refs.lotForm.validateField('estMaxPrice');
+      }
+      callback();
+    };
+    var validateEstMaxPrice = (rule, value, callback) => {
+      var estMinPrice = parseFloat(this.lotForm.estMinPrice);
+      var estMaxPrice = parseFloat(this.lotForm.estMaxPrice);
+      if (!isNaN(estMinPrice) && !isNaN(estMaxPrice) && estMaxPrice < estMinPrice) {
+        callback(new Error('Max Est. Price cannot less than Min Est. Price.'));
+      } else {
+        callback();
+      }
+    };
     return {
       exhibitionDialogVisible: false,
       isAuctionBasicInvalid: false,
@@ -1532,10 +1547,12 @@ export default {
           { required: true, message: 'Please input Lot No.', trigger: 'change' }          
         ],
         estMinPrice: [
-          { required: true, message: 'Please input Minimum Estimation Price', trigger: 'change' }          
+          { required: true, message: 'Please input Minimum Estimation Price', trigger: 'change' },
+          { validator: validateEstMinPrice, trigger: 'change' }               
         ],
         estMaxPrice: [
-          { required: true, message: 'Please input Maximum Estimation Price', trigger: 'change' }          
+          { required: true, message: 'Please input Maximum Estimation Price', trigger: 'change' },
+          { validator: validateEstMaxPrice, trigger: 'change' }               
         ],
         imageurls: [
           { required: true, message: 'Please upload Lot Images', trigger: 'on-change' }          
