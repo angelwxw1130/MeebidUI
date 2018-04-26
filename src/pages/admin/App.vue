@@ -820,7 +820,7 @@
                   type="error">
                 </el-alert>
               </el-form-item>
-              <el-form-item label="Bidding Venue Address" class="meebidUserProfileLongLabel" prop="biddingLocId">
+              <el-form-item label="Bidding Venue Address" class="" prop="biddingLocId">
                 <el-select v-model="auctionForm.biddingLocId" clearable placeholder="Select..." v-if="addresses[64] && addresses[64].length > 0">
                   <el-option
                     v-for="item in addresses[64]"
@@ -1808,7 +1808,7 @@ export default {
             },
             contentType : "application/json", 
             data: {
-              houseId: this.userProfile.ID
+              houseId: this.userProfile.id
             },
             success : function(data) {
               if (data.code == 1){
@@ -2331,27 +2331,29 @@ export default {
                 var currentAddressId;
                 if (this.addressForm.addressId === 0){
                   var addressObj = {
-                    ID: data.content.addressId,
+                    id: data.content.id,
                     regions: this.buildRegionWithLabelArr(this.addressForm.regions),
                     detail: this.addressForm.detail,
                     isDefault: this.addressForm.isDefault,
-                    type: this.addressForm.type
+                    type: this.addressForm.type,
+                    currencyId: data.content.currencyId
                   }
-                  currentAddressId = data.content.addressId.addressId;
+                  currentAddressId = data.content.id;
                   this.addresses[this.addressForm.type].push(addressObj);
                 } else {
                   this.addresses[this.addressForm.type].forEach(address => {
-                    if (address.ID === this.addressForm.addressId){
+                    if (address.id === this.addressForm.addressId){
                       address.regions = this.buildRegionWithLabelArr(this.addressForm.regions);
                       address.detail = this.addressForm.detail;
                       address.isDefault = this.addressForm.isDefault;
+                      address.currencyId = data.content.currencyId;
                     }
                   });
                   currentAddressId = this.addressForm.addressId;
                 }
                 if (this.addressForm.isDefault){
                   this.addresses[this.addressForm.type].forEach(addressObj => {
-                    if (addressObj.ID !== currentAddressId){
+                    if (addressObj.id !== currentAddressId){
                       addressObj.isDefault = false;
                     }
                   });
@@ -2422,50 +2424,55 @@ export default {
       if (!this.checkRegionAvailable(this.buildRegionArr(address.regions), this.regionOptions)){
         if (this.$refs.addressFormBusyIndicator){
           this.$refs.addressFormBusyIndicator.show();
+          this.fetchRegions(address);
         } else {
           setTimeout(function(){
             me.$refs.addressFormBusyIndicator.show();
+            me.fetchRegions(address);
           }, 200);
         }
-        $.ajax({
-          type: "GET",
-          url: "/api/public/regions/list",
-          contentType : "application/json", 
-          context: this,
-          traditional: true,
-          data: {
-            "regions": this.buildRegionArr(address.regions)
-          },
-          success(data) {
-            if (data.code === 1){
-              this.buildRegionOptions(data.content.list, this.regionOptions, address.regions);
-              this.addressForm.addressId = address.ID;
-              this.addressForm.regions = this.buildRegionArr(address.regions);
-              this.addressForm.detail = address.detail;
-              this.addressForm.type = address.type;
-              this.addressForm.isDefault = address.isDefault;
-            } else {
-              this.$notify.error({
-                title: 'Failure',
-                message: 'Fetch Address failure',
-                duration: 5000
-              })
-            }
-            this.$refs.addressFormBusyIndicator.hide();
-            
-          },
-          error(data) {
-            this.$refs.addressFormBusyIndicator.hide();
-            errorUtils.requestError(data);
-          }
-        });
+        
       } else {
-        this.addressForm.addressId = address.ID;
+        this.addressForm.addressId = address.id;
         this.addressForm.regions = this.buildRegionArr(address.regions);
         this.addressForm.detail = address.detail;
         this.addressForm.type = address.type;
         this.addressForm.isDefault = address.isDefault;
       }
+    },
+    fetchRegions(address){
+      $.ajax({
+        type: "GET",
+        url: "/api/public/regions/list",
+        contentType : "application/json", 
+        context: this,
+        traditional: true,
+        data: {
+          "regions": this.buildRegionArr(address.regions)
+        },
+        success(data) {
+          if (data.code === 1){
+            this.buildRegionOptions(data.content.list, this.regionOptions, address.regions);
+            this.addressForm.addressId = address.id;
+            this.addressForm.regions = this.buildRegionArr(address.regions);
+            this.addressForm.detail = address.detail;
+            this.addressForm.type = address.type;
+            this.addressForm.isDefault = address.isDefault;
+          } else {
+            this.$notify.error({
+              title: 'Failure',
+              message: 'Fetch Address failure',
+              duration: 5000
+            })
+          }
+          this.$refs.addressFormBusyIndicator.hide();
+          
+        },
+        error(data) {
+          this.$refs.addressFormBusyIndicator.hide();
+          errorUtils.requestError(data);
+        }
+      });
     },
     checkRegionAvailable(regions, regionOptions){
       for (var i = 0; i < regionOptions.length; i++){
@@ -2527,7 +2534,7 @@ export default {
           },
           context: me,
           data: JSON.stringify({
-            addressId: address.ID,
+            addressId: address.id,
             phone: '-1'
           }),
           success(data) {
@@ -2566,7 +2573,7 @@ export default {
          message = i18n.t('meebid.alertMessage.MSG_SET_DEFAULT_EXHIBITION_ADDRESS_CONFIRMATION_TEXT');
          break;
        case meebidConstant.addressType.BiddingVenue:
-         message = i18n.t('meebid.alertMessage.MSG_SET_DEFAULT_BIDDING_VENUE_ADDRESS_CONFIRMATION_TEXT');
+         message = i18n.t('meebid.alertMessage.MSG_SET_DEFAULT_BidDING_VENUE_ADDRESS_CONFIRMATION_TEXT');
          break;
        case meebidConstant.addressType.PickupWarehouse:
          message = i18n.t('meebid.alertMessage.MSG_SET_DEFAULT_PICKUP_WAREHOUSE_ADDRESS_CONFIRMATION_TEXT');
@@ -2586,7 +2593,7 @@ export default {
             token: this.loginUser.token
           },
           data: JSON.stringify({
-            addressId: address.ID,
+            addressId: address.id,
             regions: this.buildRegionArr(address.regions),
             detail: address.detail,
             type: address.type + 1,
@@ -2596,7 +2603,7 @@ export default {
             if (data.code === 1){
               address.isDefault = true;
               this.addresses[address.type].forEach(addressObj => {
-                if (addressObj.ID !== address.ID){
+                if (addressObj.id !== address.id){
                   addressObj.isDefault = false;
                 }
               });
@@ -2648,7 +2655,7 @@ export default {
           token: this.loginUser.token
         },
         data: JSON.stringify({
-          houseId: this.userProfile.ID,
+          houseId: this.userProfile.id,
           paymentInfo: JSON.stringify(paymentInfo),
           termsAndCondition: JSON.stringify(termsAndCondition),
           shippingInfo: JSON.stringify(shippingInfo)
@@ -2684,7 +2691,7 @@ export default {
             this.$refs.auctionDialogTermsIndicator.show();
             var data = {};
             if (this.isAddAuction){
-              data.houseId = this.userProfile.ID;
+              data.houseId = this.userProfile.id;
             } else {
               data.sceneId = this.auctionForm.sceneId;
             }
@@ -2728,7 +2735,7 @@ export default {
             if (this.isAddLot){
               data.sceneId = this.lotForm.sceneId;
             } else {
-              data.lotId = this.lotForm.ID;
+              data.lotId = this.lotForm.id;
             }
             $.ajax({  
               url : "/api/public/pts/settings",  
@@ -2768,6 +2775,17 @@ export default {
       this.$refs.lotForm.validateField(fieldName);
     },
     onCreateAuction() {
+      var defaultBiddingAddress;
+      if (this.addresses[64] && this.addresses[64].length){
+        for (var i = 0; i < this.addresses[64].length; i++){
+          var biddingAddress = this.addresses[64][i];
+          if (biddingAddress.isDefault){
+            defaultBiddingAddress = biddingAddress;
+            break;
+          }
+        }
+      
+      }
       this.auctionDialogVisible = true;
       this.isAddAuction = true;
       this.auctionForm = {
@@ -2776,12 +2794,12 @@ export default {
         description: "",
         bLogo: [],
         state: 1,
-        currencyCode: "USD",
+        currencyCode: defaultBiddingAddress && defaultBiddingAddress.currencyId ? defaultBiddingAddress.currencyId : 1,
         type: window.meebidConstant.auctionType.Timed,
-        pickupLocId: this.addresses[128] && this.addresses[128].length ? this.addresses[128][0].ID : 0,
-        biddingLocId: this.addresses[64] && this.addresses[64].length ? this.addresses[64][0].ID : 0,
-        exhLocId: this.addresses[32] && this.addresses[32].length ? this.addresses[32][0].ID : 0,
-        exhTime: null,
+        pickupLocId: this.addresses[128] && this.addresses[128].length ? this.addresses[128][0].id : null,
+        biddingLocId: this.addresses[64] && this.addresses[64].length ? this.addresses[64][0].id : null,
+        //exhLocId: this.addresses[32] && this.addresses[32].length ? this.addresses[32][0].id : 0,
+        //exhTime: null,
         startAt: null,
         termsAndCondition: "",
         paymentInfo: "",
@@ -2802,7 +2820,7 @@ export default {
       this.isAddLot = true;
 
       this.lotForm = {
-        ID: "",
+        id: "",
         sceneId: this.currentSceneId,
         name: "",
         description: "",
@@ -2952,8 +2970,8 @@ export default {
         requestObj.imageUrls = "";
       }
 
-      if (this.lotForm.ID) {
-        requestObj.lotId = this.lotForm.ID;
+      if (this.lotForm.id) {
+        requestObj.lotId = this.lotForm.id;
       }
 
       if (this.lotForm.isTermLoaded) {
@@ -3109,11 +3127,11 @@ export default {
             bLogo: [{
               url: item.logo
             }],
-            currencyCode: item.currencyId ? item.currencyId: "USD",
-            pickupLocId: item.pickupLocId ? item.pickupLocId : 0,
-            biddingLocId: item.biddingLocId ? item.biddingLocId : 0,
-            exhLocId: item.exhLocId ? item.exhLocId : 0,
-            exhTime: item.exhTime ? new Date(item.exhTime) : null,
+            currencyCode: item.currencyId ? item.currencyId: 1,
+            pickupLocId: item.pickupLocId ? item.pickupLocId : null,
+            biddingLocId: item.biddingLocId ? item.biddingLocId : null,
+            //exhLocId: item.exhLocId ? item.exhLocId : null,
+            //exhTime: item.exhTime ? new Date(item.exhTime) : null,
             startAt: item.startAt ? new Date(item.startAt) : null,
             termsAndCondition: "",
             paymentInfo: "",
@@ -3328,7 +3346,7 @@ export default {
             this.$refs.lotForm.clearValidate();
           }
           this.lotForm = {
-            ID: item.id,
+            id: item.id,
             sceneId: item.sceneId,
             name: item.name,
             no: item.no,
