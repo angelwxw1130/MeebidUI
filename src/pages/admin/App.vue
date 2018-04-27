@@ -191,8 +191,12 @@
                   </el-alert>
                 </el-form-item>
                 <el-form-item label="" v-if="userProfile.right === 2050">
-                  <el-alert class="meebidAlertMessage" :closable="false"
+                  <el-alert class="meebidAlertMessage" v-if="userProfile.state === 0" :closable="false"
                     :title="$t('meebid.alertMessage.MSG_PROFILE_ACCOUNT_NOT_APPROVE')"
+                    type="warning">
+                  </el-alert>
+                  <el-alert class="meebidAlertMessage" v-if="userProfile.state === 1" :closable="false"
+                    :title="$t('meebid.alertMessage.MSG_PROFILE_ACCOUNT_PENDING_APPROVE')"
                     type="warning">
                   </el-alert>
                 </el-form-item>
@@ -295,6 +299,7 @@
                 
                 <el-form-item>
                   <el-button type="primary" @click="onUpdateHouseProfile">UPDATE AUCTION HOUSE INFORMATION</el-button>
+                  <el-button type="primary" v-if="userProfile.right === 2050 && userProfile.state === 0" @click="onApprovalHouse">APPLY FOR APPROVAL</el-button>
                 </el-form-item>
               </el-form>
             </el-col>
@@ -1982,6 +1987,36 @@ export default {
         }
       })
       
+    },
+    onApprovalHouse() {
+      $.ajax({
+        type: "POST",
+        url: "/api/user/audit",
+        contentType : "application/json", 
+        context: this,
+        headers: {
+          token: this.loginUser.token
+        },
+        success(data) {
+          if (data.code === 1){
+            this.$message({
+              type: 'success',
+              message: i18n.t('meebid.alertMessage.MSG_PROFILE_ACCOUNT_APPLY_FOR_APPROVE_SUCCESS')
+            })
+            this.userProfile.state = 1;
+          } else {
+            this.$notify.error({
+              title: 'Failure',
+              message: 'Apply for Approval failure',
+              duration: 5000
+            })
+          }
+          
+        },
+        error(data) {
+          errorUtils.requestError(data);
+        }
+      })
     },
     onMemberRevalidate() {
       this.memberRevalidateButtonDisabled = true;

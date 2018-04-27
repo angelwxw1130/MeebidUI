@@ -10,7 +10,9 @@ export default {
         confirmButtonText: 'Close',
         type: 'warning',
         callback: action => {
-          window.location.href = "./home.html";
+          if (data.status === 401){
+            window.location.href = "./home.html";
+          }
         }
       });
     } else {

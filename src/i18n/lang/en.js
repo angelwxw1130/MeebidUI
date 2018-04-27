@@ -16,6 +16,8 @@ const en = {
             MSG_REVALIDATE_EMAIL_SEND_SUCCESS: "Send validation email success, please check your mail account.",
         	MSG_PROFILE_ACCOUNT_NOT_ACTIVATE: "Account hasn't been activated, please check your email and activate your account",
         	MSG_PROFILE_ACCOUNT_NOT_APPROVE: "Account hasn't been approved, please upload license and ask administrator for approval",
+            MSG_PROFILE_ACCOUNT_PENDING_APPROVE: "House Account is pending administrator approval",
+            MSG_PROFILE_ACCOUNT_APPLY_FOR_APPROVE_SUCCESS: "Apply for Approval success",
             MSG_FORGET_PASSWORD_SEND_EMAIL_SUCCESS: "We have sent an email to your account for reseting password, please check your mail account.",
             MSG_RESET_PASSWORD_SUCCESS: "Change password successful! Redirect to home in 5 seconds.",
             MSG_ADMIN_USER_UPDATE_PROFILE_SUCCESS: "Profile information updated",
