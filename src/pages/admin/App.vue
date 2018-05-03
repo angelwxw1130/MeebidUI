@@ -1202,7 +1202,7 @@
                 </el-time-select>
               </el-form-item>
             </el-col>
-            <el-col class="line meebidPaddingTopMedium" :span="2" style="text-align: center;">-</el-col>
+            <el-col class="line meebidPaddingTopMedium" :span="2" style="text-align: center; margin-left: -10px;">-</el-col>
             <el-col :span="11" class="meebidPaddingTopMedium">
               <el-form-item prop="exhibitionEndTime">
                 <el-time-select
@@ -3947,7 +3947,8 @@ export default {
       this.exhibitionForm = {
         state: window.meebidConstant.exhibitionState.Newing,
         exhibitionDate: null,
-        exhibitionTime: ['09:00', '22:00'],
+        exhibitionStartTime: '09:00',
+        exhibitionEndTime: '22:00',
         locId: ""
       };
       this.$nextTick(function () {
