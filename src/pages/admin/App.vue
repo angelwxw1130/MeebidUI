@@ -1229,7 +1229,7 @@
           <el-button type="primary" @click="onUpdateExhibitions()">Save</el-button>
         </span>
       </el-dialog>
-      <el-dialog :visible.sync="batchLotImagesDialogVisible" class="meebidBatchLotImagesDialog" title="Batch Upload Images" width="800px" height="500px" :close-on-click-modal="false">
+      <el-dialog :visible.sync="batchLotImagesDialogVisible" class="meebidBatchLotImagesDialog" title="Batch Upload Images" width="900px" height="500px" :close-on-click-modal="false">
         <meebid-busy-indicator ref="batchLotDialogImagesBusyIndicator" size="Medium"></meebid-busy-indicator>
         <div class="" style="">
           <el-form ref="batchImagesForm" status-icon :rules="batchImagesFormRules" style="width: 90%; overflow: scroll;" :model="batchImagesForm" label-width="180px" class="meebidHouseProfileForm">        
@@ -1286,7 +1286,7 @@
         <span slot="footer" class="dialog-footer">
           <span class="meebidBatchUploadDialogHintLabel">{{batchUploadImagesHintLabel}}</span>
           <el-button @click="batchLotImagesDialogVisible = false" class="">Cancel</el-button>
-          <el-button type="primary" @click="onUpdateLotImages()">Update</el-button>
+          <el-button type="primary" :disabled="!isBatchLotImageFormValid" @click="onUpdateLotImages()">Update</el-button>
         </span>
       </el-dialog>
       <meebid-category-dialog :items="categoryItems" :isProfilePage="isProfilePage" @update="onFieldDataChange" ref="categoryDialog">
@@ -1402,33 +1402,43 @@ export default {
     var validateBatchLotsImages = (rule, value, callback) => {
       var me = this;
       if (value && value.length > 0) {
-        for (var k = 0; k < this.batchLotTemplateResult.length; k++){
-          this.batchLotTemplateResult[k].imageUrls = [];
+        var tempResult = this.batchLotTemplateResult.concat();
+        for (var k = 0; k < tempResult.length; k++){
+          tempResult[k].imageUrls = [];
         }
         for (var i = 0; i < value.length; i++){
           if (value[i].status !== "success"){
             continue;
           }
           var imagePrefix = value[i].name.split(".")[0];
-          var imageNo = imagePrefix.split("-")[0];
-          var imageIdx = imagePrefix.split("-")[1];
-          for (var j = 0; j < this.batchLotTemplateResult.length; j++){
-            if (this.batchLotTemplateResult[j].no === parseInt(imageNo)){
-              this.batchLotTemplateResult[j].imageUrls.push({
-                name: value[i].name,
-                rUid: value[i].rUid,
-                url: value[i].url
-              });
+          var imageArr = imagePrefix.split("-");
+          if (imageArr && imageArr.length === 2 && meebidUtils.isNumber(parseInt(imageArr[0])) && meebidUtils.isNumber(parseInt(imageArr[1]))){
+            var imageNo = imageArr[0];
+            var imageIdx = imageArr[1];
+            for (var j = 0; j < tempResult.length; j++){
+              if (tempResult[j].no === parseInt(imageNo)){
+                tempResult[j].imageUrls.push({
+                  name: value[i].name,
+                  rUid: value[i].rUid,
+                  url: value[i].url
+                });
+              }
             }
+          } else {
+            this.isBatchLotFormStep2Valid = false;
+            callback(new Error("Image file name must follow LotNo-Index.jpg/gif/png, like 1-1.jpg. Please remove invalid image file."));
+            return;
           }
+          
         }
-        for (var k = 0; k < this.batchLotTemplateResult.length; k++){
-          if(this.batchLotTemplateResult[k].imageUrls.length === 0 && !this.batchLotTemplateResult[k].isConflict){
+        for (var k = 0; k < tempResult.length; k++){
+          if(tempResult[k].imageUrls.length === 0 && !tempResult[k].isConflict){
             callback(new Error('You have new lot without image, please make sure every new lot contains at least one image.'));
             this.isBatchLotFormStep2Valid = false;
             return;
           }
         }
+        this.batchLotTemplateResult = tempResult;
         this.isBatchLotFormStep2Valid = true;
         callback();
       } else {
@@ -1446,25 +1456,35 @@ export default {
             continue;
           }
           var imagePrefix = value[i].name.split(".")[0];
-          var imageNo = imagePrefix.split("-")[0];
-          var imageIdx = imagePrefix.split("-")[1];
-          var batchLotObj = meebidUtils.findObject(batchLotImages, "no", parseInt(imageNo));
-          if (!batchLotObj){
-            batchLotObj = {
-              no: parseInt(imageNo),
-              imageUrls: []
-            };
-            batchLotImages.push(batchLotObj);
+          var imageArr = imagePrefix.split("-");
+          if (imageArr && imageArr.length === 2 && meebidUtils.isNumber(parseInt(imageArr[0])) && meebidUtils.isNumber(parseInt(imageArr[1]))){
+            var imageNo = imageArr[0];
+            var imageIdx = imageArr[1];
+
+            var batchLotObj = meebidUtils.findObject(batchLotImages, "no", parseInt(imageNo));
+            if (!batchLotObj){
+              batchLotObj = {
+                no: parseInt(imageNo),
+                imageUrls: []
+              };
+              batchLotImages.push(batchLotObj);
+            }
+            batchLotObj.imageUrls.push({
+              name: value[i].name,
+              rUid: value[i].rUid,
+              url: value[i].url
+            });
+          } else {
+            this.isBatchLotImageFormValid = false;
+            callback(new Error("Image file name must follow LotNo-Index.jpg/gif/png, like 1-1.jpg. Please remove invalid image file."));
+            return;
           }
-          batchLotObj.imageUrls.push({
-            name: value[i].name,
-            rUid: value[i].rUid,
-            url: value[i].url
-          });
         }
         this.batchLotImages = batchLotImages;
+        this.isBatchLotImageFormValid = true;
         callback();
       } else {
+        this.isBatchLotImageFormValid = false;
         callback(new Error('Please upload lot images.'));
       }
     };
@@ -1612,6 +1632,7 @@ export default {
       batchLotDialogStep: 0,
       isBatchLotFormStep1Valid: false,
       isBatchLotFormStep2Valid: false,
+      isBatchLotImageFormValid: false,
       uploadKeyForBatchLotImages: "batchLotImages" + loginUtils.getLoginUser().token + currentDate.getTime(),
       uploadKeyForBatchImages: "batchImages" + loginUtils.getLoginUser().token + currentDate.getTime(),
       batchLotTemplateResult: [],
@@ -4058,6 +4079,7 @@ export default {
     },
     onBatchUploadAuctionLotImages() {
       this.batchLotImagesDialogVisible = true;
+      this.isBatchLotImageFormValid = false;
       this.batchLotImages = [];
       this.batchImagesForm = {
         imageUrls: []
@@ -4065,49 +4087,54 @@ export default {
     },
     onUpdateLotImages() {
       var me = this;
-      this.$refs.batchLotDialogImagesBusyIndicator.show();
-      var requestObj = {
-        irUids: [],
-        sceneId: this.currentSceneId
-      };
-      for (var i = 0; i < this.batchLotImages.length; i++){
-        for (var j = 0; j < this.batchLotImages[i].imageUrls.length; j++){
-          requestObj.irUids.push(this.batchLotImages[i].imageUrls[j].rUid);
-        }
-      }
-      $.ajax({
-        type: "POST",
-        url: "/api/lot/batch/image/update",
-        contentType : "application/json", 
-        context: this,
-        headers: {
-          token: this.loginUser.token
-        },
-        data: JSON.stringify(requestObj),
-        success(data) {
-          if (data.code === 1){
-            this.$message({
-              type: 'success',
-              message: i18n.t('meebid.alertMessage.MSG_ADMIN_BATCH_UPLOAD_IMAGES_SUCCESS')
-            });
-            this.batchLotImagesDialogVisible = false;
-            this.currentPageForAuctionLot = 1;
-            this.refreshAuctionLots();
-          } else {
-            this.$notify.error({
-              title: 'Failure',
-              message: 'Batch Upload Lots Image failure',
-              duration: 5000
-            });
+      this.$refs.batchImagesForm.validate(function(isValid){
+        if (isValid){
+          me.$refs.batchLotDialogImagesBusyIndicator.show();
+          var requestObj = {
+            irUids: [],
+            sceneId: me.currentSceneId
+          };
+          for (var i = 0; i < me.batchLotImages.length; i++){
+            for (var j = 0; j < me.batchLotImages[i].imageUrls.length; j++){
+              requestObj.irUids.push(me.batchLotImages[i].imageUrls[j].rUid);
+            }
           }
-        },
-        error(data) {
-          me.$refs.batchLotDialogImagesBusyIndicator.hide();
-          errorUtils.requestError(data);
+          $.ajax({
+            type: "POST",
+            url: "/api/lot/batch/image/update",
+            contentType : "application/json", 
+            context: me,
+            headers: {
+              token: me.loginUser.token
+            },
+            data: JSON.stringify(requestObj),
+            success(data) {
+              if (data.code === 1){
+                me.$message({
+                  type: 'success',
+                  message: i18n.t('meebid.alertMessage.MSG_ADMIN_BATCH_UPLOAD_IMAGES_SUCCESS')
+                });
+                me.batchLotImagesDialogVisible = false;
+                me.currentPageForAuctionLot = 1;
+                me.refreshAuctionLots();
+              } else {
+                me.$notify.error({
+                  title: 'Failure',
+                  message: 'Batch Upload Lots Image failure',
+                  duration: 5000
+                });
+              }
+            },
+            error(data) {
+              me.$refs.batchLotDialogImagesBusyIndicator.hide();
+              errorUtils.requestError(data);
+            }
+          }).done(function(){
+            me.$refs.batchLotDialogImagesBusyIndicator.hide();
+          });
         }
-      }).done(function(){
-        this.$refs.batchLotDialogImagesBusyIndicator.hide();
-      });;
+      })
+      
     }
   }
 }
