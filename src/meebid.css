@@ -1312,6 +1312,11 @@ body {
 .meebid .meebidBatchUploadDialogHintLabel {
   float: left;
   margin-left: calc(((100% + 10px)* 0.05) + 5px);
+  text-align: left;
+  max-width: 60%;
+}
+.meebid .meebidBatchLotImagesDialog .el-dialog__footer, .meebid .meebidBatchLotDialog .el-dialog__footer {
+  padding-bottom: 35px;
 }
 /**
   Admin Page End

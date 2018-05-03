@@ -279,6 +279,7 @@ meebidConstant.currencyCode = [
 meebidConstant.exhibitionState = {
     "Delete": 0,
     "New": -1,
+    "Newing": -1970,
     "Saved": 1
 },
 /**

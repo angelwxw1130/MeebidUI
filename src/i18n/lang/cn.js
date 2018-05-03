@@ -67,7 +67,8 @@ const cn = {
             MSG_AUCTION_TYPE_CATEGORY_ONLY_TEXT: "Category Only"
         },
         batchUpload: {
-            MSG_BATCH_UPLOAD_HINT_LABEL: "Notice: Lot No with * are already existing in Auction, your upload will override existing lots' information."
+            MSG_BATCH_UPLOAD_HINT_LABEL: "Notice: Lot No with * are already existing in Auction, your upload will override existing lots' information.",
+            MSG_BATCH_UPLOAD_IMAGES_HINT_LABEL: "Notice: Images with existing Lot No. will be updated. Images without existing Lot No. will be ignored."
         }
     },
 

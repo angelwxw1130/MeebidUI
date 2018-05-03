@@ -387,7 +387,7 @@
               <div style="position: absolute; right: 0px; top: 0px;"> 
                 <el-button class="meebidMarginTopMedium meebidSquareButton" icon="el-icon-back" @click="onBackToAuctionList">BACK</el-button>
                 <el-button class="meebidMarginTopMedium" type="primary" @click="onCreateAuctionLot">CREATE LOT</el-button>
-                <el-dropdown @command="handleBatchCommand">
+                <el-dropdown class="meebidMarginLeftSmall" @command="handleBatchCommand">
                   <el-button type="primary">
                     BATCH ACTIONS<i class="el-icon-arrow-down el-icon--right"></i>
                   </el-button>
@@ -1231,7 +1231,7 @@
       </el-dialog>
       <el-dialog :visible.sync="batchLotImagesDialogVisible" class="meebidBatchLotImagesDialog" title="Batch Upload Images" width="800px" height="500px" :close-on-click-modal="false">
         <meebid-busy-indicator ref="batchLotDialogImagesBusyIndicator" size="Medium"></meebid-busy-indicator>
-        <div class="meebidPaddingTopMedium" style="">
+        <div class="" style="">
           <el-form ref="batchImagesForm" status-icon :rules="batchImagesFormRules" style="width: 90%; overflow: scroll;" :model="batchImagesForm" label-width="180px" class="meebidHouseProfileForm">        
             <el-form-item label="Upload Images" prop="imageUrls" required>
               <meebid-upload
@@ -1284,6 +1284,7 @@
           </el-table-column>
         </el-table>
         <span slot="footer" class="dialog-footer">
+          <span class="meebidBatchUploadDialogHintLabel">{{batchUploadImagesHintLabel}}</span>
           <el-button @click="batchLotImagesDialogVisible = false" class="">Cancel</el-button>
           <el-button type="primary" @click="onUpdateLotImages()">Update</el-button>
         </span>
@@ -1591,6 +1592,7 @@ export default {
     return {
       batchLotImagesDialogVisible: false,
       batchUploadHintLabel: i18n.t('meebid.batchUpload.MSG_BATCH_UPLOAD_HINT_LABEL'),
+      batchUploadImagesHintLabel: i18n.t('meebid.batchUpload.MSG_BATCH_UPLOAD_IMAGES_HINT_LABEL'),
       exhibitionTimePickertInitialed: false,
       exhibitionDialogVisible: false,
       isAuctionBasicInvalid: false,
@@ -3943,7 +3945,7 @@ export default {
       var me = this;
       this.exhibitionDialogVisible = true;
       this.exhibitionForm = {
-        state: window.meebidConstant.exhibitionState.New,
+        state: window.meebidConstant.exhibitionState.Newing,
         exhibitionDate: null,
         exhibitionTime: ['09:00', '22:00'],
         locId: ""
@@ -3979,13 +3981,22 @@ export default {
       var me = this;
       this.$refs.exhibitionForm.validate(function(isValid){
         if (isValid){
-          if (me.exhibitionForm.state === window.meebidConstant.exhibitionState.New){
-            me.auctionForm.exhibitions.push({
-              state: me.exhibitionForm.state,
-              startAt: me.exhibitionForm.exhibitionStartTime,
-              endAt: me.exhibitionForm.exhibitionEndTime,
+          if (me.exhibitionForm.state === window.meebidConstant.exhibitionState.Newing){
+            var exhibition = {
+              state: window.meebidConstant.exhibitionState.New,
               locId: me.exhibitionForm.locId,
-            });
+            }
+            var startAtDate = new Date(me.exhibitionForm.exhibitionDate);
+            var startTimeArr = me.exhibitionForm.exhibitionStartTime.split(":");
+            startAtDate.setHours(parseInt(startTimeArr[0]));
+            startAtDate.setMinutes(parseInt(startTimeArr[1]));
+            var endAtDate = new Date(me.exhibitionForm.exhibitionDate);
+            var endTimeArr = me.exhibitionForm.exhibitionEndTime.split(":");
+            endAtDate.setHours(parseInt(endTimeArr[0]));
+            endAtDate.setMinutes(parseInt(endTimeArr[1]));
+            exhibition.startAt = startAtDate;
+            exhibition.endAt = endAtDate;
+            me.auctionForm.exhibitions.push(exhibition);
           } else {
             var exhibition = meebidUtils.findObject(me.auctionForm.exhibitions, "id", me.exhibitionForm.id);
             var startAtDate = new Date(me.exhibitionForm.exhibitionDate);
