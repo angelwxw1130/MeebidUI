@@ -5,6 +5,7 @@ const cn = {
             MSG_FORGET_PASSWORD_LINK_TEXT: "Forget your password?",
             MSG_DATE_FORMAT: "yyyy-MM-dd hh:mm:ss",
             MSG_DATE_NO_SECOND_FORMAT: "yyyy-MM-dd HH:mm",
+            MSG_TIME_NO_SECOND_FORMAT: "HH:mm",
             MSG_DATE_WITH_A_NO_SECOND_FORMAT: "yyyy-MM-dd hh:mm A"
         },
         upload: {
@@ -48,10 +49,11 @@ const cn = {
             MSG_ADMIN_BATCH_UPLOAD_TEMPLATE_DATA_ERROR_INVALID_DATA_TEXT: "{0} is invalid.<br/>",
             MSG_ADMIN_BATCH_UPLOAD_TEMPLATE_DATA_ERROR_INVALID_LESS_THAN_TEXT: "{0} cannot less than {1}.<br/>",
             MSG_ADMIN_BATCH_UPLOAD_TEMPLATE_DATA_ERROR_LOT_ID_CONFLICT_TEXT: "{0} {1} already exist in auction.<br/>",
-            MSG_ADMIN_BATCH_UPLOAD_SUCCESS: "Batch Upload Lots successful, {0} lots added into auction.",
+            MSG_ADMIN_BATCH_UPLOAD_SUCCESS: "Batch Upload Lots successful, {0} lots updated into auction.",
+            MSG_ADMIN_BATCH_UPLOAD_IMAGES_SUCCESS: "Batch Upload Lots images successful.",
             MSG_ADMIN_BATCH_UPLOAD_NAME_CONFLICT_TEXT: "File name {0} already existing, click confirm to replace existing file or click cancel to quit upload process.",
             MSG_ADMIN_AUCTION_REVIEW_ALL_LOTS_TEXT: "All un-reviewed lots have been submit for review, please wait for administrator approval.",
-            MSG_ADMIN_LOT_VALIDATION_LOT_ID_EXISTING_TEXT: "This Lot No. is already existing in Auction, please try another. Next unused Lot No. is {0}",
+            MSG_ADMIN_LOT_VALIDATION_LOT_ID_EXISTING_TEXT: "Lot No. already exist in Auction. Next unused Lot No. is {0}",
         },
         forgetPassword: {
             MSG_FORGET_PASSWORD_HEADER_TEXT: "Send an email to reset your password"
@@ -63,6 +65,9 @@ const cn = {
             MSG_AUCTION_TYPE_TIMED_TEXT: "Timed",
             MSG_AUCTION_TYPE_LIVE_TEXT: "Live",
             MSG_AUCTION_TYPE_CATEGORY_ONLY_TEXT: "Category Only"
+        },
+        batchUpload: {
+            MSG_BATCH_UPLOAD_HINT_LABEL: "Notice: Lot No with * are already existing in Auction, your upload will override existing lots' information."
         }
     },
 

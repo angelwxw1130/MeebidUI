@@ -56,13 +56,13 @@
           <template v-if="userProfile.type === userType.house">
             <el-menu-item index="houseProfile">
               <i class="el-icon-menu"></i>
-              <span slot="title" class="meebidAdminMenuLabel">House Auction Information</span>
+              <span slot="title" class="meebidAdminMenuLabel">Basic Information</span>
             </el-menu-item>
           </template>
           <template v-if="userProfile.type === userType.house && userProfile.right === 2052">
             <el-menu-item index="houseDefaultSetting">
               <i class="el-icon-setting"></i>
-              <span slot="title" class="meebidAdminMenuLabel">Default Setting</span>
+              <span slot="title" class="meebidAdminMenuLabel">Basic Terms</span>
             </el-menu-item>
           </template>
           <template v-if="userProfile.type === userType.house && userProfile.right === 2052">
@@ -387,7 +387,16 @@
               <div style="position: absolute; right: 0px; top: 0px;"> 
                 <el-button class="meebidMarginTopMedium meebidSquareButton" icon="el-icon-back" @click="onBackToAuctionList">BACK</el-button>
                 <el-button class="meebidMarginTopMedium" type="primary" @click="onCreateAuctionLot">CREATE LOT</el-button>
-                <el-button class="meebidMarginTopMedium" type="primary" @click="onBatchUploadAuctionLot">BATCH UPLOAD</el-button>
+                <el-dropdown @command="handleBatchCommand">
+                  <el-button type="primary">
+                    BATCH ACTIONS<i class="el-icon-arrow-down el-icon--right"></i>
+                  </el-button>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="batchUploadAuctionLot">Batch Upload Lots</el-dropdown-item>
+                    <el-dropdown-item command="batchUploadAuctionLotImages">Batch Upload Images</el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+                <!--<el-button class="meebidMarginTopMedium" type="primary" @click="onBatchUploadAuctionLot">BATCH UPLOAD</el-button>-->
               </div>
 
               <div class="meebidMarginTopMedium" v-if="auctionLotList && auctionLotList.length > 0">
@@ -476,6 +485,7 @@
                   <el-button size="small" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
                   <el-button size="small" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
                   <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
+                  <span v-else class="meebidAddressTableDefaultLabel">Default</span>
                 </template>
               </el-table-column>
             </el-table>
@@ -511,6 +521,7 @@
                   <el-button size="small" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
                   <el-button size="small" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
                   <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
+                  <span v-else class="meebidAddressTableDefaultLabel">Default</span>
                 </template>
               </el-table-column>
             </el-table>
@@ -547,6 +558,7 @@
                   <el-button size="small" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
                   <el-button size="small" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
                   <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
+                  <span v-else class="meebidAddressTableDefaultLabel">Default</span>
                 </template>
               </el-table-column>
             </el-table>
@@ -582,6 +594,7 @@
                   <el-button size="small" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
                   <el-button size="small" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
                   <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
+                  <span v-else class="meebidAddressTableDefaultLabel">Default</span>
                 </template>
               </el-table-column>
             </el-table>
@@ -617,6 +630,7 @@
                   <el-button size="small" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
                   <el-button size="small" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
                   <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
+                  <span v-else class="meebidAddressTableDefaultLabel">Default</span>
                 </template>
               </el-table-column>
             </el-table>
@@ -631,7 +645,7 @@
         <img width="100%" :src="previewDialogImageUrl" alt="">
       </el-dialog>
 
-      <el-dialog :visible.sync="phoneNumberDialogVisible" class="meebidPhoneNumberDialog" title="Phone Number" width="500px">
+      <el-dialog :visible.sync="phoneNumberDialogVisible" class="meebidPhoneNumberDialog" title="Phone Number" width="500px" :close-on-click-modal="false">
         <el-form ref="phoneFormRef" :model="phoneForm" :rules="phoneFormRules" class="" label-width="0px">
           <el-form-item prop="phone">
             <el-input v-model="phoneForm.phone" placeholder="Please input phone number">
@@ -652,7 +666,7 @@
         </span>
       </el-dialog>
 
-      <el-dialog :visible.sync="contactUserDialogVisible" class="meebidPhoneNumberDialog" title="Contact User" width="800px">
+      <el-dialog :visible.sync="contactUserDialogVisible" class="meebidPhoneNumberDialog" title="Contact User" width="800px" :close-on-click-modal="false">
         <el-form ref="contactUserFormRef" :model="contactUserForm" :rules="contactUserFormRules" class="" label-width="190px">
           <el-form-item label="Title" prop="title">
             <el-select v-model="contactUserForm.titleId" placeholder="Select...">
@@ -711,7 +725,7 @@
           <el-button type="primary" @click="onSaveContactUser" class="">Save</el-button>
         </span>
       </el-dialog>
-      <el-dialog :visible.sync="addressDialogVisible" class="" title="Address" width="800px">
+      <el-dialog :visible.sync="addressDialogVisible" class="" title="Address" width="800px" :close-on-click-modal="false">
         <el-form ref="addressForm" status-icon :rules="addressFormRules" :model="addressForm" label-width="180px" class="meebidHouseProfileForm">
                 
           <el-form-item label="Country/City/District" prop="regions">
@@ -753,7 +767,7 @@
         </span>
       </el-dialog>
 
-      <el-dialog :visible.sync="auctionDialogVisible" class="meebidAuctionDialog" title="Auction" width="800px" height="600px">
+      <el-dialog :visible.sync="auctionDialogVisible" class="meebidAuctionDialog" title="Auction" width="800px" height="600px" :close-on-click-modal="false">
         <el-tabs type="border-card" v-model="auctionDialogActiveTab" @tab-click="handleAuctionDialogTabClick">
           <el-tab-pane name="auctionBasic">
             <span slot="label">Basic</span>
@@ -798,7 +812,7 @@
               </el-form-item>
               <el-form-item label="Auction Time" prop="startAt">
                 <el-form-item >
-                  <el-date-picker type="datetime" placeholder="Select date" v-model="auctionForm.startAt" style="width: 100%;" :format="$t('meebid.common.MSG_DATE_NO_SECOND_FORMAT')"></el-date-picker>
+                  <el-date-picker type="datetime" placeholder="Select date" v-model="auctionForm.startAt" style="width: 100%;" :format="$t('meebid.common.MSG_DATE_NO_SECOND_FORMAT')" default-time="09:00:00" ></el-date-picker>
                 </el-form-item>
               </el-form-item>
               <el-form-item label="Currency Code" prop="currencyCode">
@@ -826,18 +840,18 @@
                 </el-alert>
               </el-form-item>
               <el-form-item label="Bidding Venue Address" class="" prop="biddingLocId">
-                <el-select v-model="auctionForm.biddingLocId" clearable placeholder="Select..." v-if="addresses[64] && addresses[64].length > 0">
+                <el-select v-model="auctionForm.biddingLocId" clearable placeholder="Select...">
                   <el-option
-                    v-for="item in addresses[64]"
+                    v-for="item in addresses[64].concat(onlineOnlyOption)"
                     :key="item.id"
                     :label="getAddressLabel(item)"
                     :value="item.id">
                   </el-option>
                 </el-select>
-                <el-alert v-else show-icon class="meebidUnsavedAlertMessage" :closable="false"
+                <!--<el-alert v-else show-icon class="meebidUnsavedAlertMessage" :closable="false"
                   :title="$t('meebid.alertMessage.MSG_ADMIN_NO_ADDRESS_SELECTABLE')"
                   type="warning">
-                </el-alert>
+                </el-alert>-->
               </el-form-item>
               <!--<el-form-item label="Exhibition Address" class="meebidUserProfileLongLabel" prop="exhLocId">
                 <el-select v-model="auctionForm.exhLocId" clearable placeholder="Select..." v-if="addresses[32] && addresses[32].length > 0">
@@ -872,7 +886,12 @@
                   </span>
                   <span style="display: inline-block; margin-top: -10px;" class="meebidVerticalAlignTop">{{getAddressLabelById(item.locId)}}</span>
                 </div>
-                <div class=""><el-button size="small" type="primary" @click="onAddExhibition">Add Exhibition</el-button></div>
+                <div class="" v-if="addresses[32] && addresses[32].length > 0"><el-button size="small" type="primary" @click="onAddExhibition">Add Exhibition</el-button></div>
+                <el-alert v-else show-icon class="meebidUnsavedAlertMessage" :closable="false"
+                  :title="$t('meebid.alertMessage.MSG_ADMIN_NO_ADDRESS_SELECTABLE')"
+                  type="warning">
+                </el-alert>
+                
               </el-form-item>
 
               <meebid-busy-indicator ref="auctionFormBusyIndicator" size="Medium"></meebid-busy-indicator>
@@ -904,7 +923,7 @@
         </span>
       </el-dialog>
 
-      <el-dialog :visible.sync="lotDialogVisible" class="meebidLotDialog" title="Lot" width="820px" height="600px">
+      <el-dialog :visible.sync="lotDialogVisible" class="meebidLotDialog" title="Lot" width="820px" height="600px" :close-on-click-modal="false">
         <el-tabs type="border-card" v-model="lotDialogActiveTab" @tab-click="handleLotDialogTabClick">
           <el-tab-pane name="lotBasic">
             <span slot="label">Basic</span>
@@ -991,7 +1010,7 @@
           <el-button type="primary" @click="onUpdateLot()">Save</el-button>
         </span>
       </el-dialog>
-      <el-dialog :visible.sync="batchLotDialogVisible" class="meebidBatchLotDialog" title="Batch Upload Lots" width="1100px" height="500px">
+      <el-dialog :visible.sync="batchLotDialogVisible" class="meebidBatchLotDialog" title="Batch Upload Lots" width="1100px" height="500px" :close-on-click-modal="false">
         <meebid-busy-indicator ref="batchLotDialogBusyIndicator" size="Medium"></meebid-busy-indicator>
         <el-steps :active="batchLotDialogStep" finish-status="success" align-center>
           <el-step title="Upload Template"></el-step>
@@ -999,21 +1018,37 @@
           <el-step title="Review and Save"></el-step>
         </el-steps>
         <div v-if="batchLotDialogStep == 0" class="meebidPaddingTopMedium" style="height: 100px;">
-          <el-form ref="batchLotStep1Form" status-icon :rules="batchLotFormRules" style="width: 80%;" :model="batchLotForm" label-width="180px" class="meebidHouseProfileForm">        
+          <el-form ref="batchLotStep1Form" status-icon :rules="batchLotFormRules" style="" :model="batchLotForm" label-width="180px" class="meebidHouseProfileForm">
             <el-form-item label="Template" prop="batchTemplate" required>
-              <meebid-upload
-                field-name="batchTemplate"
-                :limit="1"
-                :on-exceed="handleUploadExceed"
-                :on-remove="handleUploadLotTemplateSuccess"
-                :on-success="handleUploadLotTemplateSuccess"
-                :on-preview="handlePictureCardPreview"
-                :on-error="handleUploadError"
-                :file-list="batchLotForm.batchTemplate"
-                >
-                <el-button size="small" type="primary">Click to upload template</el-button>
-              </meebid-upload>
+              <el-col :span="11">
+                <meebid-upload
+                  field-name="batchTemplate"
+                  :limit="1"
+                  :on-exceed="handleUploadExceed"
+                  :on-remove="handleUploadLotTemplateSuccess"
+                  :on-success="handleUploadLotTemplateSuccess"
+                  :on-preview="handlePictureCardPreview"
+                  :on-error="handleUploadError"
+                  :file-list="batchLotForm.batchTemplate"
+                  >
+                  <el-button size="small" type="primary">Click to upload template</el-button>
+                </meebid-upload>
+              </el-col>
+              <el-col :span="11" style="text-align:right;">
+                <el-dropdown @command="handleBatchUploadDialogCommand">
+                  <el-button size="small" type="primary">
+                    Actions<i class="el-icon-arrow-down el-icon--right"></i>
+                  </el-button>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="downloadSample">Download Sample Template</el-dropdown-item>
+                    <el-dropdown-item command="exportLots">Export All Lots</el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+              </el-col>
             </el-form-item>
+            
+            
+            
           </el-form>
         </div>
         <div v-if="batchLotDialogStep == 1" class="meebidPaddingTopMedium" style="">
@@ -1023,7 +1058,7 @@
                 class="meebidUploadMiniPicture"
                 :allowSameFileName="false"
                 field-name="imageUrls"
-                :uploadKey="uploadKeyForBatchImages"
+                :uploadKey="uploadKeyForBatchLotImages"
                 :multiple="true"
                 :on-exceed="handleUploadExceed"
                 :on-remove="handleUploadLotsImageSuccess"
@@ -1052,6 +1087,9 @@
             fixed
             label="No."
             width="50">
+            <template slot-scope="scope">
+              <span>{{formatLotNo(scope.row)}}</span>
+            </template>
           </el-table-column>
           <el-table-column
             prop="name"
@@ -1119,6 +1157,7 @@
           </el-table-column>
         </el-table>
         <span slot="footer" class="dialog-footer">
+          <span class="meebidBatchUploadDialogHintLabel">{{batchUploadHintLabel}}</span>
           <el-button @click="batchLotDialogVisible = false" class="">Cancel</el-button>
           <!--<el-button type="primary" v-if="batchLotDialogStep > 0" @click="onBackBatchStep()">Back</el-button>-->
           <el-button type="primary" @click="onResetBatchStep()">Reset</el-button>
@@ -1127,7 +1166,7 @@
         </span>
       </el-dialog>
 
-      <el-dialog :visible.sync="exhibitionDialogVisible" class="meebidExhibitionDialog" title="Exhibition Address" width="800px" height="500px">        
+      <el-dialog :visible.sync="exhibitionDialogVisible" class="meebidExhibitionDialog" title="Exhibition Address" width="800px" height="500px" :close-on-click-modal="false">        
         <el-form ref="exhibitionForm" status-icon :rules="exhibitionFormRules" style="width: 90%;" :model="exhibitionForm" label-width="180px" class="meebidHouseProfileForm">
           <el-form-item label="Exhibition Location" class="" prop="locId">
             <el-select v-model="exhibitionForm.locId" clearable placeholder="Select..." v-if="addresses[32] && addresses[32].length > 0">
@@ -1143,14 +1182,110 @@
               type="warning">
             </el-alert>
           </el-form-item>
-  
-          <el-form-item label="Exhibition Time" prop="exhibitionTime">
-            <el-date-picker type="datetimerange" placeholder="Select date" v-model="exhibitionForm.exhibitionTime" :default-time="['09:00:00', '22:00:00']" style="width: 100%;" :format="$t('meebid.common.MSG_DATE_NO_SECOND_FORMAT')"></el-date-picker>
+          <el-form-item label="Exhibition Time" required>
+            <el-col :span="11">
+              <el-form-item prop="exhibitionDate">
+                <el-date-picker type="date" placeholder="Exhibition Date" v-model="exhibitionForm.exhibitionDate" style="width: 100%;"></el-date-picker>
+              </el-form-item>
+            </el-col>
+            <el-col class="line" style="text-align: center;"></el-col>
+            <el-col :span="11" class="meebidPaddingTopMedium">
+              <el-form-item prop="exhibitionStartTime">
+                <el-time-select
+                  placeholder="Start Time"
+                  v-model="exhibitionForm.exhibitionStartTime"
+                  :picker-options="{
+                    start: '00:00',
+                    step: '00:15',
+                    end: '23:45'
+                  }">
+                </el-time-select>
+              </el-form-item>
+            </el-col>
+            <el-col class="line meebidPaddingTopMedium" :span="2" style="text-align: center;">-</el-col>
+            <el-col :span="11" class="meebidPaddingTopMedium">
+              <el-form-item prop="exhibitionEndTime">
+                <el-time-select
+                  placeholder="End Time"
+                  v-model="exhibitionForm.exhibitionEndTime"
+                  :picker-options="{
+                    start: '00:00',
+                    step: '00:15',
+                    end: '23:45',
+                    minTime: exhibitionForm.exhibitionStartTime
+                  }">
+                </el-time-select>
+              </el-form-item>
+              <!--<el-time-picker ref="exhibitionTimePicker" is-range start-placeholder="Start Time" end-placeholder="End Time" v-model="exhibitionForm.exhibitionTime" style="width: 100%;"></el-time-picker>-->
+            </el-col>
+            
           </el-form-item>
+          <!--<el-form-item label="Exhibition Time" prop="exhibitionTime">
+            <el-date-picker type="datetimerange" placeholder="Select date" v-model="exhibitionForm.exhibitionTime" :default-time="['09:00:00', '22:00:00']" style="width: 100%;" :format="$t('meebid.common.MSG_DATE_NO_SECOND_FORMAT')"></el-date-picker>
+          </el-form-item>-->
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="exhibitionDialogVisible = false" class="">Cancel</el-button>
           <el-button type="primary" @click="onUpdateExhibitions()">Save</el-button>
+        </span>
+      </el-dialog>
+      <el-dialog :visible.sync="batchLotImagesDialogVisible" class="meebidBatchLotImagesDialog" title="Batch Upload Images" width="800px" height="500px" :close-on-click-modal="false">
+        <meebid-busy-indicator ref="batchLotDialogImagesBusyIndicator" size="Medium"></meebid-busy-indicator>
+        <div class="meebidPaddingTopMedium" style="">
+          <el-form ref="batchImagesForm" status-icon :rules="batchImagesFormRules" style="width: 90%; overflow: scroll;" :model="batchImagesForm" label-width="180px" class="meebidHouseProfileForm">        
+            <el-form-item label="Upload Images" prop="imageUrls" required>
+              <meebid-upload
+                class="meebidUploadMiniPicture"
+                :allowSameFileName="false"
+                field-name="imageUrls"
+                :uploadKey="uploadKeyForBatchImages"
+                :multiple="true"
+                :on-exceed="handleUploadExceed"
+                :on-remove="handleUploadBatchImageSuccess"
+                :on-success="handleUploadBatchImageSuccess"
+                :on-preview="handlePictureCardPreview"
+                :on-error="handleUploadError"
+                :file-list="batchImagesForm.imageUrls"
+                >
+                <el-button size="small" type="primary">Click to upload images</el-button>
+              </meebid-upload>
+            </el-form-item>
+          </el-form>
+        </div>
+        <el-table
+          border
+          empty-text=" "
+          height="350"
+          class="meebidMarginTopLarge"
+          :data="batchLotImages"
+          style="width: 90%; margin-left: 5%;">
+          <el-table-column
+            prop="no"
+            fixed
+            label="No."
+            width="80">
+            <template slot-scope="scope">
+              <span>{{formatLotNo(scope.row)}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="imageUrls"
+            label="Lot Images"
+            class-name="meebidBatchLotUploadedImageColumn"
+            >
+            <template slot-scope="scope">
+              <div :style="{width: scope.row.imageUrls && scope.row.imageUrls.length ? (scope.row.imageUrls.length) * 68 + 'px' : 'auto'}">
+                <div v-for="(item, index) in scope.row.imageUrls" class="meebidBatchLotUploadedImageContainer">
+                  <img :src="item.url" class="meebidBatchLotUploadedImage">
+                  </img>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="batchLotImagesDialogVisible = false" class="">Cancel</el-button>
+          <el-button type="primary" @click="onUpdateLotImages()">Update</el-button>
         </span>
       </el-dialog>
       <meebid-category-dialog :items="categoryItems" :isProfilePage="isProfilePage" @update="onFieldDataChange" ref="categoryDialog">
@@ -1181,6 +1316,7 @@ export default {
             token: this.loginUser.token
           },
           data: JSON.stringify({
+            sceneId: this.currentSceneId,
             erUid: value[0].rUid
           }),
           success(data) {
@@ -1222,11 +1358,19 @@ export default {
               for (var i = 0; i < data.content.items.length; i++){
                 data.content.items[i].imageUrls = [];
               }
+              if (data.content && data.content.conflictItems && data.content.conflictItems.length){
+                for (var j = 0; j < data.content.items.length; j++){
+                  data.content.items[j].isConflict = false;
+                  for (var i = 0; i < data.content.conflictItems.length; i++){
+                    if(data.content.conflictItems[i].no === data.content.items[j].no){
+                      data.content.items[j].isConflict = true;
+                      break;
+                    }
+                  }
+                }
+              }
               this.batchLotTemplateResult = data.content.items;
               callback();
-            } else if (data.code === -4){
-
-              callback(new Error(''));
             } else {
               this.$notify.error({
                 title: 'Failure',
@@ -1278,8 +1422,8 @@ export default {
           }
         }
         for (var k = 0; k < this.batchLotTemplateResult.length; k++){
-          if(this.batchLotTemplateResult[k].imageUrls.length === 0){
-            callback(new Error('You have lot without image, please make sure every lot contains at least one image.'));
+          if(this.batchLotTemplateResult[k].imageUrls.length === 0 && !this.batchLotTemplateResult[k].isConflict){
+            callback(new Error('You have new lot without image, please make sure every new lot contains at least one image.'));
             this.isBatchLotFormStep2Valid = false;
             return;
           }
@@ -1289,6 +1433,38 @@ export default {
       } else {
         this.isBatchLotFormStep2Valid = false;
         callback(new Error('Please upload lots images.'));
+      }
+    };
+    var validateBatchImages = (rule, value, callback) => {
+      var me = this;
+      if (value && value.length > 0) {
+        var batchLotImages = [];
+
+        for (var i = 0; i < value.length; i++){
+          if (value[i].status !== "success"){
+            continue;
+          }
+          var imagePrefix = value[i].name.split(".")[0];
+          var imageNo = imagePrefix.split("-")[0];
+          var imageIdx = imagePrefix.split("-")[1];
+          var batchLotObj = meebidUtils.findObject(batchLotImages, "no", parseInt(imageNo));
+          if (!batchLotObj){
+            batchLotObj = {
+              no: parseInt(imageNo),
+              imageUrls: []
+            };
+            batchLotImages.push(batchLotObj);
+          }
+          batchLotObj.imageUrls.push({
+            name: value[i].name,
+            rUid: value[i].rUid,
+            url: value[i].url
+          });
+        }
+        this.batchLotImages = batchLotImages;
+        callback();
+      } else {
+        callback(new Error('Please upload lot images.'));
       }
     };
 
@@ -1332,6 +1508,24 @@ export default {
         callback();
       }
     };
+    var validateExhibitionStartTime = (rule, value, callback) => {
+      if (this.exhibitionForm.exhibitionStartTime !== '' && this.exhibitionForm.exhibitionEndTime !== '') {
+        this.$refs.exhibitionForm.validateField('exhibitionEndTime');
+      }
+      callback();
+    };
+    var validateExhibitionEndTime = (rule, value, callback) => {
+      if (this.exhibitionForm.exhibitionStartTime !== '' && this.exhibitionForm.exhibitionEndTime !== '') {
+        if (new Date("01/01/1900 " + this.exhibitionForm.exhibitionStartTime) >= new Date("01/01/1900 " + this.exhibitionForm.exhibitionEndTime)){
+          callback(new Error("End time cannot be late than start time."));
+        } else {
+          callback();
+        }
+      } else {
+        callback();
+      }
+    };
+    
     var validateEstMinPrice = (rule, value, callback) => {
       if (this.lotForm.estMinPrice !== '' && this.lotForm.estMaxPrice !== '') {
         this.$refs.lotForm.validateField('estMaxPrice');
@@ -1347,7 +1541,57 @@ export default {
         callback();
       }
     };
+    var validateLotNo = (rule, value, callback) => {
+      var me = this;
+      if (value && value > 0) {
+        $.ajax({
+          type: "GET",
+          url: "/api/lot/no/validate",
+          contentType : "application/json", 
+          context: this,
+          headers: {
+            token: this.loginUser.token
+          },
+          data: {
+            lotId: this.lotForm.id ? this.lotForm.id : null,
+            sceneId: this.currentSceneId,
+            lotNo: value
+          },
+          success(data) {
+            if (data.code === 1){
+              callback();
+            } else if (data.code === -4){
+              var messageKey = 'meebid.alertMessage.' + data.msg;
+              var replaceObj = {};
+              if (data.content.length){
+                for (var i = 0; i < data.content.length; i++){
+                  replaceObj[i] = data.content[i];
+                }
+              }
+              callback(new Error(i18n.t(messageKey, replaceObj)));
+            } else {
+              this.$notify.error({
+                title: 'Failure',
+                message: 'Validate Template failure',
+                duration: 5000
+              });
+              callback(new Error('Validate Lot No. failed'));
+            }
+
+          },
+          error(data) {
+            errorUtils.requestError(data);
+            callback(new Error('Error in validate Lot No.'));
+          }
+        });
+      } else {
+        callback(new Error('Please select Lot No.'));
+      }
+    };
     return {
+      batchLotImagesDialogVisible: false,
+      batchUploadHintLabel: i18n.t('meebid.batchUpload.MSG_BATCH_UPLOAD_HINT_LABEL'),
+      exhibitionTimePickertInitialed: false,
       exhibitionDialogVisible: false,
       isAuctionBasicInvalid: false,
       isLotBasicInvalid: false,
@@ -1366,6 +1610,7 @@ export default {
       batchLotDialogStep: 0,
       isBatchLotFormStep1Valid: false,
       isBatchLotFormStep2Valid: false,
+      uploadKeyForBatchLotImages: "batchLotImages" + loginUtils.getLoginUser().token + currentDate.getTime(),
       uploadKeyForBatchImages: "batchImages" + loginUtils.getLoginUser().token + currentDate.getTime(),
       batchLotTemplateResult: [],
       batchTemplateTableLoading: false,
@@ -1389,6 +1634,9 @@ export default {
       isProfilePage: true,
       regionOptions: [],
       titleOptions: [],
+      onlineOnlyOption: [{
+        id: -1
+      }],
       currencyCodeOptions: window.meebidConstant.currencyCode,
       auctionTypeOptions: [{
         id: window.meebidConstant.auctionType.Timed,
@@ -1549,7 +1797,8 @@ export default {
           { required: true, message: 'Please input Description', trigger: 'change' }          
         ],
         no: [
-          { required: true, message: 'Please input Lot No.', trigger: 'change' }          
+          { required: true, message: 'Please select Lot No.', trigger: 'change' },
+          { validator: validateLotNo, trigger: 'change' }  
         ],
         estMinPrice: [
           { required: true, message: 'Please input Minimum Estimation Price', trigger: 'change' },
@@ -1590,13 +1839,27 @@ export default {
           { required: true, validator: validateBatchLotsImages, trigger: 'change' }          
         ],
       },
+      batchImagesForm: {},
+      batchImagesFormRules: {
+        imageUrls: [
+          { required: true, validator: validateBatchImages, trigger: 'change' }          
+        ],
+      },
       exhibitionForm: {},
       exhibitionFormRules: {
         locId: [
           { required: true, message: 'Please select Exhibition Location', trigger: 'change' }          
         ],
-        exhibitionTime: [
-          { required: true, message: 'Please select Exhibition Time', trigger: 'change' }          
+        exhibitionDate: [
+          { required: true, message: 'Please select Exhibition Date', trigger: 'change' }          
+        ],
+        exhibitionStartTime: [
+          { required: true, message: 'Please select Start Time', trigger: 'change' },
+          { validator: validateExhibitionStartTime, trigger: 'change' }
+        ],
+        exhibitionEndTime: [
+          { required: true, message: 'Please select End Time', trigger: 'change' },
+          { validator: validateExhibitionEndTime, trigger: 'change' }
         ],
       }
     }
@@ -1740,7 +2003,7 @@ export default {
     handleSelect(key, keyPath) {
       if (this.hasPendingChange){
         this.$confirm(i18n.t('meebid.alertMessage.MSG_LEAVE_WITH_UNSAVED_DATA'), 'WARNING', {
-          confirmButtonText: 'Confirm',
+          confirmButtonText: 'Leave',
           cancelButtonText: 'Cancel',
           type: 'warning'
         }).then(() => {
@@ -2256,6 +2519,9 @@ export default {
       return regionLabel;
     },
     getAddressLabel(address){
+      if (address.id === -1){
+        return "Online Only";
+      }
       return this.getRegionLabel(address.regions) + " " + address.detail;
     },
     onFieldDataChange() {
@@ -2448,7 +2714,7 @@ export default {
         regions: [],
         detail: "",
         type: type,
-        isDefault: false
+        isDefault: this.addresses[type].length && this.addresses[type].length > 0 ? false : true
       };
       this.addressDialogVisible = true;
     },
@@ -2832,7 +3098,7 @@ export default {
         currencyCode: defaultBiddingAddress && defaultBiddingAddress.currencyId ? defaultBiddingAddress.currencyId : 1,
         type: window.meebidConstant.auctionType.Timed,
         pickupLocId: this.addresses[128] && this.addresses[128].length ? this.addresses[128][0].id : null,
-        biddingLocId: this.addresses[64] && this.addresses[64].length ? this.addresses[64][0].id : null,
+        biddingLocId: this.addresses[64] && this.addresses[64].length ? this.addresses[64][0].id : -1,
         //exhLocId: this.addresses[32] && this.addresses[32].length ? this.addresses[32][0].id : 0,
         //exhTime: null,
         startAt: null,
@@ -2845,9 +3111,8 @@ export default {
       if (this.$refs.auctionForm){
         var me = this;
         setTimeout(function(){
-          this.$refs.auctionForm.clearValidate();
+          me.$refs.auctionForm.clearValidate();
         }, 100);
-        
       }
     },
     onCreateAuctionLot() {
@@ -2920,7 +3185,19 @@ export default {
         }
       })
     },
+    checkExhibitionsStatus(){
+      if (this.auctionForm.exhibitions && this.auctionForm.exhibitions.length){
+        this.auctionForm.exhibitions.forEach(exhibition => {
+          var exhibitionAddresses = this.addresses[32];
+          var exhibitionAddress = meebidUtils.findObject(exhibitionAddresses, "id", exhibition.locId);
+          if (!exhibitionAddress){
+            exhibition.locId = -1;
+          }
+        });
+      }
+    },
     saveAuction() {
+      this.checkExhibitionsStatus();
       var requestObj = {
         name: this.auctionForm.name,
         description: this.auctionForm.description,
@@ -2928,7 +3205,7 @@ export default {
         type: this.auctionForm.type,
         currencyId: this.auctionForm.currencyCode,
         pickupLocId: this.auctionForm.pickupLocId,
-        biddingLocId: this.auctionForm.biddingLocId ? this.auctionForm.biddingLocId : "",
+        biddingLocId: this.auctionForm.biddingLocId > 0 ? this.auctionForm.biddingLocId : "",
         exhibitions: this.auctionForm.exhibitions
       }
 
@@ -3164,7 +3441,7 @@ export default {
             }],
             currencyCode: item.currencyId ? item.currencyId: 1,
             pickupLocId: item.pickupLocId ? item.pickupLocId : null,
-            biddingLocId: item.biddingLocId ? item.biddingLocId : null,
+            biddingLocId: item.biddingLocId ? item.biddingLocId : -1,
             //exhLocId: item.exhLocId ? item.exhLocId : null,
             //exhTime: item.exhTime ? new Date(item.exhTime) : null,
             startAt: item.startAt ? new Date(item.startAt) : null,
@@ -3220,6 +3497,7 @@ export default {
               },
               error(data) {
                 errorUtils.requestError(data);
+                me.$refs.busyIndicator.hide();
               }
             }).done(function(){
               me.$refs.busyIndicator.hide();
@@ -3260,6 +3538,7 @@ export default {
             },
             error(data) {
               errorUtils.requestError(data);
+              me.$refs.busyIndicator.hide();
             }
           }).done(function(){
             me.$refs.busyIndicator.hide();
@@ -3298,6 +3577,7 @@ export default {
             },
             error(data) {
               errorUtils.requestError(data);
+              me.$refs.busyIndicator.hide();
             }
           }).done(function(){
             me.$refs.busyIndicator.hide();
@@ -3330,6 +3610,7 @@ export default {
             },
             error(data) {
               errorUtils.requestError(data);
+              me.$refs.busyIndicator.hide();
             }
           }).done(function(){
             me.$refs.busyIndicator.hide();
@@ -3365,6 +3646,7 @@ export default {
             },
             error(data) {
               errorUtils.requestError(data);
+              me.$refs.busyIndicator.show();
             }
           }).done(function(){
             me.$refs.busyIndicator.hide();
@@ -3443,6 +3725,7 @@ export default {
               },
               error(data) {
                 errorUtils.requestError(data);
+                me.$refs.busyIndicator.hide();
               }
             }).done(function(){
               me.$refs.busyIndicator.hide();
@@ -3478,6 +3761,7 @@ export default {
             },
             error(data) {
               errorUtils.requestError(data);
+              me.$refs.busyIndicator.hide();
             }
           }).done(function(){
             me.$refs.busyIndicator.hide();
@@ -3512,6 +3796,7 @@ export default {
             },
             error(data) {
               errorUtils.requestError(data);
+              me.$refs.busyIndicator.hide();
             }
           }).done(function(){
             me.$refs.busyIndicator.hide();
@@ -3655,51 +3940,162 @@ export default {
       });;
     },
     onAddExhibition() {
+      var me = this;
       this.exhibitionDialogVisible = true;
       this.exhibitionForm = {
         state: window.meebidConstant.exhibitionState.New,
-        exhibitionTime: null,
+        exhibitionDate: null,
+        exhibitionTime: ['09:00', '22:00'],
         locId: ""
       };
-      if (this.$refs.exhibitionForm){
-        var me = this;
-        setTimeout(function(){
-          me.$refs.exhibitionForm.clearValidate();
-        }, 100);
-      }
+      this.$nextTick(function () {
+        me.$refs.exhibitionForm.clearValidate();
+      });
     },
     onEditExhibition(idx, item) {
+      var me = this;
       this.exhibitionDialogVisible = true;
+      var exhibitionAddresses = this.addresses[32];
+      var exhibitionAddress = meebidUtils.findObject(exhibitionAddresses, "id", item.locId);
+      var startAtDate = new Date(item.startAt);
+      var endAtDate = new Date(item.endAt);
+      
       this.exhibitionForm = {
         id: item.id,
         state: item.state,
-        exhibitionTime: [item.startAt, item.endAt],
-        locId: item.locId
+        exhibitionDate: item.startAt,
+        exhibitionStartTime: meebidUtils.formatDate(startAtDate, i18n.t('meebid.common.MSG_TIME_NO_SECOND_FORMAT')), 
+        exhibitionEndTime: meebidUtils.formatDate(endAtDate, i18n.t('meebid.common.MSG_TIME_NO_SECOND_FORMAT')),
+        locId: exhibitionAddress ? item.locId : ""
       };
+      this.$nextTick(function () {
+        me.$refs.exhibitionForm.clearValidate();
+      });
     },
     onDeleteExhibition(idx, item) {
       item.state = window.meebidConstant.exhibitionState.Delete;
     },
     onUpdateExhibitions() {
-      if (this.exhibitionForm.state === window.meebidConstant.exhibitionState.New){
-        this.auctionForm.exhibitions.push({
-          state: this.exhibitionForm.state,
-          startAt: this.exhibitionForm.exhibitionTime[0],
-          endAt: this.exhibitionForm.exhibitionTime[1],
-          locId: this.exhibitionForm.locId,
-        });
-      } else {
-        var exhibition = meebidUtils.findObject(this.auctionForm.exhibitions, "id", this.exhibitionForm.id);
-        exhibition.startAt = this.exhibitionForm.exhibitionTime[0];
-        exhibition.endAt = this.exhibitionForm.exhibitionTime[1];
-        exhibition.locId = this.exhibitionForm.locId;
-      }
-      this.exhibitionDialogVisible = false;
+      var me = this;
+      this.$refs.exhibitionForm.validate(function(isValid){
+        if (isValid){
+          if (me.exhibitionForm.state === window.meebidConstant.exhibitionState.New){
+            me.auctionForm.exhibitions.push({
+              state: me.exhibitionForm.state,
+              startAt: me.exhibitionForm.exhibitionStartTime,
+              endAt: me.exhibitionForm.exhibitionEndTime,
+              locId: me.exhibitionForm.locId,
+            });
+          } else {
+            var exhibition = meebidUtils.findObject(me.auctionForm.exhibitions, "id", me.exhibitionForm.id);
+            var startAtDate = new Date(me.exhibitionForm.exhibitionDate);
+            var startTimeArr = me.exhibitionForm.exhibitionStartTime.split(":");
+            startAtDate.setHours(parseInt(startTimeArr[0]));
+            startAtDate.setMinutes(parseInt(startTimeArr[1]));
+            var endAtDate = new Date(me.exhibitionForm.exhibitionDate);
+            var endTimeArr = me.exhibitionForm.exhibitionEndTime.split(":");
+            endAtDate.setHours(parseInt(endTimeArr[0]));
+            endAtDate.setMinutes(parseInt(endTimeArr[1]));
+            exhibition.startAt = startAtDate;
+            exhibition.endAt = endAtDate;
+            exhibition.locId = me.exhibitionForm.locId;
+          }
+          me.exhibitionDialogVisible = false;
+        }
+      });
     },
     getAddressLabelById(locId){
       var exhibitionAddresses = this.addresses[32];
       var exhibitionAddress = meebidUtils.findObject(exhibitionAddresses, "id", locId);
-      return this.getRegionLabel(exhibitionAddress.regions) + " " + exhibitionAddress.detail;
+
+      return exhibitionAddress ? this.getRegionLabel(exhibitionAddress.regions) + " " + exhibitionAddress.detail : "Selected Exhibition Address has been deleted.";
+    },
+    initialExhibitionTimePicker() {
+      if (this.exhibitionTimePickertInitialed){
+        return;
+      }
+      this.$refs.exhibitionTimePicker.format = i18n.t('meebid.common.MSG_TIME_NO_SECOND_FORMAT');
+      //this.$refs.exhibitionTimePicker.defaultValue = ['09:00:00', '22:00:00'];
+      this.exhibitionTimePickertInitialed = true;
+    },
+    formatLotNo(item){
+      return item.isConflict ? item.no + "*" : item.no;
+    },
+    handleBatchUploadDialogCommand(command) {
+      switch(command){
+        case 'downloadSample':
+          window.open("./../static/template_new.xlsx");
+          break;
+        case 'exportLots':
+          break;
+      }
+    },
+    handleBatchCommand(command){
+      switch(command){
+        case 'batchUploadAuctionLot':
+          this.onBatchUploadAuctionLot();
+          break;
+        case 'batchUploadAuctionLotImages':
+          this.onBatchUploadAuctionLotImages();
+          break;
+      }
+    },
+    handleUploadBatchImageSuccess(response, file, fileList, fieldName) {
+      this.batchImagesForm[fieldName] = fileList;
+      this.$refs.batchImagesForm.validateField(fieldName);
+    },
+    onBatchUploadAuctionLotImages() {
+      this.batchLotImagesDialogVisible = true;
+      this.batchLotImages = [];
+      this.batchImagesForm = {
+        imageUrls: []
+      };
+    },
+    onUpdateLotImages() {
+      var me = this;
+      this.$refs.batchLotDialogImagesBusyIndicator.show();
+      var requestObj = {
+        irUids: [],
+        sceneId: this.currentSceneId
+      };
+      for (var i = 0; i < this.batchLotImages.length; i++){
+        for (var j = 0; j < this.batchLotImages[i].imageUrls.length; j++){
+          requestObj.irUids.push(this.batchLotImages[i].imageUrls[j].rUid);
+        }
+      }
+      $.ajax({
+        type: "POST",
+        url: "/api/lot/batch/image/update",
+        contentType : "application/json", 
+        context: this,
+        headers: {
+          token: this.loginUser.token
+        },
+        data: JSON.stringify(requestObj),
+        success(data) {
+          if (data.code === 1){
+            this.$message({
+              type: 'success',
+              message: i18n.t('meebid.alertMessage.MSG_ADMIN_BATCH_UPLOAD_IMAGES_SUCCESS')
+            });
+            this.batchLotImagesDialogVisible = false;
+            this.currentPageForAuctionLot = 1;
+            this.refreshAuctionLots();
+          } else {
+            this.$notify.error({
+              title: 'Failure',
+              message: 'Batch Upload Lots Image failure',
+              duration: 5000
+            });
+          }
+        },
+        error(data) {
+          me.$refs.batchLotDialogImagesBusyIndicator.hide();
+          errorUtils.requestError(data);
+        }
+      }).done(function(){
+        this.$refs.batchLotDialogImagesBusyIndicator.hide();
+      });;
     }
   }
 }
