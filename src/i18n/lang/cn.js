@@ -69,6 +69,17 @@ const cn = {
         batchUpload: {
             MSG_BATCH_UPLOAD_HINT_LABEL: "Notice: Lot No with * are already existing in Auction, your upload will override existing lots' information.",
             MSG_BATCH_UPLOAD_IMAGES_HINT_LABEL: "Notice: Images with existing Lot No. will be updated. Images without existing Lot No. will be ignored."
+        },
+        regionLabel: {
+            MSG_ADDRESS_COUNTRY: "Country or Territory",
+            MSG_ADDRESS_BUILDINGNAME: "Building Name & Street",
+            MSG_ADDRESS_ADDRESSLINE2: "Address Line 2",
+            MSG_ADDRESS_ADDRESSLINE3: "Address Line 3",
+            MSG_ADDRESS_CITY: "City",
+            MSG_ADDRESS_PROVINCE: "Province",
+            MSG_ADDRESS_POSTALCODE: "Postal Code",
+            MSG_ADDRESS_APTNUM: "Apt/Suite Number",
+            MSG_ADDRESS_STATE: "State"
         }
     },
 

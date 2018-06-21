@@ -163,10 +163,21 @@
                 <el-form-item label="Favourite Category">
                   <el-button size="small" type="primary" @click="openCategoryDialog"><i class="el-icon-edit"></i> Click to change Favourite Categories</el-button>
                   <div class="meebidCategorySelectItemInForm">
-                    <div v-for="(item,index) in categoryItems" v-if="item.selected===true" :title="item.description" class="meebidCategoryItem">
-                      <img class="meebidCategoryItemImage" :src="item.imgUrl">
-                      <span class="meebidCategoryItemLabel">{{item.description}}</span>
-                      <div class="meebidCategoryItemMask"></div>
+                    <div v-for="(item,index) in (userProfileForm.favorCategories && userProfileForm.favorCategories.length ? userProfileForm.favorCategories : [])" :title="item.description" class="meebidCategoryItem">
+                      <meebid-tooltip :disabled="item.kids.length === 0" popper-class="meebidCategorySecItemToolTip" placement="bottom" effect="light">
+                        <div slot="content">
+                          <div v-for="(secItem,secIndex) in item.kids" :class="{selected:item.kids[secIndex].selected===true}" :title="secItem.description" class="meebidCategorySecItem">
+                            <img class="meebidCategorySecItemImage" :src="secItem.imgUrl">
+                            <span class="meebidCategorySecItemLabel" >{{secItem.description}}</span>
+                            <div class="meebidCategorySecItemMask"></div>
+                          </div>
+                        </div>
+                        <div>
+                          <img class="meebidCategoryItemImage" :src="item.imgUrl">
+                          <span class="meebidCategoryItemLabel" >{{item.description}}</span>
+                          <div class="meebidCategoryItemMask"></div>
+                        </div>
+                      </meebid-tooltip>
                     </div>
                   </div>
                 </el-form-item>                
@@ -466,16 +477,19 @@
               border
               style="width: 100%">
               <el-table-column
-                label="Country/City/District" width="240"
+                label="Country" width="240" 
                 >
                 <template slot-scope="scope">
-                  <span>{{getRegionLabel(scope.row.regions)}}</span>
+                  <span>{{getTopRegionLabel(scope.row.topRegion)}}</span>
                 </template>
               </el-table-column>
               <el-table-column
                 prop="detail"
                 label="Address"
                 >
+                <template slot-scope="scope">
+                  <span>{{getRegionDetail(scope.row.detail)}}</span>
+                </template>
               </el-table-column>
               <el-table-column
                 label="Actions"
@@ -502,16 +516,19 @@
               border
               style="width: 100%">
               <el-table-column
-                label="Country/City/District"
-                width="240">
+                label="Country" width="240" 
+                >
                 <template slot-scope="scope">
-                  <span style="margin-left: 10px">{{getRegionLabel(scope.row.regions)}}</span>
+                  <span>{{getTopRegionLabel(scope.row.topRegion)}}</span>
                 </template>
               </el-table-column>
               <el-table-column
                 prop="detail"
                 label="Address"
                 >
+                <template slot-scope="scope">
+                  <span>{{getRegionDetail(scope.row.detail)}}</span>
+                </template>
               </el-table-column>
               <el-table-column
                 label="Actions"
@@ -539,16 +556,19 @@
               border
               style="width: 100%">
               <el-table-column
-                label="Country/City/District"
-                width="240">
+                label="Country" width="240" 
+                >
                 <template slot-scope="scope">
-                  <span style="margin-left: 10px">{{getRegionLabel(scope.row.regions)}}</span>
+                  <span>{{getTopRegionLabel(scope.row.topRegion)}}</span>
                 </template>
               </el-table-column>
               <el-table-column
                 prop="detail"
                 label="Address"
                 >
+                <template slot-scope="scope">
+                  <span>{{getRegionDetail(scope.row.detail)}}</span>
+                </template>
               </el-table-column>
               <el-table-column
                 label="Actions"
@@ -575,16 +595,19 @@
               border
               style="width: 100%">
               <el-table-column
-                label="Country/City/District"
-                width="240">
+                label="Country" width="240" 
+                >
                 <template slot-scope="scope">
-                  <span style="margin-left: 10px">{{getRegionLabel(scope.row.regions)}}</span>
+                  <span>{{getTopRegionLabel(scope.row.topRegion)}}</span>
                 </template>
               </el-table-column>
               <el-table-column
                 prop="detail"
                 label="Address"
                 >
+                <template slot-scope="scope">
+                  <span>{{getRegionDetail(scope.row.detail)}}</span>
+                </template>
               </el-table-column>
               <el-table-column
                 label="Actions"
@@ -611,16 +634,19 @@
               border
               style="width: 100%">
               <el-table-column
-                label="Country/City/District"
-                width="240">
+                label="Country" width="240" 
+                >
                 <template slot-scope="scope">
-                  <span style="margin-left: 10px">{{getRegionLabel(scope.row.regions)}}</span>
+                  <span>{{getTopRegionLabel(scope.row.topRegion)}}</span>
                 </template>
               </el-table-column>
               <el-table-column
                 prop="detail"
                 label="Address"
                 >
+                <template slot-scope="scope">
+                  <span>{{getRegionDetail(scope.row.detail)}}</span>
+                </template>
               </el-table-column>
               <el-table-column
                 label="Actions"
@@ -727,14 +753,60 @@
       </el-dialog>
       <el-dialog :visible.sync="addressDialogVisible" class="" title="Address" width="800px" :close-on-click-modal="false">
         <el-form ref="addressForm" status-icon :rules="addressFormRules" :model="addressForm" label-width="180px" class="meebidHouseProfileForm">
-                
-          <el-form-item label="Country/City/District" prop="regions">
-            <el-cascader change-on-select @change="handleAddressChange" :options="regionOptions" style="width: 300px;" :props="regionProp" v-model="addressForm.regions" placeholder="Select...">
-            </el-cascader>
+          
+          <el-form-item label="Country" prop="topRegion">
+            <el-select @change="handleAddressChange" :options="regionOptions" style="width: 300px;" v-model="addressForm.topRegion" placeholder="Select...">
+              <el-option
+                v-for="item in regionOptions"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+              </el-option>
+            </el-select>
           </el-form-item>
-          <el-form-item label="Address" prop="detail">
+          <el-form-item 
+            v-for="(item, index) in currentAddressRule" :label="$t(item.labelKey)" :prop="item.name" 
+            :rules="item.validateFunc ? {
+              required: item.isRequired, 
+              trigger: 'change',
+              validator: getAddressFieldValidator(item.validateFunc)
+            } :  item.controlType !== 'label' ? {
+              required: item.isRequired, 
+              message: 'Please input ' + $t(item.labelKey), 
+              trigger: 'change'
+            } : {}">
+            <el-input v-if="item.controlType === 'input'" v-model="addressForm[item.name]" :placeholder="'Please input ' + $t(item.labelKey)" @change="item.forwardFunc ? onAddressAfterChangeFunc($event, item.name, item.forwardFunc) : function(){}"></el-input>
+            <el-select style="width: 300px;" v-else-if="item.controlType === 'select' && item.name === 'secRegion'" v-model="addressForm[item.name]" :placeholder="'Please input' + $t(item.labelKey)" @change="handleSecondRegionChange">
+              <el-option
+                v-for="regionItem in getRegionOptions(regionOptions, [addressForm['topRegion']])"
+                :key="regionItem.id"
+                :label="regionItem.name"
+                :value="regionItem.id">
+              </el-option>
+            </el-select>
+            <el-select style="width: 300px;" v-else-if="item.controlType === 'select' && item.name === 'botRegion'" v-model="addressForm[item.name]" :placeholder="'Please input ' + $t(item.labelKey)" >
+              <el-option
+                v-for="regionItem in getRegionOptions(regionOptions, [addressForm['topRegion'], addressForm['secRegion']])"
+                :key="regionItem.id"
+                :label="regionItem.name"
+                :value="regionItem.id">
+              </el-option>
+            </el-select>
+            <el-select style="width: 300px;" v-else-if="item.controlType === 'select'" v-model="addressForm[item.name]" :placeholder="'Please input ' + $t(item.labelKey)">
+              <el-option
+                v-for="optionItem in (item.options || [])"
+                :key="optionItem.id"
+                :label="optionItem.label ? optionItem.label: optionItem.name"
+                :value="optionItem.id">
+              </el-option>
+            </el-select>
+            <el-input style="width: 100px;" v-else-if="item.controlType === 'label'" v-model="addressForm[item.name]" :disabled="true"></el-input>
+
+
+          </el-form-item>
+          <!--<el-form-item label="Address" prop="detail">
             <el-input v-model="addressForm.detail" placeholder="Please input address"></el-input>
-          </el-form-item>
+          </el-form-item>-->
           <el-form-item label="Address Type">
             <el-select v-model="addressForm.type" placeholder="Select..." :disabled="true">
               <el-option
@@ -1289,7 +1361,7 @@
           <el-button type="primary" :disabled="!isBatchLotImageFormValid" @click="onUpdateLotImages()">Update</el-button>
         </span>
       </el-dialog>
-      <meebid-category-dialog :items="categoryItems" :isProfilePage="isProfilePage" @update="onFieldDataChange" ref="categoryDialog">
+      <meebid-category-dialog :items="categoryItems" :favorCategories="userProfileForm && userProfileForm.favorCategories ? userProfileForm.favorCategories : []" :isProfilePage="isProfilePage" @update="onCategoryDialogUpdate" ref="categoryDialog">
       </meebid-category-dialog>
     </div>
   </div>
@@ -1301,6 +1373,22 @@ import errorUtils from './../../utils/errorUtils'
 import meebidUtils from './../../utils/meebidUtils'
 import i18n from './../../i18n/i18n'
 import $ from 'jquery'
+
+var addressValidator = {
+  validateStateForUS: function(rule, value, callback) {
+    var reg = /^\d{5}\b/;
+    if (value) {
+      if(reg.test(value)){
+        callback();
+      }else{
+        callback(new Error('Please input correct Postal Code'));
+      } 
+    } else {
+      callback(new Error('Please input Postal Code'));
+    }
+  }
+}
+
 export default {
   data () {
     var currentDate = new Date();
@@ -1321,39 +1409,6 @@ export default {
             erUid: value[0].rUid
           }),
           success(data) {
-            /**this.isBatchLotFormStep1Valid = true;
-            this.batchLotTemplateResult = [{
-              no: 1,
-              name: "Lot 1",
-              description: "Lot 1 Description",
-              category: "Video",
-              estMinPrice: 10,
-              estMaxPrice: 20,
-              startingBid: 10,
-              reservePrice: 20,
-              imageUrls: []
-            },{
-              no: 2,
-              name: "Lot 2",
-              description: "Lot 2 Description",
-              category: "Video",
-              estMinPrice: 10,
-              estMaxPrice: 20,
-              startingBid: 10,
-              reservePrice: 20,
-              imageUrls: []
-            },{
-              no: 3,
-              name: "Lot 3",
-              description: "Lot 3 Description",
-              category: "Video",
-              estMinPrice: 10,
-              estMaxPrice: 20,
-              startingBid: 10,
-              reservePrice: 20,
-              imageUrls: []
-            }];
-            callback();*/
             if (data.code === 1){
               this.isBatchLotFormStep1Valid = true;
               for (var i = 0; i < data.content.items.length; i++){
@@ -1657,6 +1712,8 @@ export default {
       isProfilePage: true,
       regionOptions: [],
       titleOptions: [],
+      addressRules: [],
+      currentAddressRule: [],
       onlineOnlyOption: [{
         id: -1
       }],
@@ -1689,9 +1746,9 @@ export default {
         isDefault: false
       },
       addressFormRules: {
-        regions: [
-          { required: true, message: 'Please select Country/City/District', trigger: 'input' },
-          { validator: validateRegions, trigger: 'input' }
+        topRegion: [
+          { required: true, message: 'Please select Country', trigger: 'change' }//,
+          //{ validator: validateRegions, trigger: 'input' }
         ],
         detail: [
           { required: true, message: 'Please input address', trigger: 'change' }
@@ -1896,6 +1953,9 @@ export default {
     if (this.$parent.$data && this.$parent.$data.regions && this.$parent.$data.regions.length){
       this.regionOptions = this.$parent.$data.regions;
     }
+    if (this.$parent.$data && this.$parent.$data.addrRules && this.$parent.$data.addrRules.length){
+      this.addressRules = this.$parent.$data.addrRules;
+    }
     if (this.$parent.$data && this.$parent.$data.titles && this.$parent.$data.titles.length){
       this.titleOptions = this.$parent.$data.titles;
     }
@@ -1917,17 +1977,17 @@ export default {
         }
         this.userProfileForm = this.userProfile;
         var categoryItems = this.$parent.$data.categories;
-        var selectedItems = this.userProfileForm && this.userProfileForm.favorCategories ? this.userProfileForm.favorCategories.split(";") : [];
+        /*var selectedItems = this.userProfileForm && this.userProfileForm.favorCategories ? this.userProfileForm.favorCategories.split(";") : [];
         for (var i = 0; i < categoryItems.length; i++){
-          categoryItems[i].selected = false;
           for (var j = 0; j < selectedItems.length; j++){
             if (parseInt(selectedItems[j]) === categoryItems[i].id){
               categoryItems[i].selected = true;
               break;
             }
           }
-        }
+        }*/
         this.categoryItems = categoryItems;
+
 
         this.addressForm = {
           addressId: 0,
@@ -2059,10 +2119,10 @@ export default {
             success : function(data) {
 
               if (data.code == 1){
-                var categoryItems = data.content.categories;
-                for (var i = 0; i < categoryItems.length; i++){
+                //var categoryItems = data.content.categories;
+                /*for (var i = 0; i < categoryItems.length; i++){
                   categoryItems[i].selected = false;
-                }
+                }*/
                 var user = data.content.user;
                 if (!user.contact_users) {
                   user.contact_users = [];
@@ -2131,6 +2191,10 @@ export default {
     },
     openUserProfile() {
       //window.open("./admin.html", '_blank');
+    },
+    onCategoryDialogUpdate(favorCategories) {
+      this.userProfileForm.favorCategories = favorCategories;
+      this.onFieldDataChange();
     },
     buildRequest() {
       var contactUsers = [];
@@ -2201,8 +2265,8 @@ export default {
       }
     },
     onUpdateProfile() {
-      var favorCategories = meebidUtils.buildCategoryItemStr(this.categoryItems);
-      this.userProfile.favorCategories = favorCategories;
+//      var favorCategories = meebidUtils.buildCategoryItemStr(this.categoryItems);
+//      this.userProfile.favorCategories = favorCategories;
       $.ajax({
         type: "POST",
         url: "/api/user/profile",
@@ -2530,6 +2594,23 @@ export default {
       }
       return "";
     },
+    getTopRegionLabel(topRegion){
+      var region = this.getSelectedRegionOptions([topRegion], this.regionOptions);
+      return region.name;
+    },
+    getRegionDetail(detail){
+      var detailLabel = "";
+      var detailList = detail && detail.length ? detail : [];
+      for (var i = 0; i < detailList.length; i++){
+        if (detailList[i].controlType === 'select' || detailList[i].controlType === 'botRegion' || detailList[i].controlType === 'secRegion') {
+          var detailOption = meebidUtils.findObject(detailList[i].options, "id", detailList[i].value);
+          detailLabel += detailOption.label ? detailOption.label : detailOption.name + " ";
+        } else {
+          detailLabel += detailList[i].value + " ";
+        }
+      }
+      return detailLabel;
+    },
     getRegionLabel(regions){
       var regionLabel = "";
       for (var i = 0; i < regions.length; i++){
@@ -2545,7 +2626,7 @@ export default {
       if (address.id === -1){
         return "Online Only";
       }
-      return this.getRegionLabel(address.regions) + " " + address.detail;
+      return this.getTopRegionLabel(address.topRegion) + " " + this.getRegionDetail(address.detail);
     },
     onFieldDataChange() {
       var me = this;
@@ -2553,6 +2634,10 @@ export default {
       window.onbeforeunload = function(){
         return i18n.t('meebid.alertMessage.MSG_LEAVE_WITH_UNSAVED_DATA');
       }
+    },
+    getRegionOptions(regionOptions, regions){
+      var regionOption = this.getSelectedRegionOptions(regions, regionOptions);
+      return regionOption && regionOption.childrens ? regionOption.childrens : [];
     },
     getSelectedRegionOptions(regions, regionOptions){
       for (var i = 0; i < regionOptions.length; i++){
@@ -2566,81 +2651,137 @@ export default {
           }
         }
       }
+      return [];
+    },
+    handleSecondRegionChange(val){
+      if (val){
+        var regionOption = this.getSelectedRegionOptions([this.addressForm.topRegion, val], this.regionOptions);
+        if (regionOption.isLoaded === false && regionOption.hasMore === 1){
+          this.fetchRegion(val, 2, regionOption);
+        }
+      }
     },
     handleAddressChange(val) {
-      if (val && val.length > 0){
-        var regionOption = this.getSelectedRegionOptions(val, this.regionOptions);
-        if (regionOption.hasMore === 1 && regionOption.isLoaded === false){
+      var me = this;
+      if (val){
+        var regionOption = this.getSelectedRegionOptions([val], this.regionOptions);
+        var addressRule = meebidUtils.findObject(this.addressRules, "regionId", regionOption.id);
+        this.currentAddressRule = addressRule.rule;
+        var addressForm = {
+          addressId: me.addressForm.addressId,
+          topRegion: me.addressForm.topRegion,
+          type: me.addressForm.type,
+          isDefault: me.addressForm.isDefault
+        }
+        for (var i = 0; i < me.currentAddressRule.length; i++){
+          addressForm[me.currentAddressRule[i].name] = null;
+        }
+        me.addressForm = addressForm;
+        this.$nextTick(function () {
+          me.$refs.addressForm.clearValidate();
+        });
+        if (regionOption.isLoaded === false && regionOption.hasMore === 1){
+          this.fetchRegion(val, 1, regionOption);
+        }
+      }
+    },
+    fetchRegion(upperLevel, level, regionOption) {
+      $.ajax({
+        type: "GET",
+        url: "/api/public/regions",
+        contentType : "application/json", 
+        context: this,
+        data: {
+          upperLevel: upperLevel,
+          level: level
+        },
+        dataType: 'json',
+        success(data) {
+          if (data.code === 1){
+            for (var i = 0; i < data.content.regions.length;i++){
+              if (data.content.regions[i].hasMore === 1){
+                data.content.regions[i].childrens = [];
+                data.content.regions[i].isLoaded = false;
+              }
+            }
+            regionOption.isLoaded = true;
+            regionOption.childrens = data.content.regions;
+          } else {
+            this.$notify.error({
+              title: 'Failure',
+              message: 'Get Region Data failure',
+              duration: 5000
+            })
+          }
+          
+        },
+        error(data) {
+          errorUtils.requestError(data);
+        }
+      });
+    },
+    getAddressFieldValidator(validator){
+      return addressValidator[validator];
+    },
+    onAddressAfterChangeFunc(value, name, forwardFunc){
+      this[forwardFunc].apply(this, arguments);
+    },
+    onStateChangeForUS(value, name){
+      var me = this;
+      this.$refs.addressForm.validateField(name, function(validateMessage, invalidFields){
+        if (!invalidFields){
           $.ajax({
             type: "GET",
             url: "/api/public/regions",
             contentType : "application/json", 
-            context: this,
+            context: me,
+            traditional: true,
             data: {
-              upperLevel: val[val.length - 1],
-              level: val.length
+              "postalCode": value
             },
-            dataType: 'json',
             success(data) {
               if (data.code === 1){
-                for (var i = 0; i < data.content.regions.length;i++){
-                  if (data.content.regions[i].hasMore === 1){
-                    data.content.regions[i].childrens = [];
-                    data.content.regions[i].isLoaded = false;
-                  }
-                }
-                regionOption.isLoaded = true;
-                regionOption.childrens = data.content.regions;
+                var cityRule = meebidUtils.findObject(me.currentAddressRule, "name", "usCity");
+                cityRule.options = data.content.regions;
+                me.addressForm.usState = data.content.usState;
               } else {
-                this.$notify.error({
+                me.$notify.error({
                   title: 'Failure',
-                  message: 'Get Region Data failure',
+                  message: 'Fetch City for US failure',
                   duration: 5000
                 })
               }
-              
             },
             error(data) {
               errorUtils.requestError(data);
             }
           });
         }
-      }
-    },
-    onResetAddress() {
-      var currentType = this.addressForm.type;
-      switch (this.active){
-        case 'memberProfile':
-          this.addressForm = {
-            addressId: 0,
-            regions: [],
-            detail: "",
-            type: currentType,
-            isDefault: false
-          };
-          break;
-        case 'houseProfile':
-          this.addressForm = {
-            addressId: 0,
-            regions: [],
-            detail: "",
-            type: currentType,
-            isDefault: false
-          };
-          break;
-      }
-      this.$refs.addressForm.resetFields();
+        
+      })
+      
     },
     onUpdateAddress() {
       var me = this;
       var requestObj = {
         addressId: this.addressForm.addressId,
-        regions: this.addressForm.regions,
-        detail: this.addressForm.detail,
+        rules: [],
+        topRegion: this.addressForm.topRegion,
         type: this.addressForm.isDefault ? this.addressForm.type + 1 : this.addressForm.type
       };
       this.$refs.addressForm.validate(function(isValid){
         if (isValid){
+          for (var i = 0; i < me.currentAddressRule.length; i++){
+            var ruleObj = {
+              name: me.currentAddressRule[i].name,
+              value: me.addressForm[me.currentAddressRule[i].name]
+            };
+            if (me.currentAddressRule[i].controlType === 'select') {
+              ruleObj.options = me.currentAddressRule[i].options;
+              ruleObj.controlType = me.currentAddressRule[i].controlType;
+            }
+            requestObj.rules.push(ruleObj);
+          }
           $.ajax({
             type: "POST",
             url: "/api/user/address/insupd",
@@ -2656,10 +2797,10 @@ export default {
                 if (this.addressForm.addressId === 0){
                   var addressObj = {
                     id: data.content.id,
-                    regions: this.buildRegionWithLabelArr(this.addressForm.regions),
-                    detail: this.addressForm.detail,
+                    topRegion: this.addressForm.topRegion,
                     isDefault: this.addressForm.isDefault,
                     type: this.addressForm.type,
+                    detail: requestObj.rules,
                     currencyId: data.content.currencyId
                   }
                   currentAddressId = data.content.id;
@@ -2667,8 +2808,8 @@ export default {
                 } else {
                   this.addresses[this.addressForm.type].forEach(address => {
                     if (address.id === this.addressForm.addressId){
-                      address.regions = this.buildRegionWithLabelArr(this.addressForm.regions);
-                      address.detail = this.addressForm.detail;
+                      address.topRegion = this.addressForm.topRegion;
+                      address.detail = requestObj.rules;
                       address.isDefault = this.addressForm.isDefault;
                       address.currencyId = data.content.currencyId;
                     }
@@ -2689,7 +2830,7 @@ export default {
                 var currentType = this.addressForm.type;
                 this.addressForm = {
                   addressId: 0,
-                  regions: [],
+                  topRegion: null,
                   detail: "",
                   type: currentType,
                   isDefault: false
@@ -2732,10 +2873,11 @@ export default {
       }
     },
     handleAddAddress(type){
+      this.currentAddressRule = [];
       this.addressForm = {
         addressId: 0,
         regions: [],
-        detail: "",
+        //detail: "",
         type: type,
         isDefault: this.addresses[type].length && this.addresses[type].length > 0 ? false : true
       };
@@ -2745,26 +2887,35 @@ export default {
       var me = this;
       //this.$refs.meebidAddressHeader.$el.scrollIntoView();
       this.addressDialogVisible = true;
-      if (!this.checkRegionAvailable(this.buildRegionArr(address.regions), this.regionOptions)){
-        if (this.$refs.addressFormBusyIndicator){
-          this.$refs.addressFormBusyIndicator.show();
-          this.fetchRegions(address);
-        } else {
-          setTimeout(function(){
+      this.$nextTick(function () {
+        var addressRule = meebidUtils.findObject(me.addressRules, "regionId", address.topRegion);
+        me.currentAddressRule = addressRule.rule;
+        if (!me.checkRegionAvailable(me.buildRegionArr(address.regions), me.regionOptions)){
             me.$refs.addressFormBusyIndicator.show();
             me.fetchRegions(address);
-          }, 200);
+        } else {
+          var addressForm = {
+            addressId: address.id,
+            topRegion: address.topRegion,
+            type: address.type,
+            isDefault: address.isDefault,
+          }
+          for (var i = 0; i < me.currentAddressRule.length; i++){
+            var addressDetail = meebidUtils.findObject(address.detail ? address.detail : [], "name", me.currentAddressRule[i].name);
+            if (me.currentAddressRule[i].controlType === 'select'){
+              me.currentAddressRule[i].options = addressDetail.options;
+            }
+            addressForm[me.currentAddressRule[i].name] = addressDetail.value;
+          }
+          this.$nextTick(function () {
+            me.addressForm = addressForm;
+          });
+          
         }
-        
-      } else {
-        this.addressForm.addressId = address.id;
-        this.addressForm.regions = this.buildRegionArr(address.regions);
-        this.addressForm.detail = address.detail;
-        this.addressForm.type = address.type;
-        this.addressForm.isDefault = address.isDefault;
-      }
+      });
     },
     fetchRegions(address){
+      var me = this;
       $.ajax({
         type: "GET",
         url: "/api/public/regions/list",
@@ -2777,11 +2928,22 @@ export default {
         success(data) {
           if (data.code === 1){
             this.buildRegionOptions(data.content.list, this.regionOptions, address.regions);
-            this.addressForm.addressId = address.id;
-            this.addressForm.regions = this.buildRegionArr(address.regions);
-            this.addressForm.detail = address.detail;
-            this.addressForm.type = address.type;
-            this.addressForm.isDefault = address.isDefault;
+            var addressForm = {
+              addressId: address.id,
+              topRegion: address.topRegion,
+              type: address.type,
+              isDefault: address.isDefault,
+            }
+            for (var i = 0; i < me.currentAddressRule.length; i++){
+              var addressDetail = meebidUtils.findObject(address.detail ? address.detail : [], "name", me.currentAddressRule[i].name);
+              if (me.currentAddressRule[i].controlType === 'select'){
+                me.currentAddressRule[i].options = addressDetail.options;
+              }
+              addressForm[me.currentAddressRule[i].name] = addressDetail.value;
+            }
+            this.$nextTick(function () {
+              me.addressForm = addressForm;
+            });
           } else {
             this.$notify.error({
               title: 'Failure',
@@ -2865,7 +3027,7 @@ export default {
             if (data.code === 1){
               var index = this.addresses[address.type].indexOf(address);
               this.addresses[address.type].splice(index, 1);
-              this.onResetAddress();
+              //this.onResetAddress();
             } else {
               this.$notify.error({
                 title: 'Failure',
@@ -2918,8 +3080,6 @@ export default {
           },
           data: JSON.stringify({
             addressId: address.id,
-            regions: this.buildRegionArr(address.regions),
-            detail: address.detail,
             type: address.type + 1,
             isDefault: address.isDefault
           }),
@@ -2935,7 +3095,7 @@ export default {
                 type: 'success',
                 message: i18n.t('meebid.alertMessage.MSG_ADMIN_USER_DEFAULT_ADDRESS_SUCCESS')
               })
-              this.onResetAddress();
+              //this.onResetAddress();
             } else {
               this.$notify.error({
                 title: 'Failure',
@@ -3393,6 +3553,7 @@ export default {
           
         },
         error(data) {
+          me.$refs.busyIndicator.hide();
           errorUtils.requestError(data);
         }
       }).done(function(){
@@ -3442,6 +3603,7 @@ export default {
           
         },
         error(data) {
+          me.$refs.busyIndicator.hide();
           errorUtils.requestError(data);
         }
       }).done(function(){
@@ -4041,7 +4203,7 @@ export default {
       var exhibitionAddresses = this.addresses[32];
       var exhibitionAddress = meebidUtils.findObject(exhibitionAddresses, "id", locId);
 
-      return exhibitionAddress ? this.getRegionLabel(exhibitionAddress.regions) + " " + exhibitionAddress.detail : "Selected Exhibition Address has been deleted.";
+      return exhibitionAddress ? this.getRegionLabel([exhibitionAddress.topRegion]) + " " + exhibitionAddress.detail : "Selected Exhibition Address has been deleted.";
     },
     initialExhibitionTimePicker() {
       if (this.exhibitionTimePickertInitialed){

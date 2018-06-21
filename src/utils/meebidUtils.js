@@ -49,6 +49,7 @@ export default {
   refreshRegions(regionOptions){
     for (var i = 0; i < regionOptions.length; i++){
       var regionOption = regionOptions[i];
+      regionOption.addressRule = "";
       if (regionOption.hasMore === 1){
         regionOption.childrens = [];
         regionOption.isLoaded = false;

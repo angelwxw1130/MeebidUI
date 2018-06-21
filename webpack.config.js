@@ -94,7 +94,7 @@ module.exports = (options = {}) => ({
     port: 8010,
     proxy: {
       '/api/': {
-        target: 'http://47.100.84.71:80',
+        target: 'http://47.100.84.71',
         changeOrigin: true,
         pathRewrite: {
           '^/api': '/api'

@@ -11,6 +11,7 @@ import MeebidTypeahead from './../../component/typeahead/meebidTypeahead.vue'
 import MeebidSearchTypeahead from './../../component/typeahead/meebidSearchTypeahead.vue'
 import MeebidDropdown from './../../component/dropdown/meebidDropdown.vue'
 import MeebidBusyIndicator from './../../component/busyindicator/meebidBusyIndicator.vue'
+import MeebidTooltip from './../../component/tooltip/meebidTooltip.vue'
 import MeebidCategoryDialog from './../../component/dialog/meebidCategoryDialog.vue'
 import MeebidUpload from './../../component/upload/meebidUpload.vue'
 import MeebidTextEditor from './../../component/texteditor/MeebidTextEditor.vue'
@@ -31,10 +32,12 @@ Vue.component(MeebidDropdown.name, MeebidDropdown);
 Vue.component(MeebidTypeahead.name, MeebidTypeahead);
 Vue.component(MeebidSearchTypeahead.name, MeebidSearchTypeahead);
 Vue.component(MeebidBusyIndicator.name, MeebidBusyIndicator);
+Vue.component(MeebidTooltip.name, MeebidTooltip);
 Vue.component(MeebidCategoryDialog.name, MeebidCategoryDialog);
 Vue.component(MeebidUpload.name, MeebidUpload);
 Vue.component(MeebidTextEditor.name, MeebidTextEditor);
 Vue.component(MeebidNumberInput.name, MeebidNumberInput);
+
 
 
 //Vue.use(MeebidButton);
@@ -52,10 +55,10 @@ if (loginUser.token){
          success : function(data) {
 
          	if (data.code == 1){
-				var categoryItems = data.content.categories;
-				for (var i = 0; i < categoryItems.length; i++){
-					categoryItems[i].selected = false;
-		        }
+				//var categoryItems = data.content.categories;
+				//for (var i = 0; i < categoryItems.length; i++){
+					//categoryItems[i].selected = false;
+		        //}
                 var user = data.content.user;
                 if (!user.contact_users) {
                     user.contact_users = [];
