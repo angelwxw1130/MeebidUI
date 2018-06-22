@@ -166,7 +166,7 @@
                     <div v-for="(item,index) in (userProfileForm.favorCategories && userProfileForm.favorCategories.length ? userProfileForm.favorCategories : [])" :title="item.description" class="meebidCategoryItem">
                       <meebid-tooltip :disabled="item.kids.length === 0" popper-class="meebidCategorySecItemToolTip" placement="bottom" effect="light">
                         <div slot="content">
-                          <div v-for="(secItem,secIndex) in item.kids" :class="{selected:item.kids[secIndex].selected===true}" :title="secItem.description" class="meebidCategorySecItem">
+                          <div v-for="(secItem,secIndex) in item.kids" :title="secItem.description" class="meebidCategorySecItem">
                             <img class="meebidCategorySecItemImage" :src="secItem.imgUrl">
                             <span class="meebidCategorySecItemLabel" >{{secItem.description}}</span>
                             <div class="meebidCategorySecItemMask"></div>
@@ -1014,6 +1014,10 @@
                 <el-input-number v-model="lotForm.no" :min="1" placeholder="Please input lot number"></el-input-number>
               </el-form-item>
               <el-form-item label="Category" prop="category">
+                <el-cascader :options="categoryItems" v-model="lotForm.category" :props="categoryProp" placeholder="Select...">
+                </el-cascader>
+              </el-form-item>
+              <!--<el-form-item label="Category" prop="category">
                 <el-select v-model="lotForm.category" filterable placeholder="Select...">
                   <el-option
                     v-for="item in categoryItems"
@@ -1022,7 +1026,7 @@
                     :value="item.id">
                   </el-option>
                 </el-select>
-              </el-form-item>
+              </el-form-item>-->
               <el-form-item label="Min Est. Price" prop="estMinPrice">
                 <meebid-number-input v-model="lotForm.estMinPrice" placeholder="Please input minimum estimation price"></meebid-number-input>
               </el-form-item>
@@ -1832,6 +1836,11 @@ export default {
 
       },
       categoryItems: [],
+      categoryProp: {
+        value: 'id',
+        label: 'description',
+        children: 'kids'
+      },
       auctionForm: {},
       auctionFormRules: {
         name: [
@@ -2606,7 +2615,7 @@ export default {
           var detailOption = meebidUtils.findObject(detailList[i].options, "id", detailList[i].value);
           detailLabel += detailOption.label ? detailOption.label : detailOption.name + " ";
         } else {
-          detailLabel += detailList[i].value + " ";
+          detailLabel += detailList[i].value ? detailList[i].value + " " : "";
         }
       }
       return detailLabel;
@@ -3309,7 +3318,7 @@ export default {
         description: "",
         state: 1,
         imageUrls: [],
-        category: this.categoryItems[0].id,
+        category: [],
         estMaxPrice: "0.00",
         estMinPrice: "0.00",
         startingBid: "0.00",
@@ -3448,7 +3457,7 @@ export default {
         name: this.lotForm.name,
         description: this.lotForm.description,
         no: this.lotForm.no,
-        category: this.lotForm.category,
+        category: this.lotForm.category[this.lotForm.category.length - 1],
         estMaxPrice: parseFloat(this.lotForm.estMaxPrice),
         estMinPrice: parseFloat(this.lotForm.estMinPrice),
         startingBid: parseFloat(this.lotForm.startingBid),
