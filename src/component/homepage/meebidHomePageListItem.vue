@@ -3,7 +3,7 @@
     <div class="meebidListItemContainer">
       <div>
         <div class="meebidListItemImageWrapper">
-          <img :src="imageUrl" style="width: 100%;"></img>          
+          <img :src="imageUrl" style="width: 100%;" @complete="completed" @load="loaded"></img>          
         </div>
         <div class="meebidListItemDescriptionWrapper" >
           <div class="meebidListItemDescriptionLabelWrapper">
@@ -89,6 +89,12 @@
       mouseout() {
         this.isMaskVisible = false;
         // console.log("out");
+      },
+      completed() {
+        this.$emit('imageCompleted', event);
+      },
+      loaded() {
+        this.$emit('imageLoaded', event);
       }
     }
   }

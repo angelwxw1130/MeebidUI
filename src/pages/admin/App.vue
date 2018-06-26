@@ -776,7 +776,7 @@
               trigger: 'change'
             } : {}">
             <el-input v-if="item.controlType === 'input'" v-model="addressForm[item.name]" :placeholder="'Please input ' + $t(item.labelKey)" @change="item.forwardFunc ? onAddressAfterChangeFunc($event, item.name, item.forwardFunc) : function(){}"></el-input>
-            <el-select style="width: 300px;" v-else-if="item.controlType === 'select' && item.name === 'secRegion'" v-model="addressForm[item.name]" :placeholder="'Please input' + $t(item.labelKey)" @change="handleSecondRegionChange">
+            <el-select style="width: 300px;" v-else-if="item.controlType === 'select' && item.name === 'secRegion'" v-model="addressForm[item.name]" :placeholder="'Please input ' + $t(item.labelKey)" @change="handleSecondRegionChange">
               <el-option
                 v-for="regionItem in getRegionOptions(regionOptions, [addressForm['topRegion']])"
                 :key="regionItem.id"
@@ -2611,7 +2611,7 @@ export default {
       var detailLabel = "";
       var detailList = detail && detail.length ? detail : [];
       for (var i = 0; i < detailList.length; i++){
-        if (detailList[i].controlType === 'select' || detailList[i].controlType === 'botRegion' || detailList[i].controlType === 'secRegion') {
+        if (detailList[i].controlType === 'select') {
           var detailOption = meebidUtils.findObject(detailList[i].options, "id", detailList[i].value);
           detailLabel += detailOption.label ? detailOption.label : detailOption.name + " ";
         } else {
@@ -2786,9 +2786,18 @@ export default {
               value: me.addressForm[me.currentAddressRule[i].name]
             };
             if (me.currentAddressRule[i].controlType === 'select') {
-              ruleObj.options = me.currentAddressRule[i].options;
+              if (me.currentAddressRule[i].name === 'secRegion'){
+                var regionOption = me.getSelectedRegionOptions([me.addressForm.topRegion], me.regionOptions);
+                ruleObj.options = regionOption.childrens;
+              } else if (me.currentAddressRule[i].name === 'botRegion'){
+                var regionOption = me.getSelectedRegionOptions([me.addressForm.topRegion, me.addressForm.secRegion], me.regionOptions);
+                ruleObj.options = regionOption.childrens;
+              } else {
+                ruleObj.options = me.currentAddressRule[i].options;
+              }
               ruleObj.controlType = me.currentAddressRule[i].controlType;
             }
+            
             requestObj.rules.push(ruleObj);
           }
           $.ajax({

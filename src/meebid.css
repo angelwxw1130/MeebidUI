@@ -586,8 +586,187 @@ body {
   */
 
 .meebidHomePageList {
-  margin: 10px 30px;
+  margin-top: 10px;
+  margin-left: auto;
+  margin-right: auto;
   position: relative;
+}
+
+@media (min-width: 0px) and (max-width: 1039px) {
+  .meebidHomePageList .static:nth-child(-n+3) {
+    float: left;
+    position: static;
+    display: block;
+    visibility: visible;
+  }
+  .meebidHomePageList {
+    width: 780px;
+  }
+}
+
+@media (min-width: 1040px) and (max-width: 1299px) {
+  .meebidHomePageList .static:nth-child(-n+4) {
+    float: left;
+    position: static;
+    display: block;
+    visibility: visible;
+  }
+  .meebidHomePageList {
+    width: 1040px;
+  }
+}
+
+@media (min-width: 1300px) and (max-width: 1559px) {
+  .meebidHomePageList .static:nth-child(-n+5) {
+    float: left;
+    position: static;
+    display: block;
+    visibility: visible;
+  }
+  .meebidHomePageList {
+    width: 1300px;
+  }
+}
+
+@media (min-width: 1560px) and (max-width: 1819px) {
+  .meebidHomePageList .static:nth-child(-n+6) {
+    float: left;
+    position: static;
+    display: block;
+    visibility: visible;
+  }
+  .meebidHomePageList {
+    width: 1560px;
+  }
+}
+
+@media (min-width: 1820px) and (max-width: 2079px) {
+  .meebidHomePageList .static:nth-child(-n+7) {
+    float: left;
+    position: static;
+    display: block;
+    visibility: visible;
+  }
+  .meebidHomePageList {
+    width: 1820px;
+  }
+}
+
+@media (min-width: 2080px) and (max-width: 2339px) {
+  .meebidHomePageList .static:nth-child(-n+8) {
+    float: left;
+    position: static;
+    display: block;
+    visibility: visible;
+  }
+  .meebidHomePageList {
+    width: 2080px;
+  }
+}
+
+@media (min-width: 2340px) and (max-width: 2599px) {
+  .meebidHomePageList .static:nth-child(-n+9) {
+    float: left;
+    position: static;
+    display: block;
+    visibility: visible;
+  }
+  .meebidHomePageList {
+    width: 2340px;
+  }
+}
+
+@media (min-width: 2600px) and (max-width: 2859px) {
+  .meebidHomePageList .static:nth-child(-n+10) {
+    float: left;
+    position: static;
+    display: block;
+    visibility: visible;
+  }
+  .meebidHomePageList {
+    width: 2600px;
+  }
+}
+
+@media (min-width: 2860px) and (max-width: 3119px) {
+  .meebidHomePageList .static:nth-child(-n+11) {
+    float: left;
+    position: static;
+    display: block;
+    visibility: visible;
+  }
+  .meebidHomePageList {
+    width: 2860px;
+  }
+}
+
+@media (min-width: 3120px) and (max-width: 3379px) {
+  .meebidHomePageList .static:nth-child(-n+12) {
+    float: left;
+    position: static;
+    display: block;
+    visibility: visible;
+  }
+  .meebidHomePageList {
+    width: 3120px;
+  }
+}
+
+@media (min-width: 3380px) and (max-width: 3639px) {
+  .meebidHomePageList .static:nth-child(-n+13) {
+    float: left;
+    position: static;
+    display: block;
+    visibility: visible;
+  }
+  .meebidHomePageList {
+    width: 3380px;
+  }
+}
+
+@media (min-width: 3640px) and (max-width: 3899px) {
+  .meebidHomePageList .static:nth-child(-n+14) {
+    float: left;
+    position: static;
+    display: block;
+    visibility: visible;
+  }
+  .meebidHomePageList {
+    width: 3640px;
+  }
+}
+
+@media (min-width: 3900px) and (max-width: 4159px) {
+  .meebidHomePageList .static:nth-child(-n+15) {
+    float: left;
+    position: static;
+    display: block;
+    visibility: visible;
+  }
+  .meebidHomePageList {
+    width: 3900px;
+  }
+}
+
+@media (min-width: 4160px) and (max-width: 4419px) {
+  .meebidHomePageList .static:nth-child(-n+16) {
+    float: left;
+    position: static;
+    display: block;
+    visibility: visible;
+  }
+  .meebidHomePageList {
+    width: 4160px;
+  }
+}
+
+.meebidHomePageList .static {
+  position: absolute;
+  visibility: hidden;
+}
+.meebidHomePageList {
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .meebidListItemWrapper {
