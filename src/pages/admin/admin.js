@@ -51,7 +51,6 @@ if (loginUser.token){
          headers: {
          	token: loginUser.token
          },
-         contentType : "application/json", 
          success : function(data) {
 
          	if (data.code == 1){
