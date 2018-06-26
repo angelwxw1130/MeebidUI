@@ -23,15 +23,12 @@
 
     mounted() {
       console.log("page list ready");
-      this.$nextTick(function() {
-        window.addEventListener('resize', this.getWindowWidth);
-        window.addEventListener('resize', this.getWindowHeight);
+      window.addEventListener('resize', this.getWindowWidth);
+      //window.addEventListener('resize', this.getWindowHeight);
 
-        //Init
-        this.getWindowWidth();
-        this.getWindowHeight();
-        this.initColumn();
-      })
+      //Init
+      this.initWindowWidth();
+      this.initColumn();
     },
     methods: {
       initColumn() {
@@ -73,13 +70,16 @@
         }
 
       },
+      initWindowWidth(){
+        this.windowWidth = document.documentElement.clientWidth;
+      },
       getWindowWidth(event) {
         this.windowWidth = document.documentElement.clientWidth;
         this.checkColumnNum();
       },
-      getWindowHeight(event) {
-        this.windowHeight = document.documentElement.clientHeight;
-      },
+      //getWindowHeight(event) {
+        //this.windowHeight = document.documentElement.clientHeight;
+      //},
       getCurrentColumn() {
         var mininumHeight = this.columnArr[this.columnNum - 1];
         var mininumIdx = this.columnNum - 1;
@@ -89,7 +89,12 @@
             mininumHeight = this.columnArr[i];
           }
         }
-        return mininumIdx;
+        if (mininumIdx >= 0) {
+          return mininumIdx;
+        } else {
+
+        }
+        
       },
       checkPendingItems() {
         var me = this;
@@ -136,7 +141,7 @@
       },
       addItems: function(itemComponentArr){
         this.items.concat(itemComponentArr);
-        this.pendingItems.concat(itemComponent);
+        this.pendingItems.concat(itemComponentArr);
         this.checkPendingItems();
       },
       clearItems() {
@@ -147,7 +152,7 @@
     },
     beforeDestroy() {
       window.removeEventListener('resize', this.getWindowWidth);
-      window.removeEventListener('resize', this.getWindowHeight);
+      //window.removeEventListener('resize', this.getWindowHeight);
     }
   }
 </script>
