@@ -1,5 +1,5 @@
 <template>
-  <div :class="['meebidUiLocalBusyIndicator meebidUiLocalBusyIndicatorFade', busyIndicatorSize]" v-show="active" tabindex="-1">
+  <div :class="['meebidUiLocalBusyIndicator meebidUiLocalBusyIndicatorFade', busyIndicatorSize, backgroundTransparency]" v-show="active" tabindex="-1">
     <div class="meebidUiLocalBusyIndicatorAnimation meebidUiLocalBusyIndicatorAnimStandard">
       <div></div><div></div><div></div>
     </div>
@@ -13,6 +13,10 @@ export default {
     size: {
       type: String,
       default: 'Medium'
+    },
+    transparency: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -23,6 +27,9 @@ export default {
   computed: {
     busyIndicatorSize () {
       return this.size ? 'meebidUiLocalBusyIndicatorSize' + this.size : 'meebidUiLocalBusyIndicatorSizeMedium'
+    },
+    backgroundTransparency () {
+      return this.transparency ? 'meebidUiLocalBusyIndicatorTransparency' : ''
     }
   },
   methods: {

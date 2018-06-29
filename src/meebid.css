@@ -400,6 +400,10 @@ body {
     -webkit-transition: opacity 0.3s ease-in
 }
 
+.meebid .meebidUiLocalBusyIndicatorTransparency {
+  background-color: transparent;
+}
+
 .meebidUiLocalBusy .meebidUiLocalBusy .meebidUiLocalBusyIndicator {
     display: none
 }
