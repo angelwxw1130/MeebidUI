@@ -11,6 +11,7 @@ import MeebidTypeahead from './../../component/typeahead/meebidTypeahead.vue'
 import MeebidSearchTypeahead from './../../component/typeahead/meebidSearchTypeahead.vue'
 import MeebidDropdown from './../../component/dropdown/meebidDropdown.vue'
 import MeebidBusyIndicator from './../../component/busyindicator/meebidBusyIndicator.vue'
+import MeebidHeader from './../../component/header/MeebidHeader.vue'
 import MeebidPageList from './../../component/homepage/meebidHomePageList.vue'
 import MeebidHomePageListItem from './../../component/homepage/meebidHomePageListItem.vue'
 import MeebidCategoryDialog from './../../component/dialog/meebidCategoryDialog.vue'
@@ -27,6 +28,7 @@ Vue.component(MeebidDropdown.name, MeebidDropdown);
 Vue.component(MeebidTypeahead.name, MeebidTypeahead);
 Vue.component(MeebidSearchTypeahead.name, MeebidSearchTypeahead);
 Vue.component(MeebidBusyIndicator.name, MeebidBusyIndicator);
+Vue.component(MeebidHeader.name, MeebidHeader);
 Vue.component(MeebidHomePageListItem.name, MeebidHomePageListItem);
 Vue.component(MeebidPageList.name, MeebidPageList);
 Vue.component(MeebidCategoryDialog.name, MeebidCategoryDialog);

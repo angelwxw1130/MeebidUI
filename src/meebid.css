@@ -814,6 +814,8 @@ body {
   line-height: 16px;
   word-spacing: 0;
   width: 160px;
+  font-weight: bold;
+  color: #5c5c5c;
 }
 
 .meebid .meebidAlertMessage {

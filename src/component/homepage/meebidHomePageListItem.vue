@@ -3,13 +3,13 @@
     <div class="meebidListItemContainer">
       <div>
         <div class="meebidListItemImageWrapper">
-          <img :src="imageUrl" style="width: 100%;" @complete="completed" @load="loaded"></img>          
+          <img :src="item.imageUrls[0]" style="width: 100%;"></img>          
         </div>
         <div class="meebidListItemDescriptionWrapper" >
           <div class="meebidListItemDescriptionLabelWrapper">
-            <p class="pinDescription">{{description}}</p>
+            <p class="pinDescription">{{item.name}}</p>
           </div>
-          <div class="meebidListItemDescriptionIconWrapper">
+          <!--<div class="meebidListItemDescriptionIconWrapper">
             <span class="glyphicon glyphicon-star"></span>
             <span>{{favouriteCount}}</span>
           </div>
@@ -21,7 +21,7 @@
               <p class="meebidListItemProvider">{{imageProvider}}</p>
               <p class="meebidListItemName">{{imageName}}</p>
             </div>
-          </div>
+          </div>-->
         </div>
       </div>
     </div>
@@ -72,6 +72,10 @@
         default: null
       },
       meebidListItemClass: {
+        type: Object,
+        default: {}
+      },
+      item: {
         type: Object,
         default: {}
       }
