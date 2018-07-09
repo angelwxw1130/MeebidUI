@@ -9,9 +9,9 @@
               :not-close-elements="elements"
               :position-element="inputEl">
       <template slot="dropdown">
-        <slot name="item" :items="items" :active-index="activeIndex" :select="selectItem" :highlight="highlight">
+        <slot name="item" :items="items" :select="selectItem" :highlight="highlight">
           <li ref="typeaheadBusyIndicator" v-show="isLoading"><meebid-busy-indicator size="Medium"></meebid-busy-indicator></li>
-          <li v-for="(item, index) in items" :class="{active:activeIndex===index}">
+          <li v-for="(item, index) in items" class="meebidSearchTypeaheadOptionItem">
             <a href="javascript:void(0)" @click="select(item)">
               <div>
                 <img width="36px" height="36px" :src="item.avatar_url"> 
@@ -48,7 +48,7 @@
           this.$children[0].$children[0].active = false;
         }
         this.items = []
-        this.activeIndex = 0
+        //this.activeIndex = 0
         for (let i = 0, l = data.length; i < l; i++) {
           let item = data[i]
           let key = this.itemKey ? item[this.itemKey] : item
@@ -66,6 +66,15 @@
             break
           }
 
+        }
+      },
+      inputKeyPressed (event) {
+        var value = this.inputEl.value;
+        switch (event.keyCode) {
+          case 13:
+            this.$emit('search', value)
+            this.openDropdown = false
+            break
         }
       },
       inputFocused () {

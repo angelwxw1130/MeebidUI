@@ -9,11 +9,11 @@
           <div class="meebidListItemDescriptionLabelWrapper">
             <p class="pinDescription">{{item.name}}</p>
           </div>
-          <!--<div class="meebidListItemDescriptionIconWrapper">
+          <div class="meebidListItemDescriptionIconWrapper">
             <span class="glyphicon glyphicon-star"></span>
-            <span>{{favouriteCount}}</span>
+            <span>{{item.favor}}</span>
           </div>
-          <div class="meebidListItemProviderWrapper">
+          <!--<div class="meebidListItemProviderWrapper">
             <div class="meebidListItemProviderImageWrapper">
               <img :src="avatarUrl" class="meebidListItemAvatarImage"></img>
             </div>
@@ -32,6 +32,10 @@
       </div>
       <div class="meebidListItemMaskSaveButtonWrapper">
         <meebid-button icon-type="save" button-type="orange" text="Save">
+        </meebid-button>
+      </div>
+      <div class="meebidListItemMaskAuctionHouseNameWrapper" :style="{top: getTop4AuctionHouseName(item)}">
+        <meebid-button button-type="white" :text="item.houseName">
         </meebid-button>
       </div>
     </div>
@@ -99,6 +103,12 @@
       },
       loaded() {
         this.$emit('imageLoaded', event);
+      },
+      getTop4AuctionHouseName(item){
+        var width = item.naturalWidth;
+        var height = item.naturalHeight;
+        var calculatedHeight = height * 240 / width; // 240 is default image width
+        return ((calculatedHeight >= 500 ? 500 : (calculatedHeight <= 120 ? 120 : calculatedHeight)) - 40) + "px";
       }
     }
   }

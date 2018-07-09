@@ -245,6 +245,13 @@ body {
   padding-left: 20px;
 }
 
+.dropdown-menu>.meebidSearchTypeaheadOptionItem:hover>a, .dropdown-menu>.meebidSearchTypeaheadOptionItem:hover>a:focus, .dropdown-menu>.meebidSearchTypeaheadOptionItem:hover>a:hover {
+    color: #fff;
+    text-decoration: none;
+    background-color: #337ab7;
+    outline: 0;
+}
+
 .meebidLoginDialogForm {
   padding-top: 15px;
 }
@@ -268,7 +275,7 @@ body {
 
 .meebidButtonRoundCorner {
   border-radius: 999px;
-  padding: 8px 16px;
+  padding: 6px 16px;
 }
 
 .meebidButtonRed {
@@ -289,6 +296,13 @@ body {
   border-radius: 8px;
   color: #555555;
   background-color: #ffffff;
+  padding: 6px 12px;
+}
+
+.meebidButtonGrey {
+  border-radius: 8px;
+  color: #3c3c3c;
+  background-color: #efefef;
   padding: 6px 12px;
 }
 
@@ -325,13 +339,12 @@ body {
 }
 
 .meebidButtonWrapper  {
-  border-radius: 999px;
   display: inline-block;
   padding: 0 5px;
 }
 
 .meebidButton .glyphicon {
-  font-size: 21px;
+  font-size: 20px;
   padding-top: 0px;
   padding-bottom: 2px;
   color: #b5b5b5;
@@ -348,6 +361,7 @@ body {
 
 .meebidButton.isIconOnly .glyphicon {
   top: 4px;
+  left: 2px;
 }
 
 .meebidButton.isIconOnly {
@@ -357,6 +371,8 @@ body {
 .meebidButton .meebidButtonText {
   white-space: nowrap;
   font-size: 16px;
+  display: inline-block;
+  padding-top: 1px;
 }
 
 .meebidButton .meebidButtonHintWrapper {
@@ -785,6 +801,8 @@ body {
   border-radius: 8px; 
   overflow: hidden; 
   cursor: zoom-in;
+  max-height: 500px;
+  min-height: 120px;
 }
 
 .meebidListItemDescriptionWrapper {
@@ -802,6 +820,7 @@ body {
   display: inline-block;
 }
 .meebidListItemDescriptionIconWrapper {
+  padding-top: 2px;
   color: #aaaaaa;
   font-size: 12px;
   float: right;
@@ -865,6 +884,23 @@ body {
   padding-left: 15px;
   padding-top: 20px;
 }
+
+.meebidListItemMaskAuctionHouseNameWrapper {
+  position: absolute; 
+  float: left;
+  left: 15px;
+  max-width: calc(100% - 30px);
+}
+
+.meebidListItemMaskAuctionHouseNameWrapper .meebidButtonWrapper {
+  width: 100%;
+}
+
+.meebidListItemMaskAuctionHouseNameWrapper .meebidButtonWrapper .meebidButton {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+    
 
 .meebidListItemProviderImageWrapper {
   padding-right: 10px;

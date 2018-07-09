@@ -1,6 +1,7 @@
 <template>
   <div ref="lotItemListContainer" class="meebidHomePageList" style="height: 1000px;">
     <meebid-homepage-list-item v-for="item in visibleItems" :item="item" :key="item.id" :height="item.height" :image-url="item.imageUrl" :description="item.description" :favourite-count="item.favouriteCount" :meebid-list-item-class="item.meebidListItemClass" :avatar-url="item.avatarUrl" :image-name="item.imageName" :image-provider="item.imageProvider" @imageCompleted="onItemImageLoaded"></meebid-homepage-list-item>
+    <div v-if="noResult">No Lots</div>
     <div style="position: relative; width: 100%; height: 80px;" :style="{transform: busyIndicatorPosition}">
       <meebid-busy-indicator ref="lotListItemsBusyIndicator" transparency="true" size="Medium"></meebid-busy-indicator>
     </div>
@@ -29,7 +30,8 @@
         isAdding: false,
         busyIndicatorPosition: "",
         inLoadingLotItems: false,
-        searchKeyword: ""
+        searchKeyword: "",
+        noResult: false
       }
     },
 
@@ -39,29 +41,31 @@
       //window.addEventListener('resize', this.getWindowHeight);
 
       //Init
-      this.$refs.lotListItemsBusyIndicator.show();
       this.initWindowWidth();
       this.initColumn();
       
       var request = this.buildOnlineItemRequest();
       this.inLoadingLotItems = true;
+      this.$refs.lotListItemsBusyIndicator.show();
       $.ajax(request);
       this.currentRequest = request;
     },
     methods: {
       buildOnlineItemRequest() {
         var me = this;
-        var token = this.loginUser ? this.loginUser.token: null; 
+        var token = this.loginUser ? this.loginUser.token: null;
+        this.noResult = false;
         var request = {   
           type : 'GET', 
           context: this, 
           success : function(data) {
             if (data.code == '1'){
-              var items = this.buildLotItems(data.content.items);
+              var items = this.buildLotItems(data.content.items ? data.content.items : []);
               this.lotPage++;
               this.currentRequest = null;
               if (data.content.total <= (this.lotPage - 1) * this.lotPerPage){
                 window.removeEventListener('scroll', this.onWindwoScroll);
+                this.$refs.lotListItemsBusyIndicator.hide();
               }
             } else {  
               this.$notify({
@@ -111,6 +115,7 @@
             imageUrls: item.imageUrls.split(";"),
             isSold: item.isSold,
             id: item.id,
+            favor: item.favor,
             sceneId: item.sceneId,
             estMaxPrice: item.estMaxPrice,
             estMinPrice: item.estMinPrice,
@@ -118,11 +123,16 @@
             currencyCode: item.currencyCode,
             houseId: item.houseId,
             reservePrice: item.reservePrice,
-            startingBid: item.startingBid
+            startingBid: item.startingBid,
+            houseName: item.houseName,
+            sceneId: item.sceneId
           }
           lotItems.push(lotItem);
         }
         this.addItems(lotItems);
+        if (this.items.length === 0){
+          this.noResult = true;
+        }
       },
       initColumn() {
         if (this.windowWidth >= 0 && this.windowWidth < 1040) {
@@ -161,7 +171,20 @@
             me.checkPendingItems();
           });
         }
-
+      },
+      resetColumnNum() {
+        var me = this;
+        var columnNum;
+        if (this.windowWidth >= 0 && this.windowWidth < 1040) {
+          columnNum = 3;
+        } else {
+          columnNum = Math.floor(this.windowWidth / 260);
+        }
+        this.columnNum = columnNum;
+        this.columnArr = [];
+        for (var i = 0; i < this.columnNum; i++){
+          this.columnArr.push(0);
+        }
       },
       initWindowWidth(){
         this.windowWidth = document.documentElement.clientWidth;
@@ -211,13 +234,17 @@
         img.src = currentItem.imageUrls[0];
         if (img.complete) { // 如果图片已经存在于浏览器缓存，直接调用回调函数
           this.pendingItems.splice(0, 1);
+          currentItem.naturalHeight = img.naturalHeight;
+          currentItem.naturalWidth = img.naturalWidth;
           this.visibleItems.push(currentItem);
           this.$nextTick(function() {
             me.onItemImageLoaded();
           })
         } else {
-          img.onload = ()=>{
+          img.onload = (image)=>{
             this.pendingItems.splice(0, 1);
+            currentItem.naturalHeight = image.naturalHeight;
+            currentItem.naturalWidth = image.naturalWidth;
             this.visibleItems.push(currentItem);
             this.$nextTick(function() {
               me.onItemImageLoaded();
@@ -286,9 +313,11 @@
           this.currentRequest = null;
         }
         this.clearItems();
+        this.resetColumnNum();
         this.lotPage = 1;
         var request = this.buildOnlineItemRequest();
         window.addEventListener('scroll', this.onWindwoScroll);
+        this.$refs.lotListItemsBusyIndicator.show();
         $.ajax(request);
         this.currentRequest = request;
       }

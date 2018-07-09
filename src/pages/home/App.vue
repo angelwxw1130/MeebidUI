@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="meebidHomePage meebid">
-    <meebid-header :first-name="firstName" :profile-tooltip-visible="profileTooltipVisible" :profile-tooltip-disabled="profileTooltipDisabled">
+    <meebid-header :first-name="firstName" :profile-tooltip-visible="profileTooltipVisible" :profile-tooltip-disabled="profileTooltipDisabled" @search="onSearch">
     </meebid-header>
     <div id="content" class="meebidHomeContent" height="">
       <meebid-homepage-list ref="homePageListContainer">
@@ -106,6 +106,9 @@ export default {
       //this.$refs.hintButton.hintNumber++;
       
     },
+    onSearch(value) {
+      this.$refs.homePageListContainer.searchByKeyword(value);
+    },
     getSelectedRegionOptions(regions, regionOptions){
       for (var i = 0; i < regionOptions.length; i++){
         var regionOption = regionOptions[i];
@@ -116,46 +119,6 @@ export default {
           } else {
             return regionOption;
           }
-        }
-      }
-    },
-    handleAddressChange(val) {
-      if (val && val.length > 0){
-        var regionOption = this.getSelectedRegionOptions(val, this.regionOptions);
-        if (regionOption.childrens && regionOption.childrens.length === 0){
-          $.ajax({
-            type: "GET",
-            url: "/api/public/regions",
-            contentType : "application/json", 
-            context: this,
-            data: {
-              upperLevel: val[0],
-              level: val.length
-            },
-            dataType: 'json',
-            success(data) {
-              if (data.code === 1){
-                for (var i = 0; i < data.content.regions.length;i++){
-                  data.content.regions[i].childrens = [];
-                }
-                regionOption.childrens = data.content.regions;
-              } else {
-                this.$notify.error({
-                  title: 'Failure',
-                  message: 'Get Region Data failure',
-                  duration: 5000
-                })
-              }
-              
-            },
-            error() {
-              this.$notify.error({
-                title: 'Failure',
-                message: 'Get Region Data failure',
-                duration: 5000
-              })
-            }
-          });
         }
       }
     },

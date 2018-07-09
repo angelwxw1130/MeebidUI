@@ -1,5 +1,5 @@
 <template>
-  <div :class="['meebidButtonWrapper', wrapperCls]" @mousedown="buttonClickEvent">
+  <div :class="['meebidButtonWrapper', wrapperCls]" @mousedown="buttonClickEvent" :title="text ? text : title">
     <div :class="['meebidButton', iconType && text == null ? 'isIconOnly': '', buttonTypeCls]" >
       <span :class="['meebidButtonIcon', iconTypeCls]"></span>
       <span class="meebidButtonText">{{text}}</span>
@@ -36,6 +36,10 @@ export default {
       type: String,
       default: null
     },
+    title: {
+      type: String,
+      default: ""
+    },
     buttonClick: {
       type: Function,
       default: function(){
@@ -68,6 +72,8 @@ export default {
           return "meebidButtonWhite";
         case 'orange':
           return "meebidButtonOrange";
+        case 'grey':
+          return "meebidButtonGrey";
       }
     },
     iconTypeCls () {

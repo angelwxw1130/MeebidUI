@@ -5,7 +5,8 @@
              async-src="https://api.github.com/search/users?q="
              async-key="items"
              item-key="login"
-             :force-select="true">
+             :force-select="true"
+             @search="onSearch">
         <span class="glyphicon glyphicon-search meebidHeaderSearchIcon"></span>
         <input data-role="input" class="form-control" type="text" placeholder="Search">
         <template slot="item" slot-scope="props">
@@ -189,6 +190,9 @@
         }
         
         //this.$set('alertIsOpen',true);
+      },
+      onSearch(value) {
+        this.$emit('search', value);
       },
     },
     beforeDestroy() {
