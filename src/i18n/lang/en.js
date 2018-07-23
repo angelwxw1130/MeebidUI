@@ -6,6 +6,8 @@ const en = {
             MSG_DATE_FORMAT: "MM/dd/yyyy hh:mm:ss",
             MSG_DATE_NO_SECOND_FORMAT: "MM/dd/yyyy HH:mm",
             MSG_TIME_NO_SECOND_FORMAT: "HH:mm",
+            MSG_DATE_MONTH_DETAIL_FORMAT: "MMMM dd, yyyy",
+            MSG_DATE_TIME_DETAIL_FORMAT: "MMMM dd, yyyy, hh:mm TT",
             MSG_DATE_WITH_A_NO_SECOND_FORMAT: "MM/dd/yyyy hh:mm A"
         },
         upload: {

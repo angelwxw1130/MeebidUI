@@ -2,7 +2,7 @@
   <div id="app" class="meebidHomePage meebid">
     <meebid-header :first-name="firstName" :profile-tooltip-visible="profileTooltipVisible" :profile-tooltip-disabled="profileTooltipDisabled" @search="onSearch">
     </meebid-header>
-    <div id="content" class="meebidHomeContent" height="">
+    <div id="content" class="meebidContent" height="">
       <meebid-homepage-list ref="homePageListContainer">
       </meebid-homepage-list>
       <meebid-busy-indicator ref="busyIndicator" size="Medium"></meebid-busy-indicator>

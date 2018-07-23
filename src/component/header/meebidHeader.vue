@@ -23,7 +23,7 @@
         </template>
       </meebid-search-typeahead>
       <div class="meebidHeaderButtonToolbar">
-        <meebid-button wrapper-cls="homeWrapper" button-type="round" text="Home" :button-click="changeHintMessage">
+        <meebid-button wrapper-cls="homeWrapper" button-type="round" text="Home" :button-click="openHomePage">
         </meebid-button>
         <template v-if="loginUser.isLogin === false">
           <meebid-button icon-type="log-in" button-type="round" text="Login" :button-click="openLoginDialog">
@@ -114,8 +114,8 @@
 
     },
     methods: {
-      changeHintMessage: function(){
-        //this.$refs.hintButton.hintNumber++;
+      openHomePage: function(){
+        window.location.href = "./home.html";
         
       },
       openLoginDialog: function(){
@@ -150,7 +150,7 @@
                   token: data.content.token
                 })
                 this.$refs.loginFormRef.resetFields()
-                window.location.reload()
+                window.location.reload();
               } else if (data.code === -4) {
                 var messageKey = 'meebid.alertMessage.' + data.msg;
                 this.$message.error(i18n.t(messageKey));

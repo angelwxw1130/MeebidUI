@@ -25,7 +25,7 @@
         </div>
       </div>
     </div>
-    <div class="meebidListItemMask" v-show="isMaskVisible">
+    <div class="meebidListItemMask" v-show="isMaskVisible" @click="onLotClick">
       <div class="meebidListItemMaskShareButtonWrapper">
         <meebid-button icon-type="share" button-type="white">
         </meebid-button>
@@ -35,7 +35,7 @@
         </meebid-button>
       </div>
       <div class="meebidListItemMaskAuctionHouseNameWrapper" :style="{top: getTop4AuctionHouseName(item)}">
-        <meebid-button button-type="white" :text="item.houseName">
+        <meebid-button button-type="white" :text="item.houseName" :button-click="onHouseClick">
         </meebid-button>
       </div>
     </div>
@@ -98,17 +98,17 @@
         this.isMaskVisible = false;
         // console.log("out");
       },
-      completed() {
-        this.$emit('imageCompleted', event);
-      },
-      loaded() {
-        this.$emit('imageLoaded', event);
-      },
       getTop4AuctionHouseName(item){
         var width = item.naturalWidth;
         var height = item.naturalHeight;
         var calculatedHeight = height * 240 / width; // 240 is default image width
         return ((calculatedHeight >= 500 ? 500 : (calculatedHeight <= 120 ? 120 : calculatedHeight)) - 40) + "px";
+      },
+      onHouseClick() {
+        this.$emit('houseClick', this.item.houseId);
+      },
+      onLotClick() {
+        this.$emit('lotClick', this.item.id);
       }
     }
   }

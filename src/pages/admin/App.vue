@@ -2613,7 +2613,7 @@ export default {
       for (var i = 0; i < detailList.length; i++){
         if (detailList[i].controlType === 'select') {
           var detailOption = meebidUtils.findObject(detailList[i].options, "id", detailList[i].value);
-          detailLabel += detailOption.label ? detailOption.label : detailOption.name + " ";
+          detailLabel += detailOption.label ? detailOption.label + " " : detailOption.name + " ";
         } else {
           detailLabel += detailList[i].value ? detailList[i].value + " " : "";
         }
@@ -4178,6 +4178,7 @@ export default {
     },
     onDeleteExhibition(idx, item) {
       item.state = window.meebidConstant.exhibitionState.Delete;
+      item.locId = null;
     },
     onUpdateExhibitions() {
       var me = this;
@@ -4221,7 +4222,7 @@ export default {
       var exhibitionAddresses = this.addresses[32];
       var exhibitionAddress = meebidUtils.findObject(exhibitionAddresses, "id", locId);
 
-      return exhibitionAddress ? this.getRegionLabel([exhibitionAddress.topRegion]) + " " + exhibitionAddress.detail : "Selected Exhibition Address has been deleted.";
+      return exhibitionAddress ? this.getTopRegionLabel(exhibitionAddress.topRegion) + " " + this.getRegionDetail(exhibitionAddress.detail) : "Selected Exhibition Address has been deleted.";
     },
     initialExhibitionTimePicker() {
       if (this.exhibitionTimePickertInitialed){

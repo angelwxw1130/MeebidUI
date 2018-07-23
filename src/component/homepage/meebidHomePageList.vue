@@ -1,6 +1,6 @@
 <template>
   <div ref="lotItemListContainer" class="meebidHomePageList" style="height: 1000px;">
-    <meebid-homepage-list-item v-for="item in visibleItems" :item="item" :key="item.id" :height="item.height" :image-url="item.imageUrl" :description="item.description" :favourite-count="item.favouriteCount" :meebid-list-item-class="item.meebidListItemClass" :avatar-url="item.avatarUrl" :image-name="item.imageName" :image-provider="item.imageProvider" @imageCompleted="onItemImageLoaded"></meebid-homepage-list-item>
+    <meebid-homepage-list-item v-for="item in visibleItems" :item="item" :key="item.id" :height="item.height" :image-url="item.imageUrl" :description="item.description" :favourite-count="item.favouriteCount" :meebid-list-item-class="item.meebidListItemClass" :avatar-url="item.avatarUrl" :image-name="item.imageName" :image-provider="item.imageProvider" @houseClick="onHouseClick" @lotClick="onLotClick"></meebid-homepage-list-item>
     <div v-if="noResult">No Lots</div>
     <div style="position: relative; width: 100%; height: 80px;" :style="{transform: busyIndicatorPosition}">
       <meebid-busy-indicator ref="lotListItemsBusyIndicator" transparency="true" size="Medium"></meebid-busy-indicator>
@@ -25,6 +25,7 @@
         lotPerPage: 20,
         windowWidth: 0,
         windowHeight: 0,
+        currentTotal: 0,
         columnNum: 0,
         columnArr: [],
         isAdding: false,
@@ -63,10 +64,7 @@
               var items = this.buildLotItems(data.content.items ? data.content.items : []);
               this.lotPage++;
               this.currentRequest = null;
-              if (data.content.total <= (this.lotPage - 1) * this.lotPerPage){
-                window.removeEventListener('scroll', this.onWindwoScroll);
-                this.$refs.lotListItemsBusyIndicator.hide();
-              }
+              this.currentTotal = data.content.total;
             } else {  
               this.$notify({
                 title: 'Failure',
@@ -214,7 +212,13 @@
       },
       checkPendingItems() {
         var me = this;
-        if (this.pendingItems.length <= 0 || this.isAdding){
+        if (this.isAdding){
+          return;
+        } else if (this.pendingItems.length <= 0){
+          if (this.currentTotal <= (this.lotPage - 1) * this.lotPerPage){
+            window.removeEventListener('scroll', this.onWindwoScroll);
+            this.$refs.lotListItemsBusyIndicator.hide();
+          }
           return;
         }
         this.isAdding = true;
@@ -242,9 +246,10 @@
           })
         } else {
           img.onload = (image)=>{
+            var imgEl = image.srcElement;
             this.pendingItems.splice(0, 1);
-            currentItem.naturalHeight = image.naturalHeight;
-            currentItem.naturalWidth = image.naturalWidth;
+            currentItem.naturalHeight = imgEl.naturalHeight;
+            currentItem.naturalWidth = imgEl.naturalWidth;
             this.visibleItems.push(currentItem);
             this.$nextTick(function() {
               me.onItemImageLoaded();
@@ -320,6 +325,14 @@
         this.$refs.lotListItemsBusyIndicator.show();
         $.ajax(request);
         this.currentRequest = request;
+      },
+      onHouseClick(houseId){
+        console.log("Select House:" + houseId);
+
+      },
+      onLotClick(lotId){
+        console.log("Select Lot:" + lotId);
+        window.location.href = "./lotDetail.html?" + window.btoa("lotId=" + lotId);
       }
     },
     beforeDestroy() {
