@@ -220,7 +220,7 @@ export default {
       return showAddress;
     },
     getAuctionType(sceneEx){
-      var auctionType = sceneEx && sceneEx.auctionType ? sceneEx.auctionType : null;
+      var auctionType = sceneEx && sceneEx.auctionType !== null ? sceneEx.auctionType : null;
       if (auctionType !== null) {
         switch(auctionType){
           case window.meebidConstant.auctionType.Timed:
