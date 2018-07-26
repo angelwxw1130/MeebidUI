@@ -10,7 +10,7 @@
             <p class="pinDescription">{{item.name}}</p>
           </div>
           <div class="meebidListItemDescriptionIconWrapper">
-            <span class="glyphicon glyphicon-star"></span>
+            <span class="glyphicon glyphicon-heart"></span>
             <span>{{item.favor}}</span>
           </div>
           <!--<div class="meebidListItemProviderWrapper">

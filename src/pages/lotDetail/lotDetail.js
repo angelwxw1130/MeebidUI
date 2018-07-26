@@ -12,6 +12,7 @@ import MeebidSearchTypeahead from './../../component/typeahead/meebidSearchTypea
 import MeebidDropdown from './../../component/dropdown/meebidDropdown.vue'
 import MeebidBusyIndicator from './../../component/busyindicator/meebidBusyIndicator.vue'
 import MeebidHeader from './../../component/header/meebidHeader.vue'
+import MeebidTextEditor from './../../component/texteditor/MeebidTextEditor.vue'
 import MeebidBreadcrumbItem from './../../component/breadcrumb/meebidBreadcrumbItem.vue'
 import MeebidCarouselItem from './../../component/carousel/meebidCarouselItem.vue'
 import MeebidCarousel from './../../component/carousel/meebidCarousel.vue'
@@ -29,6 +30,7 @@ Vue.component(MeebidTypeahead.name, MeebidTypeahead);
 Vue.component(MeebidSearchTypeahead.name, MeebidSearchTypeahead);
 Vue.component(MeebidBusyIndicator.name, MeebidBusyIndicator);
 Vue.component(MeebidHeader.name, MeebidHeader);
+Vue.component(MeebidTextEditor.name, MeebidTextEditor);
 Vue.component(MeebidBreadcrumbItem.name, MeebidBreadcrumbItem);
 Vue.component(MeebidCarouselItem.name, MeebidCarouselItem);
 Vue.component(MeebidCarousel.name, MeebidCarousel);

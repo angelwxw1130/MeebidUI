@@ -27,17 +27,55 @@
           <div class="meebidLotDetailDescriptionStartBidPriceContainer meebidMarginBottomMedium">
             {{getStartPrice(lotItem)}}
           </div>
-          <div class="meebidLotDetailDescriptionAuctionTimeContainer meebidPaddingTopMedium">
-            <span>{{getDate(lotItem.auctionAt)}}</span>
+          <div class="meebidLotDetailDescriptionAuctionTimeContainer meebidPaddingTopMedium meebidLotDetailCuttingLineGrey">
+            <span>{{getDate(lotItem.auctionAt, lotItem.sceneEx)}}</span>
           </div>
-          <div v-if="isBiddingAddressVisible(lotItem)" class="meebidLotDetailDescriptionAuctionLocationContainer meebidPaddingTopSmall">
+          <div v-if="isBiddingAddressVisible(lotItem)" class="meebidLotDetailDescriptionAuctionLocationContainer">
             <span>{{getAddress(lotItem.sceneEx)}}</span>
           </div>
-          <div class="meebidLotDetailDescriptionAuctionTypeContainer meebidPaddingTopSmall">
+          <div class="meebidLotDetailDescriptionAuctionTypeContainer meebidPaddingTopSmall meebidMarginBottomMedium">
             <span>{{getAuctionType(lotItem.sceneEx)}}</span>
           </div>
+          <div class="meebidLotDetailDescriptionSavedContainer meebidPaddingTopMedium meebidLotDetailCuttingLineGrey">
+            <span class="glyphicon glyphicon-heart"></span><span> {{getFavorText(lotItem.favor)}}</span>
+          </div>
         </div>
-      </div> 
+      </div>
+      <div class="meebidPaddingTopHuge">
+        <el-collapse v-model="activeNames" @change="handleCollapseChange">
+          <el-collapse-item title="Item Overview" name="description">
+            <div><b>Description: </b>{{lotItem.description}}</div>
+          </el-collapse-item>
+          <el-collapse-item title="Terms and Condition" name="terms">
+            <div class="meebidLotDetailTermsAndConditionContainer">
+              <div ref="terms"></div>
+              <meebid-busy-indicator ref="temrsBusyIndicator" size="Medium"></meebid-busy-indicator>
+            </div>
+            <div class="meebidLotDetailEditor">
+              <meebid-text-editor ref="termsEditor" compId="terms"></meebid-text-editor>
+            </div>
+          </el-collapse-item>
+          <el-collapse-item title="Payment" name="paymentInfo">
+            <div class="meebidLotDetailTermsAndConditionContainer">
+              <div ref="paymentInfo"></div>
+              <meebid-busy-indicator ref="paymentBusyIndicator" size="Medium"></meebid-busy-indicator>
+            </div>
+            <div class="meebidLotDetailEditor">
+              <meebid-text-editor ref="paymentEditor" compId="paymentInfo"></meebid-text-editor>
+            </div>
+          </el-collapse-item>
+          <el-collapse-item title="Shipping" name="shippingInfo">
+            <div class="meebidLotDetailTermsAndConditionContainer">
+              <div ref="shippingInfo"></div>
+              <meebid-busy-indicator ref="shippingBusyIndicator" size="Medium"></meebid-busy-indicator>
+            </div>
+            <div class="meebidLotDetailEditor">
+              <meebid-text-editor ref="shippingEditor" compId="shippingInfo"></meebid-text-editor>
+            </div>
+          </el-collapse-item>
+        </el-collapse>
+
+      </div>
     </div>
     
     <meebid-login-dialog>
@@ -58,6 +96,7 @@ export default {
   },
   data () {
     return {
+      activeNames: "description",
       profileTooltipVisible: false,
       profileTooltipDisabled: true,
       loginUser: loginUtils.getLoginUser(),
@@ -85,7 +124,8 @@ export default {
       breadItems: [{
         path: window.location.origin + "/home.html",
         label: "Home"
-      }]
+      }],
+      isTermsLoaded: false,
     }
   },
   beforeMount() {
@@ -115,6 +155,9 @@ export default {
     console.log("Lot Id: " + lotId);
     this.windowMinHeight = window.innerHeight - 85 + "px";
     this.$refs.busyIndicator.show();
+    this.$refs.temrsBusyIndicator.show();
+    this.$refs.paymentBusyIndicator.show();
+    this.$refs.shippingBusyIndicator.show();
     $.ajax({
       type: "GET",
       url: "/api/lot/detail",
@@ -196,9 +239,18 @@ export default {
     getStartPrice(item){
       return meebidUtils.formatMoneyForNumberField(item.currencyCode, item.startingBid);
     },  
-    getDate(date){
+    getDate(date, sceneEx){
       if (date){
-        return meebidUtils.formatDate(date, i18n.t('meebid.common.MSG_DATE_TIME_DETAIL_FORMAT'));
+        var dateStr = meebidUtils.formatDate(date, i18n.t('meebid.common.MSG_DATE_TIME_DETAIL_FORMAT'));
+        if (sceneEx && sceneEx.timeZone !== null){
+          var timeZoneStr = window.meebidConstant.regionTimeZone[sceneEx.timeZone + ""];
+          if (timeZoneStr){
+            dateStr += " " + timeZoneStr;
+          } else {
+            dateStr += " UTC " + sceneEx.timeZone + ":00 " + i18n.t('meebid.common.MSG_HOURS');
+          }
+        }
+        return dateStr;
       } else {
         return "";
       }
@@ -235,6 +287,59 @@ export default {
       } else {
         return "";
       }
+    },
+    getFavorText(favor){
+      return i18n.t('meebid.lotDetail.MSG_FAVOR_TEXT', {
+        0: favor
+      });
+    },
+    checkCollapseItem(val){
+      if (val && val.length){
+        for (var i = 0; i < val.length; i++){
+          if (val[i] === "terms" || val[i] === "paymentInfo" || val[i] === "shippingInfo"){
+            return true;
+          }
+        }
+      }
+      return false;
+    },
+    handleCollapseChange(val) {
+      var me = this;
+      if (this.checkCollapseItem(val) && !this.isTermsLoaded){
+        $.ajax({  
+          url : "/api/public/pts/settings",  
+          type : 'GET',
+          headers: {
+            token: this.loginUser.token
+          },
+          contentType : "application/json", 
+          data: {
+            lotId: this.lotItem.id
+          },
+          success : function(data) {
+            if (data.code == 1){
+              me.$refs.termsEditor.setValue(JSON.parse(data.content.termsAndCondition));
+              me.$refs.paymentEditor.setValue(JSON.parse(data.content.paymentInfo));
+              me.$refs.shippingEditor.setValue(JSON.parse(data.content.shippingInfo));
+              me.$refs.terms.innerHTML = me.$refs.termsEditor.getHTML();
+              me.$refs.paymentInfo.innerHTML = me.$refs.paymentEditor.getHTML();
+              me.$refs.shippingInfo.innerHTML = me.$refs.shippingEditor.getHTML();
+            } else {
+              errorUtils.requestDataError(data)
+            }
+          },  
+          error : function(data) {  
+            errorUtils.requestError(data);
+          },  
+          dataType : 'json' 
+        }).done(function(){
+          me.$refs.temrsBusyIndicator.hide();
+          me.$refs.paymentBusyIndicator.hide();
+          me.$refs.shippingBusyIndicator.hide();
+          me.isTermsLoaded = true;
+        });
+      }
+
     }
   }
 }

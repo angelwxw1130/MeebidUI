@@ -4178,7 +4178,6 @@ export default {
     },
     onDeleteExhibition(idx, item) {
       item.state = window.meebidConstant.exhibitionState.Delete;
-      item.locId = null;
     },
     onUpdateExhibitions() {
       var me = this;

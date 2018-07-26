@@ -281,7 +281,17 @@ meebidConstant.exhibitionState = {
     "New": -1,
     "Newing": -1970,
     "Saved": 1
-},
+};
+
+meebidConstant.regionTimeZone = {
+    "-7": "PDT",
+    "-6": "MDT",
+    "-5": "CDT",
+    "-4": "EDT",
+    "-8": "PST",
+    "0": "GMT",
+    "2": "CEST"
+}
 /**
 meebidConstant.currencyCode = [
     {id:'AED', label:'AED', suffix: 2},

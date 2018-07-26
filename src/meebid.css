@@ -19,6 +19,10 @@ body {
   padding-top: 30px;
 }
 
+.meebidPaddingTopHuge {
+  padding-top: 80px;
+}
+
 .meebidPaddingLeftMedium {
   padding-left: 20px;
 }
@@ -184,7 +188,7 @@ body {
   display: flex;
   position: fixed;
   top: 0px;
-  z-index: 2;
+  z-index: 10;
   background: #ffffff;
 }
 /*
@@ -1664,6 +1668,10 @@ body {
 .meebid .meebidBatchLotImagesDialog .el-dialog__footer, .meebid .meebidBatchLotDialog .el-dialog__footer {
   padding-bottom: 35px;
 }
+
+.meebid .ql-snow .ql-tooltip {
+  line-height: 26px;
+}
 /**
   Admin Page End
   */
@@ -1725,7 +1733,7 @@ body {
 .meebid .meebidLotDetailCarouselContainer {
   padding-top: 50px;
   width: 620px;
-  float: left;
+  display: inline-block;
 }
 
 .meebid .meebidLotDetailImageContainer {
@@ -1762,9 +1770,10 @@ body {
 }
 
 .meebid .meebidLotDetailInformationContainer {
-  width: calc(100% - 620px);
-  float: left;
+  width: calc(100% - 640px);
+  display: inline-block;
   padding-top: 50px;
+  vertical-align: top;
 }
 .meebid .meebidLotDetailDescriptionContainer {
 
@@ -1790,8 +1799,10 @@ body {
   font-weight: bold;
 }
 
-.meebid .meebidLotDetailDescriptionAuctionTimeContainer {
+.meebid .meebidLotDetailCuttingLineGrey {
   border-top: 1px solid #e2e2e2;
+}
+.meebid .meebidLotDetailDescriptionAuctionTimeContainer {
   font-size: 16px;
 }
 
@@ -1820,6 +1831,27 @@ body {
   max-height: 100%;
   margin: auto;
   vertical-align: middle;
+}
+
+.meebid .meebidLotDetailDescriptionAuctionTypeContainer {
+  color: #777;
+}
+
+.meebid .meebidLotDetailContent .el-collapse-item__header {
+  height: 60px;
+  line-height: 60px;
+  color: #777;
+  font-size: 24px;
+
+}
+
+.meebid .meebidLotDetailContent .meebidLotDetailTermsAndConditionContainer {
+  position: relative;
+  min-height: 50px;
+}
+
+.meebid .meebidLotDetailContent .meebidLotDetailEditor {
+  display: none;
 }
 /**
   Lot Detail End

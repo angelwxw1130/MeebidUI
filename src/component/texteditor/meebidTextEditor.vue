@@ -57,7 +57,9 @@
       });
     },
     methods: {
-      
+      getHTML() {
+        return this.editor.root.innerHTML;
+      },
       getValue() {
         return this.editor.getContents();
       },

@@ -8,7 +8,8 @@ const cn = {
             MSG_TIME_NO_SECOND_FORMAT: "HH:mm",
             MSG_DATE_MONTH_DETAIL_FORMAT: "MMMM dd, yyyy",
             MSG_DATE_TIME_DETAIL_FORMAT: "MMMM dd, yyyy, hh:mm TT",
-            MSG_DATE_WITH_A_NO_SECOND_FORMAT: "yyyy-MM-dd hh:mm A"
+            MSG_DATE_WITH_A_NO_SECOND_FORMAT: "yyyy-MM-dd hh:mm A",
+            MSG_HOURS: "hours"
         },
         upload: {
         	deleteTip: "按回车删除"
@@ -82,6 +83,9 @@ const cn = {
             MSG_ADDRESS_POSTALCODE: "Postal Code",
             MSG_ADDRESS_APTNUM: "Apt/Suite Number",
             MSG_ADDRESS_STATE: "State"
+        },
+        lotDetail: {
+            MSG_FAVOR_TEXT: "{0} Saved",
         }
     },
 
