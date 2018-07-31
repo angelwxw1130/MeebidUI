@@ -246,7 +246,7 @@
           })
         } else {
           img.onload = (image)=>{
-            var imgEl = image.srcElement;
+            var imgEl = image.srcElement ? image.srcElement : image.target;;
             this.pendingItems.splice(0, 1);
             currentItem.naturalHeight = imgEl.naturalHeight;
             currentItem.naturalWidth = imgEl.naturalWidth;

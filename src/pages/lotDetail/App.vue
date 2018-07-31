@@ -6,48 +6,71 @@
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <meebid-breadcrumb-item v-for="breadItem in breadItems" :redirectUrl="{ path: breadItem.path }">{{breadItem.label}}</meebid-breadcrumb-item>
       </el-breadcrumb>
-      <div class="meebidLotDetailCarouselContainer">
-        <meebid-carousel type="card" indicator-type="image" indicator-position="outside" :autoplay="false">
-          <el-carousel-item v-for="item in lotItem.imageUrls" :label="item">
-            <div class="meebidLotDetailImageContainer">
-              <img :src="item"></img>          
+      <div class="meebidLotDetailCuttingLineGrey meebidLotDetailMainContentContainer meebidMarginTopMedium" >
+        <div class="meebidLotDetailDescriptionHeaderContainer">
+          <div class="meebidLotDetailDescriptionLotNoContainer meebidPaddingRightMedium meebidPaddingLeftMedium meebidMarginTopSmall">
+            <span class="meebidLotDetailDescriptionLot"><b>LOT</b></span><br/>
+            <span class="meebidLotDetailDescriptionLotNo">{{lotItem.no}}</span>
+          </div>
+          <div class="meebidLotDetailDescriptionLotNameContainer meebidPaddingLeftMedium meebidMarginTopSmall">
+            <div class="meebidLotDetailDescriptionLotName"><span :title="lotItem.name">{{lotItem.name}}</span></div>
+            <div><span class="meebidLotDetailDescriptionAuction">In </span>
+              <a class="meebidLotDetailDescriptionAuctionLink">{{lotItem.name}}</a>
             </div>
-          </el-carousel-item>
-        </meebid-carousel>
-      </div>
-      <div class="meebidLotDetailInformationContainer meebidPaddingLeftMedium">
-        <div class="meebidLotDetailDescriptionContainer">
-          <div class="meebidLotDetailDescriptionNameContainer">
-            <span>Lot {{lotItem.no}}: {{lotItem.name}}</span>
           </div>
-          <div class="meebidLotDetailDescriptionEstPriceContainer meebidMarginTopMedium meebidMarginBottomSmall">
-            <span>Estimation:</span>
-            {{getEsitmationPrice(lotItem)}}
-          </div>
-          <div class="meebidLotDetailDescriptionStartBidPriceContainer meebidMarginBottomMedium">
-            {{getStartPrice(lotItem)}}
-          </div>
-          <div class="meebidLotDetailDescriptionAuctionTimeContainer meebidPaddingTopMedium meebidLotDetailCuttingLineGrey">
-            <span>{{getDate(lotItem.auctionAt, lotItem.sceneEx)}}</span>
-          </div>
-          <div v-if="isBiddingAddressVisible(lotItem)" class="meebidLotDetailDescriptionAuctionLocationContainer">
-            <span>{{getAddress(lotItem.sceneEx)}}</span>
-          </div>
-          <div class="meebidLotDetailDescriptionAuctionTypeContainer meebidPaddingTopSmall meebidMarginBottomMedium">
-            <span>{{getAuctionType(lotItem.sceneEx)}}</span>
-          </div>
-          <div class="meebidLotDetailDescriptionSavedContainer meebidPaddingTopMedium meebidLotDetailCuttingLineGrey">
-            <span class="glyphicon glyphicon-heart"></span><span> {{getFavorText(lotItem.favor)}}</span>
+        </div>
+        <div class="meebidLotDetailCarouselContainer meebidPaddingTopLarge">
+          <meebid-carousel type="card" indicator-type="image" indicator-position="outside" :autoplay="false">
+            <el-carousel-item v-for="item in lotItem.imageUrls" :label="item">
+              <div class="meebidLotDetailImageContainer" @click="onShowPhoto(item)">
+                <img :src="item"></img>
+              </div>
+            </el-carousel-item>
+          </meebid-carousel>
+        </div>
+        <div class="meebidLotDetailInformationContainer meebidPaddingLeftMedium meebidPaddingTopLarge">
+          <div class="meebidLotDetailDescriptionContainer">
+            <div>
+              <div class="meebidLotDetailPreviousLotLink" @click="onShowLot(lotItem.prevLotNo)"><i class="el-icon-arrow-left"></i> Prev lot: {{lotItem.prevLotNo}}</div>
+              <div class="meebidLotDetailNextLotLink" @click="onShowLot(lotItem.nextLotNo)">Next lot: {{lotItem.nextLotNo}} <i class="el-icon-arrow-right"></i></div>
+            </div>
+            <div class="meebidLotDetailDescriptionEstPriceContainer meebidMarginTopMedium meebidMarginBottomSmall">
+              <div class="meebidLotDetailDescriptionAuctionTypeContainer meebidPaddingTopSmall meebidMarginBottomMedium">
+                <span>{{getAuctionType(lotItem.sceneEx)}} Auction</span>
+              </div>
+              <div class="meebidLotDetailDescriptionStartBidPriceContainer meebidPaddingTopSmall meebidMarginBottomMedium">
+                <span class="meebidLotDetailFormLabel">Opening Price:</span>
+                {{getStartPrice(lotItem)}}
+              </div>
+              <div class="meebidPaddingTopSmall meebidMarginBottomMedium">
+                <span class="meebidLotDetailFormLabel">Estimation:</span>
+                {{getEsitmationPrice(lotItem)}}
+              </div>
+
+            </div>
+
+            <div class="meebidLotDetailDescriptionAuctionTimeContainer meebidPaddingTopMedium">
+              <span>{{getDate(lotItem.auctionAt, lotItem.sceneEx)}}</span>
+            </div>
+            <div v-if="isBiddingAddressVisible(lotItem)" class="meebidLotDetailDescriptionAuctionLocationContainer">
+              <span>{{getAddress(lotItem.sceneEx)}}</span>
+            </div>
+            <!--<div class="meebidLotDetailDescriptionAuctionTypeContainer meebidPaddingTopSmall meebidMarginBottomMedium">
+              <span>{{getAuctionType(lotItem.sceneEx)}}</span>
+            </div>-->
+            <div class="meebidLotDetailDescriptionSavedContainer meebidPaddingTopMedium meebidLotDetailCuttingLineGrey">
+              <span class="glyphicon glyphicon-heart"></span><span> {{getFavorText(lotItem.favor)}}</span>
+            </div>
           </div>
         </div>
       </div>
       <div class="meebidPaddingTopHuge">
         <el-collapse v-model="activeNames" @change="handleCollapseChange">
           <el-collapse-item title="Item Overview" name="description">
-            <div><b>Description: </b>{{lotItem.description}}</div>
+            <div><b>Description: </b><br/><span ref="descriptionContainer"></span></div>
           </el-collapse-item>
           <el-collapse-item title="Terms and Condition" name="terms">
-            <div class="meebidLotDetailTermsAndConditionContainer">
+            <div class="meebidLotDetailTermsAndConditionContainer ql-editor">
               <div ref="terms"></div>
               <meebid-busy-indicator ref="temrsBusyIndicator" size="Medium"></meebid-busy-indicator>
             </div>
@@ -56,7 +79,7 @@
             </div>
           </el-collapse-item>
           <el-collapse-item title="Payment" name="paymentInfo">
-            <div class="meebidLotDetailTermsAndConditionContainer">
+            <div class="meebidLotDetailTermsAndConditionContainer ql-editor">
               <div ref="paymentInfo"></div>
               <meebid-busy-indicator ref="paymentBusyIndicator" size="Medium"></meebid-busy-indicator>
             </div>
@@ -65,7 +88,7 @@
             </div>
           </el-collapse-item>
           <el-collapse-item title="Shipping" name="shippingInfo">
-            <div class="meebidLotDetailTermsAndConditionContainer">
+            <div class="meebidLotDetailTermsAndConditionContainer ql-editor">
               <div ref="shippingInfo"></div>
               <meebid-busy-indicator ref="shippingBusyIndicator" size="Medium"></meebid-busy-indicator>
             </div>
@@ -78,8 +101,11 @@
       </div>
     </div>
     
-    <meebid-login-dialog>
-    </meebid-login-dialog>
+    <el-dialog
+      :visible.sync="imageDialogVisible"
+      class="meebidLotDetailImageDialog">
+      <img :src="expandUrl"></img>
+    </el-dialog>
     <meebid-busy-indicator ref="busyIndicator" size="Medium"></meebid-busy-indicator>
   </div>
 </template>
@@ -96,6 +122,7 @@ export default {
   },
   data () {
     return {
+      imageDialogVisible: false,
       activeNames: "description",
       profileTooltipVisible: false,
       profileTooltipDisabled: true,
@@ -126,6 +153,7 @@ export default {
         label: "Home"
       }],
       isTermsLoaded: false,
+      expandUrl: ""
     }
   },
   beforeMount() {
@@ -175,7 +203,7 @@ export default {
           var item = data.content.lot;
           var lotItem = {
             name: item.name,
-            description: item.description,
+            //description: meebidUtils.escapeHTML(item.description, "<br/>"),
             no: item.no,
             imageUrls: item.imageUrls.split(";"),
             isSold: item.isSold,
@@ -212,6 +240,7 @@ export default {
           });
           this.breadItems = breadItems;
           this.lotItem = lotItem;
+          this.$refs.descriptionContainer.innerHTML = meebidUtils.escapeHTML(item.description, "<br/>");
         } else {
           this.$notify.error({
             title: 'Failure',
@@ -339,6 +368,13 @@ export default {
           me.isTermsLoaded = true;
         });
       }
+
+    },
+    onShowPhoto(url){
+      this.expandUrl = url;
+      this.imageDialogVisible = true;
+    },
+    onShowLot(lotId){
 
     }
   }

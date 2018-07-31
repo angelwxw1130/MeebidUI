@@ -1,3 +1,14 @@
+/**
+
+  cut line: e2e2e2;
+  basic color: FF5242;
+  hover color: d24437;
+  light grey background: f2f2f2;
+  light grey border: #ddd;
+  deep grey background : e0e0e0;
+  image container border: 9c9c9c;
+*/
+
 body {
   font-family: "Helvetica Neue", "Helvetica", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ", "Meiryo", "ＭＳ Ｐゴシック", arial, sans-serif;
   min-width: 1024px;
@@ -361,7 +372,7 @@ body {
 }
 
 .meebidButtonOrange:hover {
-  background-color: #ef4d3e;
+  background-color: #d24437;
 }
 
 .meebidButton.meebidButtonOrange .meebidButtonWithText {
@@ -1731,7 +1742,6 @@ body {
 }  
 
 .meebid .meebidLotDetailCarouselContainer {
-  padding-top: 50px;
   width: 620px;
   display: inline-block;
 }
@@ -1746,7 +1756,6 @@ body {
   vertical-align: top;
   text-decoration: none;
   outline: none;
-  overflow: hidden;
   background: white;
   border: 2px solid #9c9c9c;
   border-radius: 8px;
@@ -1772,22 +1781,67 @@ body {
 .meebid .meebidLotDetailInformationContainer {
   width: calc(100% - 640px);
   display: inline-block;
-  padding-top: 50px;
   vertical-align: top;
 }
 .meebid .meebidLotDetailDescriptionContainer {
 
 }
 
-.meebid .meebidLotDetailDescriptionNameContainer {
+.meebid .meebidLotDetailDescriptionHeaderContainer {
   font-size: 20px;
+}
+
+.meebid .meebidLotDetailDescriptionHeaderContainer .meebidLotDetailDescriptionLotNoContainer {
+  border-right: 1px solid #e2e2e2;
+  display: inline-block;
+  text-align: center;
+  width: 100px;
+}
+
+.meebid .meebidLotDetailDescriptionHeaderContainer .meebidLotDetailDescriptionLotNameContainer {
+  display: inline-block;
+  vertical-align: top;
+  width: calc(100% - 160px);
+}
+
+.meebid .meebidLotDetailDescriptionLotNameContainer .meebidLotDetailDescriptionLotName {
+  font-size: 24px;
+  font-weight: bold;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meebid .meebidLotDetailDescriptionLotNameContainer .meebidLotDetailDescriptionAuction {
+  color: #777;
+  font-size: 16px;
+}
+
+.meebid .meebidLotDetailDescriptionLotNameContainer .meebidLotDetailDescriptionAuctionLink {
+  color: #FF5242;
+  font-size: 16px;
+}
+
+.meebid .meebidLotDetailDescriptionLotNameContainer .meebidLotDetailDescriptionAuctionLink:hover, 
+.meebid .meebidLotDetailDescriptionLotNameContainer .meebidLotDetailDescriptionAuctionLink:focus,
+.meebid .meebidLotDetailDescriptionLotNameContainer .meebidLotDetailDescriptionAuctionLink:active {
+  color: #d24437;
+  cursor: pointer;
+  border-bottom: none;
+  text-decoration: none;
+}
+
+.meebid .meebidLotDetailDescriptionHeaderContainer .meebidLotDetailDescriptionLotNo{
+  font-size: 32px;
   font-weight: bold;
 }
 
 .meebid .meebidLotDetailDescriptionEstPriceContainer {
-  background: #e2e2e2;
+  border: 1px solid #ddd;
+  background: #f2f2f2;
   padding: 10px 15px;
-  width: fit-content;
+  width: 100%;
 }
 
 .meebid .meebidLotDetailDescriptionEstPriceContainer span {
@@ -1799,6 +1853,9 @@ body {
   font-weight: bold;
 }
 
+.meebid .meebidLotDetailMainContentContainer {
+  width: 100%;
+}
 .meebid .meebidLotDetailCuttingLineGrey {
   border-top: 1px solid #e2e2e2;
 }
@@ -1820,6 +1877,10 @@ body {
   border: 1px solid #9c9c9c;
 }
 
+.meebid .is-active .meebidCarouselIndicatorImageContainer {
+  border-color: #FF5242;
+}
+
 .meebid .meebidCarouselIndicatorImageContainer img{
   position: absolute;
   display: block;
@@ -1834,7 +1895,10 @@ body {
 }
 
 .meebid .meebidLotDetailDescriptionAuctionTypeContainer {
-  color: #777;
+  font-size: 24px;
+  font-style: italic;
+  font-weight: bold;
+  text-align: center;
 }
 
 .meebid .meebidLotDetailContent .el-collapse-item__header {
@@ -1853,6 +1917,50 @@ body {
 .meebid .meebidLotDetailContent .meebidLotDetailEditor {
   display: none;
 }
+
+.meebid .el-collapse-item__header:focus, .meebid .el-collapse-item__header:hover{
+  color: #FF5242;
+}
+
+.meebid .meebidLotDetailImageDialog .el-dialog__header {
+  display: none;
+}
+
+.meebid .meebidLotDetailImageDialog .el-dialog__footer {
+  display: none;
+}
+
+.meebid .el-breadcrumb__inner a, .el-breadcrumb__inner.is-link {
+  color: #FF5242;
+}
+
+.meebid .el-breadcrumb__inner a:hover, .el-breadcrumb__inner.is-link:hover {
+  color: #d24437;
+}
+
+.meebid .meebidLotDetailPreviousLotLink, .meebid .meebidLotDetailNextLotLink {
+  color: #FF5242;
+  width: 49%;
+  display: inline-block;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.meebid .meebidLotDetailNextLotLink {
+  text-align: right;
+}
+
+.meebid .meebidLotDetailPreviousLotLink:hover, .meebid .meebidLotDetailNextLotLink:hover {
+  color: #FF5242;
+}
+
+.meebid .meebidLotDetailFormLabel {
+  width: 40%;
+  display: inline-block;
+  text-align: right;
+}
+
+
 /**
   Lot Detail End
   */

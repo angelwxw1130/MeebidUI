@@ -198,21 +198,22 @@ export default {
     if(r!=null) 
       return unescape(r[2]); return null;
   },
+  escapeHTML(text,nl,empty) {
+    if (typeof nl != 'string') nl = "\n";
+    if (typeof empty != 'string') empty = "";
+
+    return ((text||"").toString().
+      replace(/&/g,'&amp;').
+      replace(/</g,'&lt;').
+      replace(/>/g,'&gt;').
+      replace(/\"/g,'&quot;').
+      replace(/\'/g,'&#39;').
+      replace(/\n|\r\n?/g, nl)) || empty;
+  },
+  
 }
 
-function escapeHTML(text,nl,empty)
-{
-  if (typeof nl != 'string') nl = "\n";
-  if (typeof empty != 'string') empty = "";
 
-  return ((text||"").toString().
-    replace(/&/g,'&amp;').
-    replace(/</g,'&lt;').
-    replace(/>/g,'&gt;').
-    replace(/\"/g,'&quot;').
-    replace(/\'/g,'&#39;').
-    replace(/\n|\r\n?/g, nl)) || empty;
-}
 
 // Extend the default Number object with a formatMoney() method:
 // usage: someVar.formatMoney(decimalPlaces, symbol, thousandsSeparator, decimalSeparator)
