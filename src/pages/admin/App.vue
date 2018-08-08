@@ -256,6 +256,24 @@
                     </el-option>
                   </el-select>
                 </el-form-item>-->
+                <el-form-item label="Logo">
+                  <meebid-upload
+                    class="upload-demo"
+                    ref="bLogoUpload"
+                    field-name="bLogoUpload"
+                    list-type="picture-card"
+                    :multiple="false"
+                    :limit="1"
+                    :on-remove="handleUploadRemove"
+                    :on-exceed="handleUploadExceed"
+                    :on-success="handleUploadSuccess"
+                    :on-preview="handlePictureCardPreview"
+                    :on-error="handleUploadError"
+                    :file-list="houseProfileForm.bLogoUpload"
+                    >
+                    <i class="el-icon-plus"></i>
+                  </meebid-upload>
+                </el-form-item>
                 <el-form-item label="Bussiness License">
                   <meebid-upload
                     class="upload-demo"
@@ -2019,6 +2037,13 @@ export default {
         if (this.userProfile.name){
           this.firstName = this.userProfile.name;
         }
+        if (!this.userProfile.bLogoUrl) {
+          this.userProfile.bLogoUpload = [];
+        } else {
+          this.userProfile.bLogoUpload = [{
+              url: this.userProfile.bLogoUrl
+          }];
+        }
         if (!this.userProfile.blicenseUrl) {
           this.userProfile.bLicenseUpload = [];
         } else {
@@ -2249,6 +2274,11 @@ export default {
           //email: this.userProfile.email,
           //logo: this.userProfile.logo,
         };
+        if (this.userProfile.bLogoUpload.length && this.userProfile.bLogoUpload[0] && this.userProfile.bLogoUpload[0].rUid){
+          returnObj.bLogoUrl = this.userProfile.bLogoUpload[0].rUid;
+        } else if (this.userProfile.bLogoUpload.length == 0){
+          returnObj.bLogoUrl = "";
+        }
         if (this.userProfile.bLicenseUpload.length && this.userProfile.bLicenseUpload[0] && this.userProfile.bLicenseUpload[0].rUid){
           returnObj.blicenseUrl = this.userProfile.bLicenseUpload[0].rUid;
           returnObj.blicenseName = this.userProfile.bLicenseUpload[0].name;

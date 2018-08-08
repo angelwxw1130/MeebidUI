@@ -13,6 +13,11 @@
             <span class="glyphicon glyphicon-heart"></span>
             <span>{{item.favor}}</span>
           </div>
+          <div class="meebidListItemEstimationWrapper">
+            <div>
+              Est: {{getEsitmationPrice(item)}}
+            </div>
+          </div>
           <!--<div class="meebidListItemProviderWrapper">
             <div class="meebidListItemProviderImageWrapper">
               <img :src="avatarUrl" class="meebidListItemAvatarImage"></img>
@@ -43,7 +48,7 @@
 </template>
 
 <script>
-
+  import meebidUtils from './../../utils/meebidUtils'
   export default {
     name: 'meebid-homepage-list-item',
     props: {
@@ -109,6 +114,11 @@
       },
       onLotClick() {
         this.$emit('lotClick', this.item.id);
+      },
+      getEsitmationPrice(item) {
+        return meebidUtils.formatMoneyForNumberField(item.currencyCode, item.estMinPrice) 
+          + " - "
+          + meebidUtils.formatMoneyForNumberField(item.currencyCode, item.estMaxPrice);
       }
     }
   }
