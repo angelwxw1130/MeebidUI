@@ -15,6 +15,21 @@
   import $ from 'jquery'
   export default {
     name: 'meebid-homepage-list',
+    props: {
+      initializedKeyword: {
+        type: String,
+        default: ""
+      },
+      searchType: {
+        type: String,
+        default: "all"
+      },
+      sceneId: -1,
+      hideBusyIndicator: {
+        type: Boolean,
+        default: false
+      }
+    },
     data() {
       return {
         items: [],
@@ -37,6 +52,9 @@
     },
 
     mounted() {
+      if (this.initializedKeyword){
+        this.searchKeyword = this.initializedKeyword;
+      }
       window.addEventListener('resize', this.getWindowWidth);
       window.addEventListener('scroll', this.onWindwoScroll);
       //window.addEventListener('resize', this.getWindowHeight);
@@ -47,7 +65,10 @@
       
       var request = this.buildOnlineItemRequest();
       this.inLoadingLotItems = true;
-      this.$refs.lotListItemsBusyIndicator.show();
+      if (!this.hideBusyIndicator){
+        this.$refs.lotListItemsBusyIndicator.show();
+      }
+      
       $.ajax(request);
       this.currentRequest = request;
     },
@@ -87,10 +108,17 @@
             offset: (this.lotPage - 1) * this.lotPerPage,
             count: this.lotPerPage
           };
-        } else {
+        } else if (this.searchType === "all") {
           request.url = "/api/lot/list/online";
           request.data = {
             offset: (this.lotPage - 1) * this.lotPerPage,
+            count: this.lotPerPage
+          };
+        } else if (this.searchType === 'auction'){
+          request.url = "/api/scene/list/online";
+          request.data = {
+            offset: (this.lotPage - 1) * this.lotPerPage,
+            sceneId: this.sceneId,
             count: this.lotPerPage
           };
         }
@@ -123,7 +151,8 @@
             reservePrice: item.reservePrice,
             startingBid: item.startingBid,
             houseName: item.houseName,
-            sceneId: item.sceneId
+            sceneId: item.sceneId,
+            meebidListItemClass: {}
           }
           lotItems.push(lotItem);
         }
@@ -157,7 +186,7 @@
           for (var i = 0; i < this.columnNum; i++){
             this.columnArr.push(0);
           }
-          var newItems = [];
+          /*var newItems = [];
           if (this.items && this.items.length){
             for (var j = 0; j < this.items.length; j++){
               newItems.push(this.items[j]);
@@ -167,7 +196,8 @@
           this.visibleItems = [];
           this.$nextTick(function () {
             me.checkPendingItems();
-          });
+          });*/
+          this.refreshVisibleItems();
         }
       },
       resetColumnNum() {
@@ -207,6 +237,22 @@
           return mininumIdx;
         } else {
           return -1;
+        }
+        
+      },
+      refreshVisibleItems() {
+        for (var i = 0; i < this.items.length; i++){
+          var mininumIdx = this.getCurrentColumn();
+          if (mininumIdx >= 0){
+            this.items[i].meebidListItemClass = {
+              transform: "translateX(" + mininumIdx * 260 + "px) translateY(" + this.columnArr[mininumIdx] + "px)"
+            }
+          } else {
+            this.items[i].meebidListItemClass = {
+              transform: "translateX(0px) translateY(0px)"
+            }
+          }
+          this.columnArr[mininumIdx] += this.$refs.lotItemListContainer.childNodes[i].clientHeight;
         }
         
       },
@@ -333,6 +379,11 @@
       onLotClick(lotId){
         console.log("Select Lot:" + lotId);
         window.location.href = "./lotDetail.html?" + window.btoa("lotId=" + lotId);
+      },
+      showBusyIndicator() {
+        if (this.inLoadingLotItems) {
+          this.$refs.lotListItemsBusyIndicator.show();
+        }
       }
     },
     beforeDestroy() {

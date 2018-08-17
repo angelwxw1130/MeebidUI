@@ -854,6 +854,9 @@ body {
   width: 260px; 
   border-radius: 8px;
   overflow: hidden;
+  transition-property: left,top,transform;
+  transition-duration: 0.5s;
+  transition-timing-function: ease-in-out;
 }
 .meebidListItemImageWrapper {
   border-radius: 8px; 
@@ -2073,3 +2076,74 @@ body {
   Lot Detail End
   */
 
+
+/**
+  Auction Detail Start
+  */
+.meebid .meebidAuctionDetailContent {
+  width: 100%;
+}
+
+.meebid .meebidAuctionDetailBreadcrumb {
+
+}
+
+.meebid .meebidAuctionDetailAuctionDescriptionContainer {
+  background-color: #eeeeee;
+  padding: 20px;
+}
+
+.meebid .meebidAuctionDetailDescriptionAuctionHouseContainer .meebidAuctionDetailDescriptionAuctionHouseName {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.meebid .meebidAuctionDetailDescriptionAuctionHouseContainer .meebidAuctionDetailDescriptionAuctionHouseName a{
+  color: #FF5242;
+}
+
+.meebid .meebidAuctionDetailDescriptionAuctionHouseContainer .meebidAuctionDetailDescriptionAuctionHouseName a:hover,
+.meebid .meebidAuctionDetailDescriptionAuctionHouseContainer .meebidAuctionDetailDescriptionAuctionHouseName a:visited,
+.meebid .meebidAuctionDetailDescriptionAuctionHouseContainer .meebidAuctionDetailDescriptionAuctionHouseName a:focus,
+.meebid .meebidAuctionDetailDescriptionAuctionHouseContainer .meebidAuctionDetailDescriptionAuctionHouseName a:active{
+  color: #d24437;
+  text-decoration: none;  
+}
+
+.meebid .meebidAuctionDetailDescriptionAuctionHouseContainer .meebidAuctionDetailDescriptionAuctionHouseName a:hover {
+  cursor: pointer;
+}
+
+
+.meebid .meebidAuctionDetailDescriptionAuctionName {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.meebid .meebidAuctionDetailHouseLogoImageContainer {
+  width: 100px;
+  height: 100px;
+  border: none;
+  position: relative;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  vertical-align: top;
+  text-decoration: none;
+  outline: none;
+}
+
+.meebid .meebidAuctionDetailHouseLogoImageContainer img{
+  position: absolute;
+  display: block;
+  top: 0;
+  left: 0;
+  right: 0;
+  max-width: 100%;
+  max-height: 100%;
+  margin: auto;
+  vertical-align: middle;
+}
+/**
+  Auction Detail End
+  */

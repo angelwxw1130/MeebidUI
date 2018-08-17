@@ -89,6 +89,10 @@
       firstName: {
         type: String,
         default: "User"
+      },
+      isHomePage: {
+        type: Boolean,
+        default: false
       }
     },
     data() {
@@ -192,7 +196,12 @@
         //this.$set('alertIsOpen',true);
       },
       onSearch(value) {
-        this.$emit('search', value);
+        if (this.isHomePage){
+          this.$emit('search', value);
+        } else {
+          window.location.href = "./home.html?" + window.btoa("keyword=" + value);
+        }
+        
       },
     },
     beforeDestroy() {

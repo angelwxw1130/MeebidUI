@@ -282,7 +282,7 @@ export default {
               label: lotItem.sceneEx.houseName
             });
             breadItems.push({
-              path: window.location.origin + "/home.html",
+              path: window.location.origin + "/auctionDetail.html?" + window.btoa("auctionId=" + lotItem.sceneEx.sceneId),
               label: lotItem.sceneEx.sceneName
             });
           }
@@ -308,9 +308,6 @@ export default {
   },
 
   methods: {
-    onSearch(value) {
-      //this.$refs.homePageListContainer.searchByKeyword(value);
-    },
     getEsitmationPrice(item) {
       return meebidUtils.formatMoneyForNumberField(item.currencyCode, item.estMinPrice) 
         + " - "
@@ -443,14 +440,17 @@ export default {
         this.$refs.shippingInfo.scrollIntoView(true)
       } else {
         this.activeNames.push("shippingInfo");
-        this.handleCollapseChange(this.activeNames);
         this.scrollToElement = this.$refs.shippingInfo;
+        this.handleCollapseChange(this.activeNames);
       }
     },
     afterCollapsed() {
+      var me = this;
       if (this.scrollToElement) {
-        this.scrollToElement.scrollIntoView(true);
-        this.scrollToElement = null;
+        setTimeout(function(){
+          me.scrollToElement.scrollIntoView(true);
+          me.scrollToElement = null;
+        }, 200)
       }
     }
   }

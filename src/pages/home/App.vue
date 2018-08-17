@@ -1,24 +1,12 @@
 <template>
   <div id="app" class="meebidHomePage meebid">
-    <meebid-header :first-name="firstName" :profile-tooltip-visible="profileTooltipVisible" :profile-tooltip-disabled="profileTooltipDisabled" @search="onSearch">
+    <meebid-header :first-name="firstName" :profile-tooltip-visible="profileTooltipVisible" :profile-tooltip-disabled="profileTooltipDisabled" @search="onSearch" :isHomePage="true">
     </meebid-header>
     <div id="content" class="meebidContent" height="">
-      <meebid-homepage-list ref="homePageListContainer">
+      <meebid-homepage-list ref="homePageListContainer" :initializedKeyword="initializedKeyword">
       </meebid-homepage-list>
       <meebid-busy-indicator ref="busyIndicator" size="Medium"></meebid-busy-indicator>
     </div>
-    
-    <el-dialog
-      title="Register"
-      :visible.sync="registerDialogVisible"
-      class="meebidRegisterDialog"
-      width="600px">
-      <span>这是一段信息</span>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="registerDialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="registerDialogVisible = false">Register</el-button>
-      </span>
-    </el-dialog>
     <meebid-category-dialog :items="categoryItems" ref="categoryDialog">
     </meebid-category-dialog>
     <meebid-login-dialog>
@@ -29,11 +17,12 @@
 <script>
 import loginUtils from './../../utils/loginUtils'
 import errorUtils from './../../utils/errorUtils'
+import meebidUtils from './../../utils/meebidUtils'
 import i18n from './../../i18n/i18n'
 import $ from 'jquery'
 export default {
   props: {
-    profileData: Object
+    profileData: Object,
   },
   data () {
     return {
@@ -44,11 +33,11 @@ export default {
       },
       firstName: "User",
       loginDialogVisible: false,
-      registerDialogVisible: false,
       loginForm: {
         email: "",
         password: ""
       },
+      initializedKeyword: '',
       loginFormRules: {
         email: [
           { required: true, message: 'Please input email', trigger: 'blur' }          
@@ -82,9 +71,15 @@ export default {
         this.profileTooltipDisabled = false;
       }
     }
+    var paramsString = window.location.search;
+    paramsString = paramsString.substring(1);
+    var decodeData = window.atob(paramsString);
+    var keyword = meebidUtils.getQueryString(decodeData, "keyword");
+    if (keyword){
+      this.initializedKeyword = keyword;
+    }
   },
   mounted(){
-
   },
 
   methods: {
