@@ -141,7 +141,7 @@ export default {
       return false;
     }
   },
-  formatMoneyForNumberField(currencyCode, price, isForceSuffix, forceSuffix){
+  formatMoneyForNumberField(currencyCode, price, isForceSuffix, forceSuffix, withThousand){
     if (this.isNumber(price)){
       var currencyCodeObj = this.findObject(window.meebidConstant.currencyCode, "id", parseInt(currencyCode));
       var suffix, currencyCodePrefix;
@@ -160,7 +160,7 @@ export default {
         }
         currencyCodePrefix = "";
       }
-      return price.formatMoneyWithoutThousand(suffix, currencyCodePrefix);
+      return !!withThousand ? price.formatMoney(suffix, currencyCodePrefix): price.formatMoneyWithoutThousand(suffix, currencyCodePrefix);
     } else {
       return "No Price";
     }

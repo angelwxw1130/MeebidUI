@@ -8,7 +8,8 @@
              :force-select="true"
              @search="onSearch">
         <span class="glyphicon glyphicon-search meebidHeaderSearchIcon"></span>
-        <input data-role="input" class="form-control" type="text" placeholder="Search">
+        <input data-role="input" class="form-control" ref="searchInput" type="text" placeholder="Search">
+        <el-button type="primary" @click="onClickSearch" class="meebidSearchTypeaheadButton" icon="el-icon-search"></el-button>
         <template slot="item" slot-scope="props">
           <li ref="props.typeaheadBusyIndicator"><meebid-busy-indicator size="Medium"></meebid-busy-indicator></li>
           <li v-for="(item, index) in props.items" :class="{active:props.activeIndex===index}">
@@ -203,6 +204,9 @@
         }
         
       },
+      onClickSearch(){
+        this.onSearch(this.$refs.searchInput.value);
+      }
     },
     beforeDestroy() {
 

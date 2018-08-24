@@ -203,6 +203,14 @@ body {
   z-index: 10;
   background: #ffffff;
 }
+
+.meebidHomeHeader .meebidSearchTypeaheadButton {
+  position: absolute;
+  right: 0;
+  top: 0;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+}
 /*
 @media (min-width: 768px) {
   .meebid .meebidHomeHeaderContent {

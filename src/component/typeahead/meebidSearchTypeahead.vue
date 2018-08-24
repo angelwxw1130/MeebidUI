@@ -78,20 +78,23 @@
         }
       },
       inputFocused () {
+        /*
         if (this.openOnFocus) {
           let value = this.inputEl.value
           this.openDropdown = true;
           this.$children[0].$children[0].active = true;
           this.fetchItems(value, 0)
         }
+        */
       },
       inputChanged () {
-        var value = this.inputEl.value;
+        /*var value = this.inputEl.value;
         this.items = [];
         this.openDropdown = true;
         this.$children[0].$children[0].active = true;
         this.fetchItems(value, this.debounce);
         this.$emit('input', this.forceSelect ? null : value);
+        */
       }
     }
   }
