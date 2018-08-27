@@ -116,9 +116,9 @@
         this.$emit('lotClick', this.item.id);
       },
       getEsitmationPrice(item) {
-        return meebidUtils.formatMoneyForNumberField(item.currencyCode, item.estMinPrice, false, null, true) 
+        return meebidUtils.formatMoneyForNumberField(item.currencyCode, item.estMinPrice, true, 0, true) 
           + " - "
-          + meebidUtils.formatMoneyForNumberField(item.currencyCode, item.estMaxPrice, false, null, true);
+          + meebidUtils.formatMoneyForNumberField(item.currencyCode, item.estMaxPrice, true, 0, true);
       }
     }
   }

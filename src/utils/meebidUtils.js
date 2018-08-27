@@ -148,6 +148,9 @@ export default {
       if (currencyCodeObj && !isForceSuffix){
         suffix = currencyCodeObj.suffix;
         currencyCodePrefix = currencyCodeObj.alias + " ";
+      } else if (currencyCodeObj && isForceSuffix){
+        suffix = forceSuffix;
+        currencyCodePrefix = currencyCodeObj.alias + " ";
       } else if (isForceSuffix) {
         suffix = forceSuffix;
         currencyCodePrefix = "";

@@ -1213,7 +1213,7 @@ body {
   color: #8e8e8e;
   padding-top: 20px;
   width: 100%;
-  padding-left: 210px;
+  padding-left: 180px;
 }
 
 .meebidRegisterContent {
@@ -1224,19 +1224,13 @@ body {
 }
 
 .meebidRegisterContent .el-col-12 {
-  width: 45%;
-  margin-left: 50px;
+  width: 50%;
   padding-top: 10px;
-  padding-left: 30px;
 }
 
 .meebidRegisterContent .el-form {
   padding-top: 25px;
   max-width: 500px;
-}
-
-.meebid .meebidRegisterContent .meebidLoginFormWrapper {
-  margin-left: unset;
 }
 
 .meebidRegisterFormWrapper {
@@ -1709,8 +1703,9 @@ body {
   */
 .meebidValidationPageContainer {
   height: 100%;
-  width: 60%;
+  width: 80%;
   margin: auto;
+  padding-right: 10%;
 }
 
 .meebidValidationPageContainer .el-loading-spinner{

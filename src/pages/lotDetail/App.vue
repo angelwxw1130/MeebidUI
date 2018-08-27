@@ -309,12 +309,12 @@ export default {
 
   methods: {
     getEsitmationPrice(item) {
-      return meebidUtils.formatMoneyForNumberField(item.currencyCode, item.estMinPrice, false, null, true) 
+      return meebidUtils.formatMoneyForNumberField(item.currencyCode, item.estMinPrice, true, 0, true) 
         + " - "
-        + meebidUtils.formatMoneyForNumberField(item.currencyCode, item.estMaxPrice, false, null, true);
+        + meebidUtils.formatMoneyForNumberField(item.currencyCode, item.estMaxPrice, true, 0, true);
     },
     getStartPrice(item){
-      return meebidUtils.formatMoneyForNumberField(item.currencyCode, item.startingBid, false, null, true);
+      return meebidUtils.formatMoneyForNumberField(item.currencyCode, item.startingBid, true, 0, true);
     },  
     getDate(date, sceneEx){
       if (date){
