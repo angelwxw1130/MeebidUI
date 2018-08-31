@@ -3,11 +3,11 @@
     <div class="meebidListItemContainer">
       <div>
         <div class="meebidListItemImageWrapper">
-          <img :src="item.imageUrls[0]" style="width: 100%;"></img>          
+          <img :src="item.imageUrls[0]"></img>          
         </div>
         <div class="meebidListItemDescriptionWrapper" >
           <div class="meebidListItemDescriptionLabelWrapper">
-            <p class="pinDescription">{{item.name}}</p>
+            <p class="pinDescription" :title="item.name">{{item.name}}</p>
           </div>
           <div class="meebidListItemDescriptionIconWrapper">
             <span class="glyphicon glyphicon-heart"></span>

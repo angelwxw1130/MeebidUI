@@ -1,6 +1,12 @@
 <template>
-  <div ref="lotItemListContainer" class="meebidHomePageList" style="height: 1000px;">
-    <meebid-homepage-list-item v-for="item in visibleItems" :item="item" :key="item.id" :height="item.height" :image-url="item.imageUrl" :description="item.description" :favourite-count="item.favouriteCount" :meebid-list-item-class="item.meebidListItemClass" :avatar-url="item.avatarUrl" :image-name="item.imageName" :image-provider="item.imageProvider" @houseClick="onHouseClick" @lotClick="onLotClick"></meebid-homepage-list-item>
+  <div class="meebidHomePageList" :class="{meebidTileViewHomePageList: selectedView === 'tile', meebidHomePageListShowSwitch: showViewSwitch === true}" style="height: 1000px;">
+    <div class="meebidHomePageListViewSwitcher">
+      <span @click="onTileViewClick" class="glyphicon glyphicon-th-large meebidTileViewIcon meebidPaddingRightMedium"></span>
+      <span @click="onWaterfullViewClick"  class="glyphicon glyphicon-stats meebidWaterfallViewIcon"></span>
+    </div>
+    <div ref="lotItemListContainer" class="meebidHomePageItemListContainer">
+      <meebid-homepage-list-item v-for="item in visibleItems" :item="item" :key="item.id" :height="item.height" :image-url="item.imageUrl" :description="item.description" :favourite-count="item.favouriteCount" :meebid-list-item-class="item.meebidListItemClass" :avatar-url="item.avatarUrl" :image-name="item.imageName" :image-provider="item.imageProvider" @houseClick="onHouseClick" @lotClick="onLotClick"></meebid-homepage-list-item>
+    </div>
     <div v-if="noResult">No Lots</div>
     <div style="position: relative; width: 100%; height: 80px;" :style="{transform: busyIndicatorPosition}">
       <meebid-busy-indicator ref="lotListItemsBusyIndicator" transparency="true" size="Medium"></meebid-busy-indicator>
@@ -16,6 +22,10 @@
   export default {
     name: 'meebid-homepage-list',
     props: {
+      showViewSwitch: {
+        type: Boolean,
+        default: false
+      },
       initializedKeyword: {
         type: String,
         default: ""
@@ -32,6 +42,7 @@
     },
     data() {
       return {
+        selectedView: "waterfull",
         items: [],
         pendingItems: [],
         loginUser: loginUtils.getLoginUser(),
@@ -198,6 +209,12 @@
             me.checkPendingItems();
           });*/
           this.refreshVisibleItems();
+        }
+      },
+      cleanColumnArr() {
+        this.columnArr = [];
+        for (var i = 0; i < this.columnNum; i++){
+          this.columnArr.push(0);
         }
       },
       resetColumnNum() {
@@ -384,6 +401,22 @@
         if (this.inLoadingLotItems) {
           this.$refs.lotListItemsBusyIndicator.show();
         }
+      },
+      onTileViewClick() {
+        var me = this;
+        this.selectedView = "tile";
+        this.cleanColumnArr();
+        this.$nextTick(function () {
+          me.refreshVisibleItems();
+        });
+      },
+      onWaterfullViewClick() {
+        var me = this;
+        this.selectedView = "waterfull";
+        this.cleanColumnArr();
+        this.$nextTick(function () {
+          me.refreshVisibleItems();
+        });
       }
     },
     beforeDestroy() {

@@ -31,7 +31,7 @@
         </div>
       </div>
       <div class="meebidLotDetailMainContentContainer meebidMarginTopMedium" >
-        <meebid-homepage-list ref="homePageListContainer" searchType="auction" :sceneId="sceneId">
+        <meebid-homepage-list ref="homePageListContainer" :showViewSwitch="true" searchType="auction" :sceneId="sceneId">
         </meebid-homepage-list>
 
       </div>
