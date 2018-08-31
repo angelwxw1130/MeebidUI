@@ -918,6 +918,7 @@ body {
 }
 
 .meebidTileViewHomePageList .meebidListItemImageWrapper {
+  background-color: #efefef;
   width: 240px;
   height: 240px;
   border: none;
