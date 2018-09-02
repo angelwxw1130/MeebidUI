@@ -1,5 +1,6 @@
 <template>
   <div class="meebidHomePageList" :class="{meebidTileViewHomePageList: selectedView === 'tile', meebidHomePageListShowSwitch: showViewSwitch === true}" style="height: 1000px;">
+    <div ref="meebidHomePageListScrollTag" class="meebidHomePageListScrollTag"></div>
     <div class="meebidHomePageListViewSwitcher">
       <span @click="onTileViewClick" class="glyphicon glyphicon-th-large meebidTileViewIcon meebidPaddingRightMedium"></span>
       <span @click="onWaterfullViewClick"  class="glyphicon glyphicon-stats meebidWaterfallViewIcon"></span>
@@ -375,6 +376,7 @@
         }
       },
       searchByKeyword(keyword){
+        this.$refs.meebidHomePageListScrollTag.scrollIntoView(true);
         this.searchKeyword = keyword;
         if (this.currentRequest){
           this.currentRequest.abort();

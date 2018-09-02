@@ -676,6 +676,11 @@ body {
   font-size: 20px;
 }
 
+.meebidHomePageListScrollTag {
+  position: absolute;
+  top: -85px;
+}
+
 .meebidHomePageListShowSwitch .meebidHomePageItemListContainer{
   position: relative;
   top: 30px;
@@ -1360,7 +1365,6 @@ body {
   height: 100%;
   margin: 0;
   border-right: 1px solid #efefef; 
-  overflow: scroll;
   float: left;
 }
 
@@ -1376,7 +1380,7 @@ body {
   margin: 0;
   padding-left: 10%;
   padding-right: 10%;
-  overflow-x: scroll;
+  overflow-y: scroll;
   position: relative;
 }
 
@@ -1491,6 +1495,10 @@ body {
   left: 0;
   right: 0;
   margin: auto;
+}
+
+.meebid .meebidAdminAuctionDescription {
+  min-height: 66px;
 }
 
 .meebid .meebidPhoneNumberDialog .el-dialog__body {
@@ -2138,6 +2146,9 @@ body {
   vertical-align: top;
   text-decoration: none;
   outline: none;
+  border: 1px solid #ccc;
+  margin-left: 5px;
+  margin-right: 10px;
 }
 
 .meebid .meebidLotDetailHouseLogoImageContainer img{

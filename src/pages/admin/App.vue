@@ -870,7 +870,7 @@
                 <el-input v-model="auctionForm.name" placeholder="Please input auction name"></el-input>
               </el-form-item>
               <el-form-item label="Description" prop="description">
-                <el-input v-model="auctionForm.description" placeholder="Please input description"></el-input>
+                <el-input class="meebidAdminAuctionDescription" type="textarea" v-model="auctionForm.description" placeholder="Please input description"></el-input>
               </el-form-item>
               <el-form-item label="Auction Type" prop="type">
                 <el-select v-model="auctionForm.type" placeholder="Select...">
@@ -2321,7 +2321,7 @@ export default {
               type: 'success',
               message: i18n.t('meebid.alertMessage.MSG_ADMIN_USER_UPDATE_PROFILE_SUCCESS')
             })
-            this.firstName = this.userProfile.firstName;
+            this.firstName = this.userProfile.type === window.meebidConstant.userType.member ? this.userProfile.firstName : this.userProfile.name;
             this.cleanFieldDChangeFlag();
           } else {
             this.$notify.error({
@@ -4040,7 +4040,7 @@ export default {
     },
     getAuctionDialogSubmitText(state){
       if (state === window.meebidConstant.auctionState.Basic){
-        return "Save as Draft";
+        return "Create Auction";
       } else {
         return "Update";
       }
