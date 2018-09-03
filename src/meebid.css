@@ -1497,8 +1497,8 @@ body {
   margin: auto;
 }
 
-.meebid .meebidAdminAuctionDescription {
-  min-height: 66px;
+.meebid .meebidAdminAuctionDescription textarea{
+  min-height: 99px !important;
 }
 
 .meebid .meebidPhoneNumberDialog .el-dialog__body {

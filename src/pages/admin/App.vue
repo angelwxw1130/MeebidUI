@@ -1026,7 +1026,7 @@
                 <el-input v-model="lotForm.name" placeholder="Please input lot name"></el-input>
               </el-form-item>
               <el-form-item label="Description" prop="description">
-                <el-input v-model="lotForm.description" placeholder="Please input description"></el-input>
+                <el-input type="textarea" class="meebidAdminAuctionDescription" v-model="lotForm.description" placeholder="Please input description"></el-input>
               </el-form-item>
               <el-form-item label="Lot No." prop="no">
                 <el-input-number v-model="lotForm.no" :min="1" placeholder="Please input lot number"></el-input-number>
