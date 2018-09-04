@@ -918,8 +918,9 @@ body {
   border-radius: 8px; 
   overflow: hidden; 
   cursor: zoom-in;
-  max-height: 500px;
-  min-height: 120px;
+  transition-property: width,height,border-radius;
+  transition-duration: 0.5s;
+  transition-timing-function: ease-in-out;
 }
 
 .meebidTileViewHomePageList .meebidListItemImageWrapper {
@@ -944,14 +945,12 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  margin: auto;
   vertical-align: middle;
-  width: auto;
   border-radius: inherit;
 }
 
 .meebidListItemImageWrapper img {
-  transition-property: width,height,background-color;
+  transition-property: width,height,background-color,border-radius,margin;
   transition-duration: 0.5s;
   transition-timing-function: ease-in-out;
   border-radius: 8px; 

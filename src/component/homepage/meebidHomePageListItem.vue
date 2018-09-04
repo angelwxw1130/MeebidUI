@@ -2,7 +2,7 @@
   <div :style="meebidListItemClass" class="meebidListItemWrapper" @mouseover="mousehover(this)" @mouseout="mouseout(this)">
     <div class="meebidListItemContainer">
       <div>
-        <div class="meebidListItemImageWrapper">
+        <div :style="imageWrapperStyle" class="meebidListItemImageWrapper">
           <img :style="imageStyle" :src="item.imageUrls[0]"></img>          
         </div>
         <div class="meebidListItemDescriptionWrapper" >
@@ -103,17 +103,27 @@
     },
     data () {
       return {
-        isMaskVisible: false,
+        isMaskVisible: false
       }
     },
     computed: {
+      imageWrapperStyle: function(){
+        var calcHeight = 240 * this.naturalHeight/this.naturalWidth;
+        return this.viewType === "waterfull" ? {
+          height: calcHeight > 500 ? "500px" : calcHeight < 120 ? "120px" : calcHeight +"px",
+        } : {
+          height: "240px"
+        };
+      },
       imageStyle: function(){
         return this.viewType === "waterfull" ? {
           width: "240px",
-          height: 240 * this.naturalHeight/this.naturalWidth + "px"
+          height: 240 * this.naturalHeight/this.naturalWidth + "px",
+          margin: 0
         } : {
           width: this.naturalWidth >= this.naturalHeight ? "240px" : this.naturalWidth/this.naturalHeight * 240 + "px",
-          height: this.naturalWidth < this.naturalHeight ? "240px" : this.naturalHeight/this.naturalWidth * 240 + "px"
+          height: this.naturalWidth < this.naturalHeight ? "240px" : this.naturalHeight/this.naturalWidth * 240 + "px",
+          margin: this.naturalWidth >= this.naturalHeight ? (1 - this.naturalHeight/this.naturalWidth) * 120 + "px 0" : "0 " + (1 - this.naturalWidth/this.naturalHeight) * 120 + "px"
         };
       }
     },
