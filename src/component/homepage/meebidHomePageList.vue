@@ -6,7 +6,7 @@
       <span @click="onWaterfullViewClick"  class="glyphicon glyphicon-stats meebidWaterfallViewIcon"></span>
     </div>
     <div ref="lotItemListContainer" class="meebidHomePageItemListContainer">
-      <meebid-homepage-list-item v-for="item in visibleItems" :item="item" :key="item.id" :height="item.height" :image-url="item.imageUrl" :description="item.description" :favourite-count="item.favouriteCount" :meebid-list-item-class="item.meebidListItemClass" :avatar-url="item.avatarUrl" :image-name="item.imageName" :image-provider="item.imageProvider" @houseClick="onHouseClick" @lotClick="onLotClick"></meebid-homepage-list-item>
+      <meebid-homepage-list-item v-for="item in visibleItems" :viewType="selectedView" :item="item" :key="item.id" :height="item.height" :image-url="item.imageUrl" :description="item.description" :favourite-count="item.favouriteCount" :meebid-list-item-class="item.meebidListItemClass" :naturalHeight="item.naturalHeight" :naturalWidth="item.naturalWidth" :avatar-url="item.avatarUrl" :image-name="item.imageName" :image-provider="item.imageProvider" @houseClick="onHouseClick" @lotClick="onLotClick"></meebid-homepage-list-item>
     </div>
     <div v-if="noResult">No Lots</div>
     <div style="position: relative; width: 100%; height: 80px;" :style="{transform: busyIndicatorPosition}">
@@ -409,7 +409,10 @@
         this.selectedView = "tile";
         this.cleanColumnArr();
         this.$nextTick(function () {
-          me.refreshVisibleItems();
+          setTimeout(function(){
+            me.refreshVisibleItems();
+          }, 500)
+          
         });
       },
       onWaterfullViewClick() {
@@ -417,7 +420,9 @@
         this.selectedView = "waterfull";
         this.cleanColumnArr();
         this.$nextTick(function () {
-          me.refreshVisibleItems();
+          setTimeout(function(){
+            me.refreshVisibleItems();
+          }, 500)
         });
       }
     },

@@ -3,7 +3,7 @@
     <div class="meebidListItemContainer">
       <div>
         <div class="meebidListItemImageWrapper">
-          <img :src="item.imageUrls[0]"></img>          
+          <img :style="imageStyle" :src="item.imageUrls[0]"></img>          
         </div>
         <div class="meebidListItemDescriptionWrapper" >
           <div class="meebidListItemDescriptionLabelWrapper">
@@ -52,6 +52,10 @@
   export default {
     name: 'meebid-homepage-list-item',
     props: {
+      viewType: {
+        type: String,
+        default: "waterfull"
+      },
       height: {
         type: String,
         default: "0"
@@ -87,11 +91,30 @@
       item: {
         type: Object,
         default: {}
+      },
+      naturalWidth: {
+        type: String,
+        default: "0"
+      },
+      naturalHeight: {
+        type: String,
+        default: "0"
       }
     },
     data () {
       return {
         isMaskVisible: false,
+      }
+    },
+    computed: {
+      imageStyle: function(){
+        return this.viewType === "waterfull" ? {
+          width: "240px",
+          height: 240 * this.naturalHeight/this.naturalWidth + "px"
+        } : {
+          width: this.naturalWidth >= this.naturalHeight ? "240px" : this.naturalWidth/this.naturalHeight * 240 + "px",
+          height: this.naturalWidth < this.naturalHeight ? "240px" : this.naturalHeight/this.naturalWidth * 240 + "px"
+        };
       }
     },
     methods: {
