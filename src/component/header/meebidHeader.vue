@@ -14,9 +14,12 @@
           <li ref="props.typeaheadBusyIndicator"><meebid-busy-indicator size="Medium"></meebid-busy-indicator></li>
           <li v-for="(item, index) in props.items" :class="{active:props.activeIndex===index}">
             <a href="javascript:void(0)" @click="props.select(item)">
-              <div>
-                <img width="36px" height="36px" :src="item.avatar_url"> 
-                <span style="padding-left: 10px;">{{item.login}}</span>
+              <div v-if="item.isCharacter">
+                <span style="padding-left: 10px;line-height: 36px;">{{item.key}}</span>
+              </div>
+              <div v-if="item.isHouse">
+                <img width="36px" height="36px" :src="item.imageUrl"> 
+                <span style="padding-left: 10px;">{{item.houseName}}</span>
               </div>
             </a>
           </li>

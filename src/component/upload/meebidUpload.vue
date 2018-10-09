@@ -85,6 +85,10 @@ export default {
       type: Function,
       default: noop
     },
+    onExchange: {
+      type: Function,
+      default: noop
+    },
     fileList: {
       type: Array,
       default() {
@@ -230,6 +234,20 @@ export default {
         }
       }
     },
+    switchLeft(file){
+      let fileList = this.uploadFiles;
+      let index = fileList.indexOf(file);
+      fileList.splice(index, 1);
+      fileList.splice(index - 1, 0, file);
+      this.onExchange(null, file, this.uploadFiles, this.fieldName);
+    },
+    switchRight(file){
+      let fileList = this.uploadFiles;
+      let index = fileList.indexOf(file);
+      fileList.splice(index, 1);
+      fileList.splice(index + 1, 0, file);
+      this.onExchange(null, file, this.uploadFiles, this.fieldName);
+    },
     getFile(rawFile) {
       let fileList = this.uploadFiles;
       let target;
@@ -272,6 +290,8 @@ export default {
           disabled={this.disabled}
           listType={this.listType}
           files={this.uploadFiles}
+          on-switchLeft={this.switchLeft}
+          on-switchRight={this.switchRight}
           on-remove={this.handleRemove}
           handlePreview={this.onPreview}>
         </UploadList>

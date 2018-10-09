@@ -77,6 +77,26 @@
             break
         }
       },
+      prepareItems () {
+        this.items = []
+        this.activeIndex = 0
+        for (let i = 0, l = 10; i < l; i++) {
+          if (i < 7){
+            let item = {
+              isCharacter: true,
+              key: "Clock" + i
+            }
+            this.items.push(item)
+          } else {
+            let item = {
+              isHouse: true,
+              houseName: "House " + i,
+              imageUrl: "./../static/user" + i + ".jpg"
+            }
+            this.items.push(item)
+          }
+        }
+      },
       inputFocused () {
         /*
         if (this.openOnFocus) {
@@ -88,13 +108,13 @@
         */
       },
       inputChanged () {
-        /*var value = this.inputEl.value;
+        var value = this.inputEl.value;
         this.items = [];
         this.openDropdown = true;
-        this.$children[0].$children[0].active = true;
+        //this.$children[0].$children[0].active = true;
         this.fetchItems(value, this.debounce);
         this.$emit('input', this.forceSelect ? null : value);
-        */
+        
       }
     }
   }

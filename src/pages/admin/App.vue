@@ -1067,6 +1067,7 @@
                   :limit="20"
                   :on-exceed="handleUploadExceed"
                   :on-remove="handleUploadLotImageSuccess"
+                  :on-exchange="handleUploadLotImageSuccess"
                   :on-success="handleUploadLotImageSuccess"
                   :on-preview="handlePictureCardPreview"
                   :on-error="handleUploadError"

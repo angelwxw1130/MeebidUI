@@ -110,7 +110,7 @@ export default {
     if (width){
         span.style.width = width;
     }
-    var result = escapeHTML(str); 
+    var result = this.escapeHTML(str); 
     span.innerHTML = result;
     if (span.offsetHeight <= height){
         span.innerHTML = '';
@@ -120,6 +120,21 @@ export default {
     else {
         return this.calculateStringWidth(span, height, str, subfix);
     }
+  },
+  escapeHTML (text,nl,empty) {
+    if ((!text) && (text != null) && !isNaN(text)) {
+      text = String(text);
+    }
+    if (typeof nl != 'string') nl = "\n";
+    if (typeof empty != 'string') empty = "";
+
+    return ((text||"").toString().
+      replace(/&/g,'&amp;').
+      replace(/</g,'&lt;').
+      replace(/>/g,'&gt;').
+      replace(/\"/g,'&quot;').
+      replace(/\'/g,'&#39;').
+      replace(/\n|\r\n?/g, nl)) || empty;
   },
   calculateStringWidth (span, height, str, subfix) { //this function is aim to called only by fitStringToWidthByRecursive
     if (span.offsetHeight <= height || !str){

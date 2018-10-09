@@ -41,7 +41,9 @@
         :stroke-width="listType === 'picture-card' ? 6 : 2"
         :percentage="parsePercentage(file.percentage)">
       </meebid-progress>
-      <span class="el-upload-list__item-actions" v-if="listType === 'picture-card'">
+      <span class="el-upload-list__item-actions" :class="{
+        'meebid-contain-switchBar': listType === 'picture-card' && files.length > 1
+      }" v-if="listType === 'picture-card'">
         <span
           class="el-upload-list__item-preview"
           v-if="handlePreview && listType === 'picture-card'"
@@ -55,6 +57,22 @@
           @click="$emit('remove', file)"
         >
           <i class="el-icon-delete"></i>
+        </span>
+      </span>
+      <span class="meebid-upload-list__item-switchBar" v-if="listType === 'picture-card' && files.length > 1">
+        <span
+          class="el-upload-list__item-left"
+          v-if="listType === 'picture-card' && index > 0"
+          @click="$emit('switchLeft', file)"
+        >
+          <i class="el-icon-arrow-left"></i>
+        </span>
+        <span
+          class="el-upload-list__item-right"
+          v-if="listType === 'picture-card' && index < (files.length - 1)"
+          @click="$emit('switchRight', file)"
+        >
+          <i class="el-icon-arrow-right"></i>
         </span>
       </span>
     </li>
