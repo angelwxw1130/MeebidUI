@@ -278,7 +278,7 @@ export default {
 
           if (lotItem && lotItem.sceneEx){
             breadItems.push({
-              path: window.location.origin + "/home.html",
+              path: window.location.origin + "/auctionHouseDetail.html?" + window.btoa("auctionHouseId=" + lotItem.houseId),
               label: lotItem.sceneEx.houseName
             });
             breadItems.push({
