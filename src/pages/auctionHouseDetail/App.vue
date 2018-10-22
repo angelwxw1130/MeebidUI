@@ -7,7 +7,7 @@
         <meebid-breadcrumb-item v-for="breadItem in breadItems" :redirectUrl="{ path: breadItem.path }">{{breadItem.label}}</meebid-breadcrumb-item>
       </el-breadcrumb>
       
-      <meebid-switch class="meebidAuctionHouseViewSwitcher" v-model="value1" @switchChange="switchChange"></meebid-switch>
+      <meebid-switch class="meebidAuctionHouseViewSwitcher" v-model="value1" :showHelpText="true" :helpTextSwitchOn="$t('meebid.auctionDetail.MSG_SHOW_UPCOMING_AUCTIONS')" :helpTextSwitchOff="$t('meebid.auctionDetail.MSG_SHOW_PAST_AUCTIONS')" @switchChange="switchChange"></meebid-switch>
       
       <div class="meebidAuctionHouseDetailAuctionDescriptionContainer meebidMarginTopMedium">
         <div class="meebidAuctionHouseDetailDescriptionAuctionHouseContainer">

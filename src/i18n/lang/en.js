@@ -86,6 +86,10 @@ const en = {
         },
         lotDetail: {
             MSG_FAVOR_TEXT: "{0} Saved",
+        },
+        auctionDetail: {
+            MSG_SHOW_UPCOMING_AUCTIONS: "Show Upcoming Auctions",
+            MSG_SHOW_PAST_AUCTIONS: "Show Past Auctions"
         }
     },
     ...enLocale
