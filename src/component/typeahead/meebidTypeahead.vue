@@ -25,7 +25,9 @@
   import httpUtils from './../../utils/httpUtils'
   import domUtils from './../../utils/domUtils'
   import Dropdown from './../dropdown/meebidDropdown.vue'
-
+  import loginUtils from './../../utils/loginUtils'
+  import errorUtils from './../../utils/errorUtils'
+  import $ from 'jquery'
   export default {
     name: 'meebid-typeahead',
     components: {Dropdown},
@@ -84,7 +86,8 @@
         timeoutID: 0,
         elements: [],
         openDropdown: false,
-        dropdownMenuEl: null
+        dropdownMenuEl: null,
+        loginUser: loginUtils.getLoginUser()
       }
     },
     computed: {
@@ -156,6 +159,7 @@
         }
       },
       fetchItems (value, debounce) {
+        var me = this;
         clearTimeout(this.timeoutID)
         if (value === '' && !this.openOnEmpty) {
           this.openDropdown = false
@@ -163,6 +167,33 @@
           this.prepareItems(this.data)
           this.openDropdown = !!this.items.length
         } else if (this.asyncSrc) {
+          this.timeoutID = setTimeout(() => {
+            $.ajax({  
+              url : this.asyncSrc,  
+              type : 'GET',
+              headers: {
+                token: this.loginUser.token
+              },
+              context: this,
+              data: {
+                word: value
+              },
+              contentType : "application/json", 
+              success : function(data) {
+                if (data.code == 1){
+                  this.prepareItems(data.content);
+                  this.openDropdown = true;
+                } else {
+                  errorUtils.requestDataError(data)
+                }
+              },  
+              error : function(data) {  
+                errorUtils.requestError(data);
+              },  
+              dataType : 'json' 
+            });
+          }, debounce)
+          /*
           this.timeoutID = setTimeout(() => {
             httpUtils.get(this.asyncSrc + value)
               .then(data => {
@@ -172,6 +203,7 @@
                 }
               })
           }, debounce)
+          */
         }
       },
       inputChanged () {

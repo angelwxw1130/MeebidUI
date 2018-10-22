@@ -9,18 +9,38 @@
               :not-close-elements="elements"
               :position-element="inputEl">
       <template slot="dropdown">
-        <slot name="item" :items="items" :select="selectItem" :highlight="highlight">
-          <li ref="typeaheadBusyIndicator" v-show="isLoading"><meebid-busy-indicator size="Medium"></meebid-busy-indicator></li>
-          <li v-for="(item, index) in items" class="meebidSearchTypeaheadOptionItem">
-            <a href="javascript:void(0)" @click="select(item)">
-              <div>
-                <img width="36px" height="36px" :src="item.avatar_url"> 
-                <span style="padding-left: 10px;">{{item.login}}</span>
-              </div>
-            </a>
-          </li>
-          <li v-show="noResult"><div class="noResult">No Data</div></li>
-        </slot>
+        <li v-show="isLoading"><meebid-busy-indicator size="Medium" ref="typeaheadBusyIndicator"></meebid-busy-indicator></li>
+        <li v-for="(item, index) in wordItems">
+          <a href="javascript:void(0)" @click="selectWord(item)">
+            <span class="meebidPaddingLeftSmall meebidHeaderLotLabel" >{{item}}</span>
+          </a>
+        </li>
+        <li v-if="categoryItems.length > 0">
+          <span style="font-size: 10px; font-weight: bolder; padding-left: 15px; color: #444">Category</span>
+        </li>
+        <li v-for="(item, index) in categoryItems">
+          <a href="javascript:void(0)" @click="selectCategory(item)">
+            <div class="meebidPaddingLeftSmall meebidHeaderCategoryImageWrapper">
+              <img class="meebidHeaderCategoryImage" :src="item.imgUrl">
+            </div>
+            <span class="meebidPaddingLeftSmall meebidHeaderCategoryLabel">{{item.name}}</span>
+          </a>
+        </li>
+        <li v-if="houseItems.length > 0">
+          <span style="font-size: 10px; font-weight: bolder; padding-left: 15px; color: #444">Auction House</span>
+        </li>
+        <li v-for="(item, index) in houseItems">
+          <a href="javascript:void(0)" @click="selectHouse(item)">
+            <div class="meebidPaddingLeftSmall meebidHeaderHouseImageWrapper">
+              <img class="meebidHeaderHouseImage" :src="item.bLogoUrl">
+            </div>
+            <div class="meebidPaddingLeftSmall meebidHeaderAuctionHouseDetailWrapper">
+              <span class="meebidHeaderAuctionHouseNameLabel">{{item.name}}</span>
+              <span class="meebidHeaderAuctionHouseWebsiteLabel">{{item.website}}</span>
+            </div>
+          </a>
+        </li>
+        <li v-show="noResult"><div class="noResult">No Data</div></li>
       </template>
       
     </meebid-dropdown>
@@ -40,33 +60,37 @@
       return {
         isLoading: true,
         noResult: false,
+        wordItems: [],
+        categoryItems: [],
+        houseItems: []
       }
     },
     methods: {
       prepareItems (data) {
-        if (data && data.length){
+        this.$refs.typeaheadBusyIndicator.hide();
+        /*if (data && data.length){
           this.$children[0].$children[0].active = false;
-        }
-        this.items = []
+        }*/
+        this.wordItems = []
+        this.categoryItems = []
+        this.houseItems = []
         //this.activeIndex = 0
-        for (let i = 0, l = data.length; i < l; i++) {
-          let item = data[i]
-          let key = this.itemKey ? item[this.itemKey] : item
-          key = key.toString()
-          let index = -1
-          if (this.ignoreCase) {
-            index = key.toLowerCase().indexOf(this.inputEl.value.toLowerCase())
-          } else {
-            index = key.indexOf(this.inputEl.value)
-          }
-          if (this.matchStart ? index === 0 : index >= 0) {
-            this.items.push(item)
-          }
-          if (this.items.length >= this.limit) {
-            break
-          }
-
+        if (data.words && data.words.length){
+          for (var i = 0; i < data.words.length && i <= 4; i++){
+            this.wordItems.push(data.words[i]);
+          }          
         }
+        if (data.categorys.items && data.categorys.items.length){
+          for (var i = 0; i < data.categorys.items.length && i <= 2; i++){
+            this.categoryItems.push(data.categorys.items[i]);
+          }
+        }
+        if (data.houses.items && data.houses.items.length){
+          for (var i = 0; i < data.houses.items.length && i <= 2; i++){
+            this.houseItems.push(data.houses.items[i]);
+          }
+        }
+        
       },
       inputKeyPressed (event) {
         var value = this.inputEl.value;
@@ -77,7 +101,7 @@
             break
         }
       },
-      prepareItems () {
+      /*prepareItems () {
         this.items = []
         this.activeIndex = 0
         for (let i = 0, l = 10; i < l; i++) {
@@ -96,7 +120,7 @@
             this.items.push(item)
           }
         }
-      },
+      },*/
       inputFocused () {
         /*
         if (this.openOnFocus) {
@@ -109,12 +133,25 @@
       },
       inputChanged () {
         var value = this.inputEl.value;
-        this.items = [];
+        this.wordItems = []
+        this.categoryItems = []
+        this.houseItems = []
         this.openDropdown = true;
         //this.$children[0].$children[0].active = true;
+        this.$refs.typeaheadBusyIndicator.show();
         this.fetchItems(value, this.debounce);
         this.$emit('input', this.forceSelect ? null : value);
         
+      },
+      selectWordItem(item) {
+        this.$emit('search', item)
+        this.openDropdown = false
+      },
+      selectCategoryItem(item){
+
+      },
+      selectHouseItem(item){
+
       }
     }
   }
