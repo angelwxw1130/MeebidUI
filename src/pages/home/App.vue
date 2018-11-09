@@ -1,10 +1,12 @@
 <template>
   <div id="app" class="meebidHomePage meebid">
-    <meebid-header :first-name="firstName" :profile-tooltip-visible="profileTooltipVisible" :profile-tooltip-disabled="profileTooltipDisabled" @search="onSearch" :isHomePage="true">
+    <meebid-header :first-name="firstName" :profile-tooltip-visible="profileTooltipVisible" :profile-tooltip-disabled="profileTooltipDisabled" @search="onSearch" :isHomePage="true" @categoryChange="onCategoryChange">
     </meebid-header>
     <div id="content" class="meebidContent" height="">
-      <meebid-homepage-list ref="homePageListContainer" :initializedKeyword="initializedKeyword">
-      </meebid-homepage-list>
+      <div class="meebidHomePageListWrapper">
+        <meebid-homepage-list ref="homePageListContainer" :initializedKeyword="initializedKeyword" :defaultSelectedCategory="defaultSelectedCategory">
+        </meebid-homepage-list>
+      </div>
       <meebid-busy-indicator ref="busyIndicator" size="Medium"></meebid-busy-indicator>
     </div>
     <meebid-category-dialog :items="categoryItems" ref="categoryDialog">
@@ -38,6 +40,7 @@ export default {
         password: ""
       },
       initializedKeyword: '',
+      defaultSelectedCategory: -1,
       loginFormRules: {
         email: [
           { required: true, message: 'Please input email', trigger: 'blur' }          
@@ -78,6 +81,10 @@ export default {
     if (keyword){
       this.initializedKeyword = keyword;
     }
+    var defaultSelectedCategory = meebidUtils.getQueryString(decodeData, "category");
+    if (defaultSelectedCategory){
+      this.defaultSelectedCategory = defaultSelectedCategory;
+    }
   },
   mounted(){
   },
@@ -103,6 +110,9 @@ export default {
     },
     onSearch(value) {
       this.$refs.homePageListContainer.searchByKeyword(value);
+    },
+    onCategoryChange(categoryId) {
+      this.$refs.homePageListContainer.setFilterCategory(categoryId);
     },
     getSelectedRegionOptions(regions, regionOptions){
       for (var i = 0; i < regionOptions.length; i++){

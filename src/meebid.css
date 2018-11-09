@@ -294,6 +294,9 @@ body {
   vertical-align: middle;
   border-radius: 8px;
 }
+
+.meebid .meebidHomePageListWrapper {
+}
 /*
 @media (min-width: 768px) {
   .meebid .meebidHomeHeaderContent {
@@ -368,7 +371,7 @@ body {
 .meebidContent {
   position: relative;
   min-width: 900px;
-  margin-top: 85px;
+  margin-top: 71px;
 }
 
 .meebidtypeahead {
@@ -980,6 +983,43 @@ body {
   margin-right: auto;
 }
 
+.meebidHomePageListFilterContainer {
+  width: 100%;
+  padding-left: 50px;
+  padding-right: 50px;
+  padding-top: 13px;
+  padding-bottom: 10px;
+  background: #eeeeee;
+  height: 50px;
+  overflow: hidden;
+  transition: all 0.5s 0.3s;
+}
+
+.meebidHomePageListFilterContainer.active {
+  height: 120px;
+}
+
+.meebidCategoryFilterImage {
+  width: 30px;
+  height: 30px;
+}
+
+.meebidFilterCategorySelect .el-select__tags {
+  max-height: 56px;
+  overflow: scroll;
+  align-items: baseline;
+}
+
+.meebidHomePageListFilterContainerHeaderBar {
+  height: 30px;
+}
+
+.meebid .meebidHomePageViewSwitcher {
+  margin-right: 30px;
+  position: absolute;
+  right: 50px;
+}
+
 .meebidListItemWrapper {
   position: absolute;
   top: 0;
@@ -1007,7 +1047,7 @@ body {
 }
 
 .meebidTileViewHomePageList .meebidListItemImageWrapper {
-  background-color: #efefef;
+  background-color: #f7f7f7;
   width: 240px;
   height: 240px;
   border: none;
@@ -1987,6 +2027,7 @@ body {
   margin-right: auto;
   margin-left: auto;
   margin-top: 105px;
+  padding-top: 85px;
 }  
 
 .meebid .meebidLotDetailCarouselContainer {
@@ -2324,6 +2365,7 @@ body {
   */
 .meebid .meebidAuctionDetailContent {
   width: 100%;
+  padding-top: 85px;
 }
 
 .meebid .meebidAuctionDetailBreadcrumb {
@@ -2395,6 +2437,7 @@ body {
   */
 .meebid .meebidAuctionHouseDetailContent {
   width: 100%;
+  padding-top: 85px;
 }
 
 .meebid .meebidAuctionHouseDetailBreadcrumb {

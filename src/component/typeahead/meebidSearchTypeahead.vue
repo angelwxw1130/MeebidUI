@@ -143,15 +143,16 @@
         this.$emit('input', this.forceSelect ? null : value);
         
       },
-      selectWordItem(item) {
-        this.$emit('search', item)
-        this.openDropdown = false
+      selectWord(item) {
+        this.$emit('search', item);
+        this.openDropdown = false;
       },
-      selectCategoryItem(item){
-
+      selectCategory(item){
+        this.$emit('selectCategory', item.id);
+        this.openDropdown = false;
       },
-      selectHouseItem(item){
-
+      selectHouse(item){
+        window.location.href = window.location.origin + "/auctionHouseDetail.html?" + window.btoa("auctionHouseId=" + item.houseId);
       }
     }
   }

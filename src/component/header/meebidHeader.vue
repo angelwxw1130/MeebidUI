@@ -6,6 +6,7 @@
              async-key="items"
              item-key="login"
              :force-select="true"
+             @selectCategory="onCategoryChange"
              @search="onSearch">
         <span class="glyphicon glyphicon-search meebidHeaderSearchIcon"></span>
         <input data-role="input" class="form-control" ref="searchInput" type="text" placeholder="Search">
@@ -30,7 +31,7 @@
               </div>
             </a>
           </li>
-          <li v-show="props.noResult"><div class="noResult">No Data</div></li>
+          <li v-show="props.noResult"><div class="noResult">No Result</div></li>
         </template>-->
       </meebid-search-typeahead>
       <div class="meebidHeaderButtonToolbar">
@@ -213,6 +214,13 @@
           window.location.href = "./home.html?" + window.btoa("keyword=" + value);
         }
         
+      },
+      onCategoryChange(categoryId) {
+        if (this.isHomePage){
+          this.$emit('categoryChange', categoryId);
+        } else {
+          window.location.href = "./home.html?" + window.btoa("category=" + categoryId);
+        }
       },
       onClickSearch(){
         this.onSearch(this.$refs.searchInput.value);

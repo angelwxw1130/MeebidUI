@@ -90,6 +90,10 @@ const cn = {
         auctionDetail: {
             MSG_SHOW_UPCOMING_AUCTIONS: "Show Upcoming Auctions",
             MSG_SHOW_PAST_AUCTIONS: "Show Past Auctions"
+        },
+        lotList: {
+            MSG_SHOW_UPCOMING_LOTS: "Show Upcoming Lots",
+            MSG_SHOW_PAST_LOTS: "Show Past Lots",
         }
     },
 

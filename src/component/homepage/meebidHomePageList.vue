@@ -1,16 +1,60 @@
 <template>
-  <div class="meebidHomePageList" :class="{meebidTileViewHomePageList: selectedView === 'tile', meebidHomePageListShowSwitch: showViewSwitch === true}" style="height: 1000px;">
+  <div>
     <div ref="meebidHomePageListScrollTag" class="meebidHomePageListScrollTag"></div>
-    <div class="meebidHomePageListViewSwitcher">
-      <span @click="onTileViewClick" class="glyphicon glyphicon-th-large meebidTileViewIcon meebidPaddingRightMedium"></span>
-      <span @click="onWaterfullViewClick"  class="glyphicon glyphicon-stats meebidWaterfallViewIcon"></span>
+    <div class="meebidHomePageListFilterContainer" :class="{active: isFilterVisible}">
+      <div class="meebidHomePageListFilterContainerHeaderBar">
+        <meebid-switch class="meebidHomePageViewSwitcher" v-model="value1" :showHelpText="true" :helpTextSwitchOn="$t('meebid.lotList.MSG_SHOW_UPCOMING_LOTS')" :helpTextSwitchOff="$t('meebid.lotList.MSG_SHOW_PAST_LOTS')" @switchChange="switchChange"></meebid-switch>
+        <div class="menu-trigger second" :class="{
+          active: isFilterVisible
+        }" @click="onFilterIconClick">
+          <span class="line line-1"></span>
+          <span class="line line-2"></span>
+          <span class="line line-3"></span>
+        </div>
+      </div>
+      <div class="meebidHomePageListFilterContent">
+        <el-form ref="filterForm" :rules="filterFormRules" :model="filterForm" label-width="180px" class="meebidPaddingTopSmall">
+          <el-col :span="12">
+            <el-form-item label="Category" prop="category">
+              <el-select v-model="filterForm.category" class="meebidFilterCategorySelect" multiple style="width:400px;" placeholder="Select..." @change="handleFilterSortChange">
+                <el-option
+                  v-for="item in categoryOptions"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                  <img class="meebidCategoryFilterImage" :class="{meebidMarginLeftSmall: item.upperLevel}" :src="item.imgUrl">
+                  <span class="meebidPaddingLeftSmall">{{item.name}}</span>
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="Sort" prop="sort">
+              <el-select v-model="filterForm.sort" style="width:400px;" placeholder="Sort by..." @change="handleFilterSortChange">
+                <el-option
+                  v-for="item in sortOptions"
+                  :key="item.id"
+                  :label="item.label"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-form>
+      </div>
     </div>
-    <div ref="lotItemListContainer" class="meebidHomePageItemListContainer">
-      <meebid-homepage-list-item v-for="item in visibleItems" :viewType="selectedView" :item="item" :key="item.id" :height="item.height" :image-url="item.imageUrl" :description="item.description" :favourite-count="item.favouriteCount" :meebid-list-item-class="item.meebidListItemClass" :naturalHeight="item.naturalHeight" :naturalWidth="item.naturalWidth" :avatar-url="item.avatarUrl" :image-name="item.imageName" :image-provider="item.imageProvider" @houseClick="onHouseClick" @lotClick="onLotClick"></meebid-homepage-list-item>
-    </div>
-    <div v-if="noResult">No Lots</div>
-    <div style="position: relative; width: 100%; height: 80px;" :style="{transform: busyIndicatorPosition}">
-      <meebid-busy-indicator ref="lotListItemsBusyIndicator" transparency="true" size="Medium"></meebid-busy-indicator>
+    <div class="meebidHomePageList" :class="{meebidTileViewHomePageList: selectedView === 'tile', meebidHomePageListShowSwitch: showViewSwitch === true}" style="height: 1000px;">
+      <div class="meebidHomePageListViewSwitcher">
+        <span @click="onTileViewClick" class="glyphicon glyphicon-th-large meebidTileViewIcon meebidPaddingRightMedium"></span>
+        <span @click="onWaterfullViewClick"  class="glyphicon glyphicon-stats meebidWaterfallViewIcon"></span>
+      </div>
+      <div ref="lotItemListContainer" class="meebidHomePageItemListContainer">
+        <meebid-homepage-list-item v-for="item in visibleItems" :viewType="selectedView" :item="item" :key="item.id" :height="item.height" :image-url="item.imageUrl" :description="item.description" :favourite-count="item.favouriteCount" :meebid-list-item-class="item.meebidListItemClass" :naturalHeight="item.naturalHeight" :naturalWidth="item.naturalWidth" :avatar-url="item.avatarUrl" :image-name="item.imageName" :image-provider="item.imageProvider" @houseClick="onHouseClick" @lotClick="onLotClick"></meebid-homepage-list-item>
+      </div>
+      <div v-if="noResult">No Lots</div>
+      <div style="position: relative; width: 100%; height: 80px;" :style="{transform: busyIndicatorPosition}">
+        <meebid-busy-indicator ref="lotListItemsBusyIndicator" transparency="true" size="Medium"></meebid-busy-indicator>
+      </div>
     </div>
   </div>
 </template>
@@ -18,7 +62,9 @@
 <script>
   import meebidHomePageListItem from './../homepage/meebidHomePageListItem.vue'
   import loginUtils from './../../utils/loginUtils'
+  import meebidUtils from './../../utils/meebidUtils'
   import errorUtils from './../../utils/errorUtils'
+  import i18n from './../../i18n/i18n'
   import $ from 'jquery'
   export default {
     name: 'meebid-homepage-list',
@@ -30,6 +76,9 @@
       initializedKeyword: {
         type: String,
         default: ""
+      },
+      defaultSelectedCategory: {
+        default: -1
       },
       searchType: {
         type: String,
@@ -43,6 +92,8 @@
     },
     data() {
       return {
+        isFilterVisible: false,
+        showUpcomingLot: true,
         selectedView: "waterfull",
         items: [],
         pendingItems: [],
@@ -59,13 +110,64 @@
         busyIndicatorPosition: "",
         inLoadingLotItems: false,
         searchKeyword: "",
-        noResult: false
+        lastRequest: {},
+        noResult: false,
+        filterForm: {},
+        filterFormRules: {},
+        categoryOptions: [],
+        sortOptions: [{
+          id: 0,
+          label: "Relevance"
+        },{
+          id: 1,
+          label: "Price from High to Low"
+        },{
+          id: 2,
+          label: "Price from Low to High"
+        },{
+          id: 3,
+          label: "Newest Publish"
+        }, {
+          id: 4,
+          label: "Most Awareness"
+        }, {
+          id: 5,
+          label: "Sale Date Soonest"
+        }]
       }
     },
 
     mounted() {
+      var me = this;
+      $.ajax({
+        type: "GET",
+        url: "/api/public/categorys",
+        contentType : "application/json", 
+        context: this,
+        headers: {
+        },
+        success(data) {
+          if (data.code === 1){
+            me.buildCategoryOptions(data.content.categorys);
+          } else {
+            this.$notify.error({
+              title: 'Failure',
+              message: 'Get Category failure',
+              duration: 5000
+            });
+          }
+
+        },
+        error(data) {
+          errorUtils.requestError(data);
+        }
+      })
+
       if (this.initializedKeyword){
         this.searchKeyword = this.initializedKeyword;
+      }
+      if (this.defaultSelectedCategory >= 0){
+        this.filterForm.category = [this.defaultSelectedCategory];
       }
       window.addEventListener('resize', this.getWindowWidth);
       window.addEventListener('scroll', this.onWindwoScroll);
@@ -85,6 +187,36 @@
       this.currentRequest = request;
     },
     methods: {
+      buildCategoryOptions(categories){
+        var categoryOptions = {};
+        for (var i = 0; i < categories.length; i++){
+          if (categories[i].upperLevel){
+            var upperLevelObj = meebidUtils.findObject(categories, "id", categories[i].upperLevel);
+            if (categoryOptions[categories[i].upperLevel]){
+              categoryOptions[categories[i].upperLevel].options.push(categories[i]);
+            } else {
+              categoryOptions[categories[i].upperLevel] = upperLevelObj;
+              categoryOptions[categories[i].upperLevel].options = [categories[i]];
+            }
+          } else {
+            if (!categoryOptions[categories[i].id]){
+              categoryOptions[categories[i].id] = categories[i];
+              categoryOptions[categories[i].id].options = [];
+            }
+          }
+        }
+        for (var key in categoryOptions){
+          var categoryObj = categoryOptions[key];
+          if (categoryObj.options.length){
+            this.categoryOptions.push(categoryObj);
+            for (var j = 0; j < categoryObj.options.length; j++){
+              this.categoryOptions.push(categoryObj.options[j]);
+            }
+          } else {
+            this.categoryOptions.push(categoryObj)
+          }
+        }
+      },
       buildOnlineItemRequest() {
         var me = this;
         var token = this.loginUser ? this.loginUser.token: null;
@@ -92,6 +224,7 @@
         var request = {   
           type : 'GET', 
           context: this, 
+          traditional: true,
           success : function(data) {
             if (data.code == '1'){
               var items = this.buildLotItems(data.content.items ? data.content.items : []);
@@ -134,12 +267,20 @@
             count: this.lotPerPage
           };
         }
-        
+        request.data.old = !this.showUpcomingLot;
+        if (this.filterForm.category && this.filterForm.category.length){
+          request.data.categorys = this.filterForm.category;
+        }
+
+        if (this.filterForm.sort >= 0){
+          request.data.sortType = this.filterForm.sort;
+        }
         if (token){
           request.header = {
             token: token
           }
         }
+        this.lastRequest = request;
         return request;
       },
       buildLotItems(items){
@@ -424,7 +565,39 @@
             me.refreshVisibleItems();
           }, 500)
         });
-      }
+      },
+      switchChange(switchValue){
+        this.showUpcomingLot = switchValue;
+        this.refreshSearchRequest();
+      },
+      onFilterIconClick() {
+        this.isFilterVisible = !this.isFilterVisible;
+      },
+      refreshSearchRequest() {
+        this.$refs.meebidHomePageListScrollTag.scrollIntoView(true);
+        this.clearItems();
+        this.resetColumnNum();
+        this.lotPage = 1;
+        var request = this.buildOnlineItemRequest();
+        this.inLoadingLotItems = true;
+        if (!this.hideBusyIndicator){
+          this.$refs.lotListItemsBusyIndicator.show();
+        }
+        $.ajax(request);
+        this.currentRequest = request;
+      },
+      handleFilterSortChange() {
+        if (this.pendingFilterSortChangeTrigger){
+          clearTimeout(this.pendingFilterSortChangeTrigger);
+        }
+        var me = this;
+        this.pendingFilterSortChangeTrigger = setTimeout(function(){
+          me.refreshSearchRequest();
+        }, 500);
+      },
+      setFilterCategory(category){
+        this.filterForm.category = [category];
+      },
     },
     beforeDestroy() {
       window.removeEventListener('resize', this.getWindowWidth);
@@ -435,5 +608,74 @@
 </script>
 
 <style>
+  .menu-trigger.second {
+    transition: all 0.5s 0s;
+  }
+
+  .menu-trigger.second.active {
+    transform: rotate(135deg);
+    transition: all 0.5s 0.3s;
+  }
+  .menu-trigger {
+    width: 25px;
+    height: 20px;
+    position: relative;
+    cursor: pointer;
+    display: inline-block;
+    left: calc(100%);
+  }
+
+  .menu-trigger.second.active .line {
+    background: #000;
+  }
+
+  .menu-trigger.second .line {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: #000;
+    transition: 0.3s;
+  }
+  .menu-trigger .line {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #000;
+    height: 2px;
+  }
+  .menu-trigger.second .line.line-1 {
+    transition: all 0.3s 0.3s, transform 0.3s 0s;
+  }
+  .menu-trigger.second.active .line-1 {
+    top: 50%;
+    margin-top: -1px;
+    transform: rotate(90deg);
+    transition: all 0.3s, transform 0.3s 0.3s;
+  }
+  .menu-trigger.second .line.line-2 {
+    top: 50%;
+    margin-top: -1px;
+    left: 0;
+    transition: all 0.3s 0.3s;
+  }
+  .menu-trigger.second.active .line-2 {
+    opacity: 0;
+    transition: all 0.3s, opacity 0.3s 0s;
+  }
+  .menu-trigger.second .line.line-3 {
+    bottom: 0;
+    top: auto;
+    left: 0;
+    transition: all 0.3s 0.3s, transform 0.3s 0s;
+  }
+  .menu-trigger.second.active .line-3 {
+    bottom: 50%;
+    margin-bottom: -1px;
+    transform: rotate(0deg);
+    transition: all 0.3s, transform 0.3s 0.3s;
+  }  
 
 </style>
