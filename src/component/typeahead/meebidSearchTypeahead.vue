@@ -152,7 +152,7 @@
         this.openDropdown = false;
       },
       selectHouse(item){
-        window.location.href = window.location.origin + "/auctionHouseDetail.html?" + window.btoa("auctionHouseId=" + item.houseId);
+        window.location.href = window.location.origin + "/auctionHouseDetail.html?" + window.btoa("auctionHouseId=" + item.userId);
       }
     }
   }
