@@ -36,7 +36,7 @@
         </meebid-button>
       </div>
       <div class="meebidListItemMaskSaveButtonWrapper">
-        <meebid-button icon-type="save" button-type="orange" text="Save">
+        <meebid-button icon-type="save" button-type="orange" text="Watch">
         </meebid-button>
       </div>
       <div class="meebidListItemMaskAuctionHouseNameWrapper" :style="{top: getTop4AuctionHouseName(item)}">

@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="meebidHomePage meebid" :style="{minHeight: windowMinHeight}">
-    <meebid-header :first-name="firstName" :profile-tooltip-visible="profileTooltipVisible" :profile-tooltip-disabled="profileTooltipDisabled" @search="onSearch">
+    <meebid-header ref="meebidHeader" :first-name="firstName" :profile-tooltip-visible="profileTooltipVisible" :profile-tooltip-disabled="profileTooltipDisabled" @search="onSearch">
     </meebid-header>
     <div id="content" class="meebidContent meebidLotDetailContent">
       <el-breadcrumb separator-class="el-icon-arrow-right">
@@ -56,8 +56,8 @@
                   <div class="meebidLink"><span class="glyphicon glyphicon-heart"></span> Add to watch list</div>
                   <span> ({{getFavorText(lotItem.favor)}})</span>
                 </div>
-                <div class="meebidLotDetailDescriptionActionRightContainer">
-                  <div class="meebidLink"><span class="glyphicon glyphicon-registration-mark"></span> Register to bid</div>
+                <div class="meebidLotDetailDescriptionActionRightContainer" @click="onRegisterLot">
+                  <div class="meebidLink"><span class="glyphicon glyphicon-registration-mark"></span> {{getRegisterLabel(lotItem)}}</div>
                 </div>
               </div>
             </div>
@@ -143,6 +143,7 @@
       class="meebidLotDetailImageDialog">
       <img :src="expandUrl"></img>
     </el-dialog>
+    <meebid-register-dialog ref="registerDialog"></meebid-register-dialog>
     <meebid-busy-indicator ref="busyIndicator" size="Medium"></meebid-busy-indicator>
   </div>
 </template>
@@ -168,19 +169,6 @@ export default {
       userProfile: {
       },
       firstName: "User",
-      loginDialogVisible: false,
-      loginForm: {
-        email: "",
-        password: ""
-      },
-      loginFormRules: {
-        email: [
-          { required: true, message: 'Please input email', trigger: 'blur' }          
-        ],
-        password: [
-          { required: true, message: 'Please input password', trigger: 'blur' }    
-        ],
-      },
       windowMinHeight: 0,
       categoryItems: [],
       lotItem: {
@@ -260,7 +248,8 @@ export default {
             sceneId: item.sceneId,
             auctionAt: item.auctionAt,
             sceneEx: item.sceneEx,
-            neiLots: item.neiLots
+            neiLots: item.neiLots,
+            applys: item.applys
           }
           var breadItems = [{
             path: window.location.origin + "/home.html",
@@ -452,6 +441,16 @@ export default {
           me.scrollToElement = null;
         }, 200)
       }
+    },
+    onRegisterLot() {
+      if (!this.loginUser.isLogin) {
+        this.$refs.meebidHeader.openLoginDialog();
+      } else {
+        this.$refs.registerDialog.openDialog(this.lotItem);
+      }
+    },
+    getRegisterLabel(lotItem) {
+      return lotItem && lotItem.applys > 0 ? "My Registration" : "Register to bid";
     }
   }
 }

@@ -2513,3 +2513,27 @@ body {
 /**
   Auction House Detail End
   */
+
+
+/**
+  Lot Register Dialog Start
+  */
+.meebid .registerDialogWrapper {
+  position: relative;
+}
+
+.meebid .meebidRegisterDialogAddNewLink {
+  position: absolute;
+  right: 0px;
+  top: 10px;
+}
+.meebid .meebidRegisterDialog .el-dialog__body {
+  padding: 20px 20px 0px 20px;
+}
+
+.meebid .meebidRegisterDialog .el-form-item.meebidFormNoMarginBottom {
+  margin-bottom: 0;
+} 
+/**
+  Lot Register Dialog End
+  */

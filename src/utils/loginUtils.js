@@ -11,7 +11,8 @@ export default {
       if (expireDate.getTime() > currentDate.getTime()){
         loginUser = {
           expireTime: expireTime,
-          token: token
+          token: token,
+          isLogin: true
         }  
       }   
     }

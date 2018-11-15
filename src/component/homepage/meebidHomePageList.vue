@@ -533,8 +533,7 @@
         this.currentRequest = request;
       },
       onHouseClick(houseId){
-        console.log("Select House:" + houseId);
-
+        window.location.href = "./auctionHouseDetail.html?" + window.btoa("auctionHouseId=" + houseId);
       },
       onLotClick(lotId){
         console.log("Select Lot:" + lotId);
@@ -597,6 +596,8 @@
       },
       setFilterCategory(category){
         this.filterForm.category = [category];
+        this.isFilterVisible = true;
+        this.refreshSearchRequest();
       },
     },
     beforeDestroy() {

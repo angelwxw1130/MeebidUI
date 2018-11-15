@@ -16,6 +16,8 @@ import MeebidTextEditor from './../../component/texteditor/MeebidTextEditor.vue'
 import MeebidBreadcrumbItem from './../../component/breadcrumb/meebidBreadcrumbItem.vue'
 import MeebidCarouselItem from './../../component/carousel/meebidCarouselItem.vue'
 import MeebidCarousel from './../../component/carousel/meebidCarousel.vue'
+import MeebidNumberInput from './../../component/numberinput/meebidNumberInput.vue'
+import MeebidRegisterDialog from './../../component/dialog/meebidRegisterDialog.vue'
 import App from './App.vue'
 import loginUtils from './../../utils/loginUtils'
 import errorUtils from './../../utils/errorUtils'
@@ -34,6 +36,8 @@ Vue.component(MeebidTextEditor.name, MeebidTextEditor);
 Vue.component(MeebidBreadcrumbItem.name, MeebidBreadcrumbItem);
 Vue.component(MeebidCarouselItem.name, MeebidCarouselItem);
 Vue.component(MeebidCarousel.name, MeebidCarousel);
+Vue.component(MeebidNumberInput.name, MeebidNumberInput);
+Vue.component(MeebidRegisterDialog.name, MeebidRegisterDialog);
 
 
 var loginUser = loginUtils.getLoginUser();

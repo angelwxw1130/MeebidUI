@@ -113,20 +113,7 @@ export default {
     },
     onCategoryChange(categoryId) {
       this.$refs.homePageListContainer.setFilterCategory(categoryId);
-    },
-    getSelectedRegionOptions(regions, regionOptions){
-      for (var i = 0; i < regionOptions.length; i++){
-        var regionOption = regionOptions[i];
-        if (regionOption.id === regions[0]){
-          var nextRegions = regions.splice(0, 1);
-          if (nextRegions && nextRegions.length > 0){
-            return this.getSelectedRegionOptions(nextRegions, regionOption.childrens);
-          } else {
-            return regionOption;
-          }
-        }
-      }
-    },
+    }
   }
 }
 /**
