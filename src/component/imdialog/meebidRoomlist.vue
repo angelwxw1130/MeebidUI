@@ -1,0 +1,168 @@
+<template>
+    <div class="meebidroomlist">
+        <ul style="padding:0px;">
+            <li v-for="item in chatUsers" :class="{ active: item.userId === currentId }" @click="getChatConn(item.userId)"  style="list-style-type:none; padding: 12px 15px; border-bottom: 1px solid #292C33; cursor: pointer; transition: background-color .1s;" >
+                <img class="avatar" style="vertical-align: middle; border-radius: 2px; width:30; height:30;"   :alt="item.firstName" :src="item.headPortrait">
+                <p class="name"  style="vertical-align: middle; display: inline-block; margin: 0 0 0 15px;">{{item.firstName}}</p>
+            </li>
+        </ul>
+    </div>
+</template>
+
+<script>
+import loginUtils from './../../utils/loginUtils'
+import errorUtils from './../../utils/errorUtils'
+import $ from 'jquery'
+
+export default {
+    name:'meebidroomlist',
+    props: {
+      currentId:0,
+      chatUsers: {
+        type: Object,
+        default: {}
+      },
+    },
+    data(){
+        return{
+            loginUser: loginUtils.getLoginUser(),
+            currentId:0,
+            
+        }
+    },
+    
+    mouted(){
+        this.currentId = chatUsers[0].roomId;
+        //获取用户信息
+        //var request = this.buildGetLastChatsReq();
+        //$.ajax(request);
+      
+    },
+    methods:{
+        /*
+        buildGetLastChatsReq(){
+            var request = {   
+                type : 'GET', 
+                context: this, 
+                url : "/api/socket/chats",
+                dataType : 'json' ,
+                data : {
+                    nearN: 5
+                },
+                success : function(data) {
+                    if (data.code == '1'){
+                    var items = this.buildChatItems(data.content.rooms.group ? data.content.rooms.group : []);
+                        
+                    } else {  
+                    this.$notify({
+                        title: 'Failure',
+                        message: 'Fetch Online Items failed',
+                        duration: 5000
+                        })
+                    }
+                    //me.inLoadingAuctionItems = false; 
+                },  
+                error : function(data) {  
+                    errorUtils.requestError(data);
+                    //me.inLoadingAuctionItems = false;
+                },  
+            
+            };
+            if (this.loginUser.token){
+                request.header = {
+                    token: this.loginUser.token
+                }
+            }
+            return request;
+        },
+        buildChatItems(items){
+            var chatItems = [];
+            for (var i = 0; i < items.length; i++){
+                var firstName = "";
+                var headPortrait = "";                    
+                var item = items[i];
+                if (item.type === window.meebidConstant.userType.member){
+                    if (item.firstName){
+                        firstName = item.firstName;
+                    }else{
+                        firstName = email;
+                    }
+                    
+                    if (item.avatar){
+                        headPortrait = item.avatar;
+                    
+                } else if (item.type === window.meebidConstant.userType.house){
+                    if (item.name){
+                        firstName = item.name;        
+                    }else{
+                        firstName = email;
+                    }
+                    if(item.bLogoUrl){
+                        headPortrait = item.bLogoUrl;
+                    }
+                }      
+                var chatItem = {
+                    firstName: firstName,
+                    headPortrait : headPortrait,
+                }
+                chatItems.push(chatItem);
+                }
+            }
+                
+            this.chatUsers = chatItems;
+        },*/
+        getChatConn(userId){
+            if(this.currentId == userId){
+                //return;
+            }
+            this.currentId = userId;
+            
+            //获取socketID
+            $.ajax({
+                type: "POST",
+                url: "/api/socket/socket",
+                contentType : "application/json", 
+                context: this,
+                headers: {
+                    token: this.loginUser.token
+                },
+                data: {},
+                success(data) {
+                    if (data.code === 1){
+                        var wsUrl = '';
+                    //this.$refs.busyIndicator.hide();
+                        this.socketId = data.content.ws;
+                        if(data.content.ws.startsWith("ws://")){
+                            wsUrl = data.content.ws +"/" + this.loginUser.token;  
+                        }else{
+                            wsUrl = "ws://47.100.84.71:" + data.content.ws +"/" + this.loginUser.token;  
+                        }
+                        console.log(wsUrl);
+                        console.log(data.content.roomId);
+                        console.log(userId);
+                        this.$emit('getSocketUrl',{wsurl: wsUrl, roomId: data.content.roomId,chatUserId:userId}); 
+
+                    }
+
+                },
+                error(data) {
+                    errorUtils.requestError(data);
+                }
+            });
+        }
+    }
+};
+</script>
+
+<style >
+ul > li:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+ul > li.active {
+    background-color: rgba(255, 255, 255, 0.1);
+        
+}
+    
+
+</style>
+
