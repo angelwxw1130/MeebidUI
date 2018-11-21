@@ -2359,7 +2359,7 @@ export default {
                   type: 'success',
                   message: i18n.t('meebid.alertMessage.MSG_ADMIN_USER_UPDATE_PROFILE_SUCCESS')
                 })
-                this.firstName = this.userProfile.firstName;
+                this.firstName = this.userProfile.name;
                 this.cleanFieldDChangeFlag();
               } else {
                 this.$notify.error({

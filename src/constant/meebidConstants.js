@@ -292,6 +292,32 @@ meebidConstant.regionTimeZone = {
     "0": "GMT",
     "2": "CEST"
 }
+
+meebidConstant.applyType = {
+    "Telephone": 1 << 0,
+    "Absent": 0
+}
+
+meebidConstant.applyState = {
+    "Delete": 0,
+    "Pending": 1,
+    "RequestedMoreInfo": 2,
+    "Accept": 3,
+    "Reject": 4,
+    0: "Deleted",
+    1: "Pending Approve",
+    2: "Request More Info",
+    3: "Accepted",
+    4: "Rejected",
+}
+
+meebidConstant.applyStateColor = {
+    0: "#98AAFB", // 删除
+    1: "#FAC364", // 等待审核
+    2: "#8CD3FF", // 需要更多信息
+    3: "#B6D957", // 同意
+    4: "#CCC5A8", // 拒绝
+}
 /**
 meebidConstant.currencyCode = [
     {id:'AED', label:'AED', suffix: 2},

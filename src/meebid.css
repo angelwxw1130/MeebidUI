@@ -2027,7 +2027,6 @@ body {
   margin-right: auto;
   margin-left: auto;
   margin-top: 105px;
-  padding-top: 85px;
 }  
 
 .meebid .meebidLotDetailCarouselContainer {
@@ -2525,7 +2524,7 @@ body {
 .meebid .meebidRegisterDialogAddNewLink {
   position: absolute;
   right: 0px;
-  top: 10px;
+  top: 0px;
 }
 .meebid .meebidRegisterDialog .el-dialog__body {
   padding: 20px 20px 0px 20px;
@@ -2534,6 +2533,11 @@ body {
 .meebid .meebidRegisterDialog .el-form-item.meebidFormNoMarginBottom {
   margin-bottom: 0;
 } 
+
+.meebid .meebidApplyLotStateLabel {
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
 /**
   Lot Register Dialog End
   */

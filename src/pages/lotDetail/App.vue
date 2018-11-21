@@ -57,7 +57,7 @@
                   <span> ({{getFavorText(lotItem.favor)}})</span>
                 </div>
                 <div class="meebidLotDetailDescriptionActionRightContainer" @click="onRegisterLot">
-                  <div class="meebidLink"><span class="glyphicon glyphicon-registration-mark"></span> {{getRegisterLabel(lotItem)}}</div>
+                  <div class="meebidLink"><span class="glyphicon glyphicon-registration-mark"></span> {{getRegisterLabel(lotItem.applys)}}</div>
                 </div>
               </div>
             </div>
@@ -174,7 +174,8 @@ export default {
       lotItem: {
         imageUrls: [],
         sceneEx: {},
-        neiLots: {}
+        neiLots: {},
+        applys: []
       },
       breadItems: [{
         path: window.location.origin + "/home.html",
@@ -449,8 +450,8 @@ export default {
         this.$refs.registerDialog.openDialog(this.lotItem);
       }
     },
-    getRegisterLabel(lotItem) {
-      return lotItem && lotItem.applys > 0 ? "My Registration" : "Register to bid";
+    getRegisterLabel(applys) {
+      return applys && applys.length > 0 ? "My Registration(s)" : "Register to bid";
     }
   }
 }
