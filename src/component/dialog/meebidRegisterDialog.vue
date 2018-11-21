@@ -236,6 +236,7 @@
         this.saveButtonText = "Update";
       },
       onDeleteApply(apply){
+        var me = this;
         var applyObj = {
           lotId: apply.lotId,
           type: apply.type
@@ -260,7 +261,9 @@
                   type: 'success',
                   message: i18n.t('meebid.alertMessage.MSG_LOT_DETAIL_CANCEL_SUCCESS')
                 })
-                this.lotItem.applys.remove(apply);
+                var idx = meebidUtils.findIndex(this.lotItem.applys, "type", applyObj.type);
+                this.lotItem.applys.splice(idx, 1);
+                this.showRegisterLink = true;
               } else {
                 this.$notify.error({
                   title: 'Failure',
@@ -367,6 +370,7 @@
             return;
           }
         }
+        apply.state = window.meebidConstant.applyState['Pending'];
         this.lotItem.applys.push(apply);
       },
       getRegisterType(apply){
