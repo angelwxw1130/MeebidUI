@@ -292,6 +292,12 @@
           this.isTelBidFormVisible = true;
           this.isAbsentBidFormVisible = false;
           this.bidForm.type = window.meebidConstant.applyType.Telephone;
+          this.telBidForm = {
+            //default region US
+            region1: 36,
+            region2: 36,
+            region3: 36
+          }
         }
         this.step = 1;
         this.showBackButton = true;
@@ -363,7 +369,7 @@
         for (var i = 0; i < this.lotItem.applys.length; i++){
           if (this.lotItem.applys[i].type === apply.type){
             isApplyExisting = true;
-            this.lotItem.applys[i].maxBid = apply.maxBidPrice;
+            this.lotItem.applys[i].maxBidPrice = apply.maxBidPrice;
             this.lotItem.applys[i].telephone1 = apply.telephone1;
             this.lotItem.applys[i].telephone2 = apply.telephone2;
             this.lotItem.applys[i].telephone3 = apply.telephone3;
