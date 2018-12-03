@@ -97,7 +97,10 @@
   export default {
     name: 'meebid-register-dialog',
     props: {
-
+      startFromLot: {
+        type: Boolean,
+        default: true
+      },
     },
     data () {
       return {
@@ -176,6 +179,42 @@
           this.isTelBidFormVisible = false;
           this.isAbsentBidFormVisible = true;
         }
+      },
+      openDialogByApply(apply){
+        this.registerDialogVisible = true;
+        this.apply = apply;
+        this.bidForm = {
+          type: apply.type
+        }
+
+        if (this.bidForm.type === window.meebidConstant.applyType.Telephone){
+          var addressObj1 = meebidUtils.convertPhoneStrToObj(apply.telephone1 || "", this.regionOptions);
+          this.telBidForm.telephone1 = addressObj1.phone;
+          this.telBidForm.region1 = addressObj1.region;
+          var addressObj2 = meebidUtils.convertPhoneStrToObj(apply.telephone2 || "", this.regionOptions);
+          this.telBidForm.telephone2 = addressObj2.phone;
+          this.telBidForm.region2 = addressObj2.region;
+          var addressObj3 = meebidUtils.convertPhoneStrToObj(apply.telephone3 || "", this.regionOptions);
+          this.telBidForm.telephone3 = addressObj3.phone;
+          this.telBidForm.region3 = addressObj3.region;
+          this.isTelBidFormVisible = true;
+          this.isAbsentBidFormVisible = false;
+          this.isTelBidRegistered = false;
+          this.isAbsentBidRegistered = true;
+        } else {
+          this.absentBidForm.maxBidPrice = apply.maxBidPrice;
+          this.isTelBidFormVisible = false;
+          this.isAbsentBidFormVisible = true;
+          this.isTelBidRegistered = true;
+          this.isAbsentBidRegistered = false;
+        }
+        this.lotItem = {
+          no: apply.no,
+          id: apply.lotId
+        };
+        this.step = 1;
+        this.showBackButton = false;
+        this.saveButtonText = "Update";
       },
       openDialog(lotItem){
         this.registerDialogVisible = true;
@@ -365,19 +404,26 @@
         });
       },
       updateApply(apply){
-        var isApplyExisting = false;
-        for (var i = 0; i < this.lotItem.applys.length; i++){
-          if (this.lotItem.applys[i].type === apply.type){
-            isApplyExisting = true;
-            this.lotItem.applys[i].maxBidPrice = apply.maxBidPrice;
-            this.lotItem.applys[i].telephone1 = apply.telephone1;
-            this.lotItem.applys[i].telephone2 = apply.telephone2;
-            this.lotItem.applys[i].telephone3 = apply.telephone3;
-            return;
+        if (this.startFromLot){
+          var isApplyExisting = false;
+          for (var i = 0; i < this.lotItem.applys.length; i++){
+            if (this.lotItem.applys[i].type === apply.type){
+              isApplyExisting = true;
+              this.lotItem.applys[i].maxBidPrice = apply.maxBidPrice;
+              this.lotItem.applys[i].telephone1 = apply.telephone1;
+              this.lotItem.applys[i].telephone2 = apply.telephone2;
+              this.lotItem.applys[i].telephone3 = apply.telephone3;
+              return;
+            }
           }
+          apply.state = window.meebidConstant.applyState['Pending'];
+          this.lotItem.applys.push(apply);
+        } else {
+          this.apply.maxBidPrice = apply.maxBidPrice;
+          this.apply.telephone1 = apply.telephone1;
+          this.apply.telephone2 = apply.telephone2;
+          this.apply.telephone3 = apply.telephone3;
         }
-        apply.state = window.meebidConstant.applyState['Pending'];
-        this.lotItem.applys.push(apply);
       },
       getRegisterType(apply){
         return apply.type === 1 ? "Telephone Bid" : "Absent Bid";

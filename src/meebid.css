@@ -1764,7 +1764,8 @@ body {
   outline: none;
 }
 
-.meebid .meebidAuctionImageContainer img, .meebid .meebidLotImageContainer img, .meebid .meebidBatchLotUploadedImageContainer img{
+.meebid .meebidAuctionImageContainer img, .meebid .meebidLotImageContainer img, .meebid .meebidBatchLotUploadedImageContainer img,
+.meebid .meebidApplyLotImageContainer img{
   position: absolute;
   display: block;
   top: 0;
@@ -1970,6 +1971,27 @@ body {
 .meebid .ql-snow .ql-tooltip {
   line-height: 26px;
 }
+
+.meebid .meebidApplyLotImageContainer {
+  width: 80px;
+  height: 80px;
+  border: none;
+  position: relative;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  vertical-align: top;
+  text-decoration: none;
+  outline: none;
+  background: #efefef;
+}
+
+.meebid .meebidApplyLotImageDescription {
+  line-height: 80px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
 /**
   Admin Page End
   */

@@ -59,7 +59,9 @@ const en = {
             MSG_ADMIN_LOT_VALIDATION_LOT_ID_EXISTING_TEXT: "Lot No. already exist in Auction. Next unused Lot No. is {0}",
             MSG_LOT_DETAIL_REGISTER_SUCCESS: "Registration updated",
             MSG_LOT_DETAIL_DELETE_APPLY_CONFIRM_TEXT: "Are you sure to cancel this registration?",
-            MSG_LOT_DETAIL_CANCEL_SUCCESS: "Registration cancelled"
+            MSG_LOT_DETAIL_CANCEL_SUCCESS: "Registration cancelled",
+            MSG_LOT_REGISTRATION_APPLY_SUCCESS: "Registration Approved",
+            MSG_LOT_REGISTRATION_DENY_SUCCESS: "Registration Rejected"
         },
         forgetPassword: {
             MSG_FORGET_PASSWORD_HEADER_TEXT: "Send an email to reset your password"

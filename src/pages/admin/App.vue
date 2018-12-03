@@ -53,6 +53,12 @@
               <span slot="title" class="meebidAdminMenuLabel">User Profile</span>
             </el-menu-item>
           </template>
+          <template v-if="userProfile.type === userType.member">
+            <el-menu-item index="memberRegistration">
+              <i class="el-icon-menu"></i>
+              <span slot="title" class="meebidAdminMenuLabel">My Registration</span>
+            </el-menu-item>
+          </template>
           <template v-if="userProfile.type === userType.house">
             <el-menu-item index="houseProfile">
               <i class="el-icon-menu"></i>
@@ -69,6 +75,12 @@
             <el-menu-item index="auctionManagement">
               <i class="el-icon-goods"></i>
               <span slot="title" class="meebidAdminMenuLabel">Auction Management</span>
+            </el-menu-item>
+          </template>
+          <template v-if="userProfile.type === userType.house && userProfile.right === 2052">
+            <el-menu-item index="houseRegistration">
+              <i class="el-icon-menu"></i>
+              <span slot="title" class="meebidAdminMenuLabel">Registration Management</span>
             </el-menu-item>
           </template>
           <!--<template v-if="userProfile.type === userType.member && userProfile.right === 4098">
@@ -187,6 +199,57 @@
               </el-form>
             </el-col>
           </el-row>
+        </div>
+        <div v-if="active === 'memberRegistration'" class="meebidProfileFormWrapper">
+          <div>
+            <span class="meebidLoginDialogLabel">My Registration</span>
+            <el-table class="meebidPaddingTopMedium"
+              :data="registrations"
+              border
+              style="width: 100%">
+              <el-table-column label="Lot" width="240">
+                <template slot-scope="scope">
+                  <a class="meebidApplyLotImageContainer">
+                    <img :src="buildApplyLotImage(scope.row.imageUrls)">
+                  </a>
+                  <a class="meebidLink meebidApplyLotImageDescription" @click="onNavigateLot(scope.row)">{{scope.row.name}}</a>
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="type"
+                label="Apply Type">
+                <template slot-scope="scope">
+                  <span>{{getApplyTypeLabel(scope.row)}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="Apply Info">
+                <template slot-scope="scope">
+                  <span v-if="scope.row.type === applyType.Telephone">
+                    <span style="display: inline-block; width: 100%;">{{scope.row.telephone1}}</span>
+                    <span v-if="scope.row.telephone2" style="display: inline-block; width: 100%;">{{scope.row.telephone2}}</span>
+                    <span v-if="scope.row.telephone3" style="display: inline-block; width: 100%;">{{scope.row.telephone3}}</span>
+                  </span>
+                  <span v-if="scope.row.type === applyType.Absent">{{getApplyMaxBidPrice(scope.row)}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="Actions"
+                width="100">
+                <template slot-scope="scope">
+                  <el-button size="small" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditRegistration(scope.row)"></el-button>
+                  <el-button size="small" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteRegistration(scope.row)"></el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            <el-pagination
+              @current-change="onMemberRegistrationCurrentPageChange"
+              :current-page.sync="currentPageForMemberRegistration"
+              :page-size="20"
+              layout="prev, pager, next, jumper"
+              :total="totalCountForMemberRegistration">
+            </el-pagination>
+            <meebid-register-dialog ref="registerDialog"></meebid-register-dialog>
+          </div>
         </div>
         <div v-else-if="active === 'houseProfile'" class="meebidProfileFormWrapper">
           <el-row>
@@ -680,6 +743,61 @@
             </el-table>
           </div>
           <div style="height: 50px;"></div>
+        </div>
+        <div v-if="active === 'houseRegistration'" class="meebidProfileFormWrapper">
+          <div>
+            <span class="meebidLoginDialogLabel">Registration Management</span>
+            <el-table class="meebidPaddingTopMedium"
+              :data="houseRegistrations"
+              border
+              style="width: 100%">
+              <el-table-column label="Lot" width="240">
+                <template slot-scope="scope">
+                  <a class="meebidApplyLotImageContainer">
+                    <img :src="buildApplyLotImage(scope.row.imageUrls)">
+                  </a>
+                  <a class="meebidLink meebidApplyLotImageDescription" @click="onNavigateLot(scope.row)">{{scope.row.name}}</a>
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="type"
+                label="Apply Type">
+                <template slot-scope="scope">
+                  <span>{{getApplyTypeLabel(scope.row)}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="Apply Info">
+                <template slot-scope="scope">
+                  <span v-if="scope.row.type === applyType.Telephone">
+                    <span style="display: inline-block; width: 100%;">{{scope.row.telephone1}}</span>
+                    <span v-if="scope.row.telephone2" style="display: inline-block; width: 100%;">{{scope.row.telephone2}}</span>
+                    <span v-if="scope.row.telephone3" style="display: inline-block; width: 100%;">{{scope.row.telephone3}}</span>
+                  </span>
+                  <span v-if="scope.row.type === applyType.Absent">{{getApplyMaxBidPrice(scope.row)}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="Apply State">
+                <template slot-scope="scope">
+                  <span>{{getApplyStateLabel(scope.row)}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="Actions"
+                width="100">
+                <template slot-scope="scope">
+                  <el-button v-if="scope.row.state === 1" size="small" class="meebidSquareButton" icon="el-icon-circle-check" @click="handleApproveRegistration(scope.row)"></el-button>
+                  <el-button v-if="scope.row.state === 1" size="small" class="meebidSquareButton" icon="el-icon-circle-close" @click="handleRejecteRegistration(scope.row)"></el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            <el-pagination
+              @current-change="onHouseRegistrationCurrentPageChange"
+              :current-page.sync="currentPageForHouseRegistration"
+              :page-size="20"
+              layout="prev, pager, next, jumper"
+              :total="totalCountForHouseRegistration">
+            </el-pagination>
+          </div>
         </div>
         <div v-if="active === 'message'">
           Placeholder for Message Box
@@ -1699,6 +1817,11 @@ export default {
       currentPageForAuctionLot: 1,
       totalCountForAuction: 0,
       totalCountForAuctionLot: 0,
+      currentPageForMemberRegistration: 1,
+      totalCountForMemberRegistration: 0,
+      currentPageForHouseRegistration: 1,
+      totalCountForHouseRegistration: 0,
+      applyType: window.meebidConstant.applyType,
       isAddAuction: true,
       isAddLot: true,
       auctionDialogActiveTab: "auctionBasic",
@@ -1794,6 +1917,8 @@ export default {
         id: meebidConstant.addressType.PickupWarehouse,
         label: "Pick-up Warehouse Address"
       }],
+      registrations: [],
+      houseRegistrations: [],
       addresses: {
         //meebidConstant.addressType.Shipping
         16: [],
@@ -2183,6 +2308,76 @@ export default {
             me.$refs.meebidAdminContent.className = "meebidAdminContent";
           });
           break;
+        case 'memberRegistration':
+          this.$refs.meebidAdminContent.className = "meebidAdminContent meebidAdminContentInLoading";
+          this.$refs.busyIndicator.show();
+          $.ajax({  
+            url : "/api/bid/applys",  
+            type : 'GET',
+            headers: {
+              token: this.loginUser.token
+            },
+            contentType : "application/json", 
+            data: {
+              offset: (this.currentPageForMemberRegistration - 1) * 20,
+              count: 20
+            },
+            success(data) {
+              if (data.code === 1){
+                me.registrations = data.content.items;
+                me.totalCountForMemberRegistration = data.content.total || 10;
+              } else {
+                this.$notify.error({
+                  title: 'Failure',
+                  message: 'Fetch Registration List failure',
+                  duration: 5000
+                })
+              }
+            },  
+            error : function(data) {  
+              errorUtils.requestError(data);
+            },  
+            dataType : 'json' 
+          }).done(function(){
+            me.$refs.busyIndicator.hide();
+            me.$refs.meebidAdminContent.className = "meebidAdminContent";
+          });
+          break;
+        case 'houseRegistration':
+          this.$refs.meebidAdminContent.className = "meebidAdminContent meebidAdminContentInLoading";
+          this.$refs.busyIndicator.show();
+          $.ajax({  
+            url : "/api/bid/mgr/applys",  
+            type : 'GET',
+            headers: {
+              token: this.loginUser.token
+            },
+            contentType : "application/json", 
+            data: {
+              offset: (this.currentPageForHouseRegistration - 1) * 20,
+              count: 20
+            },
+            success(data) {
+              if (data.code === 1){
+                me.houseRegistrations = data.content.items;
+                me.totalCountForHouseRegistration = data.content.total || 10;
+              } else {
+                this.$notify.error({
+                  title: 'Failure',
+                  message: 'Fetch House Registration List failure',
+                  duration: 5000
+                })
+              }
+            },  
+            error : function(data) {  
+              errorUtils.requestError(data);
+            },  
+            dataType : 'json' 
+          }).done(function(){
+            me.$refs.busyIndicator.hide();
+            me.$refs.meebidAdminContent.className = "meebidAdminContent";
+          });
+          break;
         case 'houseDefaultSetting':
           this.$refs.meebidAdminContent.className = "meebidAdminContent meebidAdminContentInLoading";
           this.$refs.busyIndicator.show();
@@ -2223,6 +2418,161 @@ export default {
           break;
       }
       
+    },
+    handleHouseRegistration(apply, state, msg){
+      var applyObj = {
+        applyId: apply.id,
+        result: state
+      };
+      $.ajax({
+        type: "POST",
+        url: "/api/bid/mrg/apply/deal",
+        contentType : "application/json", 
+        context: me,
+        headers: {
+          token: me.loginUser.token
+        },
+        data: JSON.stringify(applyObj),
+        success(data) {
+          if (data.code === 1){
+            this.$message({
+              type: 'success',
+              message: msg
+            })
+            apply.state = state;
+          } else {
+            this.$notify.error({
+              title: 'Failure',
+              message: 'Approve Registration failure',
+              duration: 5000
+            })
+          }
+          
+        },
+        error(data) {
+          errorUtils.requestError(data);
+        }
+      })
+    },
+    handleApproveRegistration(apply){
+      this.handleHouseRegistration(apply, meebidConstant.applyState.Accept, i18n.t('meebid.alertMessage.MSG_LOT_REGISTRATION_APPLY_SUCCESS'));
+    },
+    handleRejectRegistration(apply){
+      this.handleHouseRegistration(apply, meebidConstant.applyState.Reject, i18n.t('meebid.alertMessage.MSG_LOT_REGISTRATION_DENY_SUCCESS'));
+    },
+    handleEditRegistration(apply){
+      this.$refs.registerDialog.openDialogByApply(apply);
+    },
+    handleDeleteRegistration(apply){
+      var me = this;
+      var applyObj = {
+        lotId: apply.lotId,
+        type: apply.type
+      }
+      this.$confirm(i18n.t('meebid.alertMessage.MSG_LOT_DETAIL_DELETE_APPLY_CONFIRM_TEXT'), 'Cancel Registration', {
+        confirmButtonText: 'Confirm',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      }).then(() => {
+        $.ajax({
+          type: "POST",
+          url: "/api/bid/apply/del",
+          contentType : "application/json", 
+          context: me,
+          headers: {
+            token: me.loginUser.token
+          },
+          data: JSON.stringify(applyObj),
+          success(data) {
+            if (data.code === 1){
+              this.$message({
+                type: 'success',
+                message: i18n.t('meebid.alertMessage.MSG_LOT_DETAIL_CANCEL_SUCCESS')
+              })
+              if (this.registrations.length > 1){
+                this.refreshMemberRegistration()
+              } else {
+                if (this.currentPageForMemberRegistration > 1){
+                  this.currentPageForMemberRegistration--;
+                  this.refreshMemberRegistration();
+                } else {
+                  this.registrations = [];
+                }
+              }
+            } else {
+              this.$notify.error({
+                title: 'Failure',
+                message: 'Cancel Registration failure',
+                duration: 5000
+              })
+            }
+            
+          },
+          error(data) {
+            errorUtils.requestError(data);
+          }
+        })
+      })
+    },
+    buildApplyLotImage (imageUrls){
+      if (imageUrls != null){
+        var images = imageUrls.split(";")
+        return images[0];
+      }
+    },
+    onNavigateLot(row){
+      window.location.href = "./lotDetail.html?" + window.btoa("lotId=" + row.lotId);
+    },
+    getApplyStateLabel(row){
+      return window.meebidConstant.applyState[row.state];
+    },
+    getApplyTypeLabel(row){
+      return window.meebidConstant.applyType[row.type];
+    },
+    getApplyMaxBidPrice(row){
+      return meebidUtils.formatMoney(row.currencyCode, row.maxBidPrice || 0);
+    },
+    onMemberRegistrationCurrentPageChange(page) {
+      this.currentPageForMemberRegistration = page;
+      this.refreshMemberRegistration();
+    },
+    refreshMemberRegistration() {
+      var me = this;
+      this.$refs.meebidAdminContent.className = "meebidAdminContent meebidAdminContentInLoading";
+      this.$refs.busyIndicator.show();
+      $.ajax({
+        type: "GET",
+        url: "/api/bid/applys",
+        contentType : "application/json", 
+        context: this,
+        headers: {
+          token: this.loginUser.token
+        },
+        data: {
+          offset: (this.currentPageForMemberRegistration - 1) * 20,
+          count: 20
+        },
+        success(data) {
+          if (data.code === 1){
+            this.registrations = data.content.items;
+            this.totalCountForMemberRegistration = data.content.total || 10;
+          } else {
+            this.$notify.error({
+              title: 'Failure',
+              message: 'Fetch Registration List failure',
+              duration: 5000
+            })
+          }
+          
+        },
+        error(data) {
+          me.$refs.busyIndicator.hide();
+          errorUtils.requestError(data);
+        }
+      }).done(function(){
+        me.$refs.busyIndicator.hide();
+        me.$refs.meebidAdminContent.className = "meebidAdminContent";
+      });
     },
     openUserProfile() {
       //window.open("./admin.html", '_blank');

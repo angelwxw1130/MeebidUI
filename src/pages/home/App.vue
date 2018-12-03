@@ -4,7 +4,7 @@
     </meebid-header>
     <div id="content" class="meebidContent" height="">
       <div class="meebidHomePageListWrapper">
-        <meebid-homepage-list ref="homePageListContainer" :initializedKeyword="initializedKeyword" :defaultSelectedCategory="defaultSelectedCategory">
+        <meebid-homepage-list ref="homePageListContainer" :isFilterActive="true" :initializedKeyword="initializedKeyword" :defaultSelectedCategory="defaultSelectedCategory">
         </meebid-homepage-list>
       </div>
       <meebid-busy-indicator ref="busyIndicator" size="Medium"></meebid-busy-indicator>

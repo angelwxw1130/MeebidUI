@@ -295,7 +295,9 @@ meebidConstant.regionTimeZone = {
 
 meebidConstant.applyType = {
     "Telephone": 1 << 0,
-    "Absent": 0
+    "Absent": 0,
+    0: "Absent Bid",
+    1: "Telephone Bid"
 }
 
 meebidConstant.applyState = {

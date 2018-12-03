@@ -16,6 +16,7 @@ import MeebidCategoryDialog from './../../component/dialog/meebidCategoryDialog.
 import MeebidUpload from './../../component/upload/meebidUpload.vue'
 import MeebidTextEditor from './../../component/texteditor/MeebidTextEditor.vue'
 import MeebidNumberInput from './../../component/numberinput/meebidNumberInput.vue'
+import MeebidRegisterDialog from './../../component/dialog/meebidRegisterDialog.vue'
 import App from './App.vue'
 import loginUtils from './../../utils/loginUtils'
 import meebidUtils from './../../utils/meebidUtils'
@@ -37,6 +38,7 @@ Vue.component(MeebidCategoryDialog.name, MeebidCategoryDialog);
 Vue.component(MeebidUpload.name, MeebidUpload);
 Vue.component(MeebidTextEditor.name, MeebidTextEditor);
 Vue.component(MeebidNumberInput.name, MeebidNumberInput);
+Vue.component(MeebidRegisterDialog.name, MeebidRegisterDialog);
 
 
 

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div ref="meebidHomePageListScrollTag" class="meebidHomePageListScrollTag"></div>
-    <div class="meebidHomePageListFilterContainer" :class="{active: isFilterVisible}">
+    <div class="meebidHomePageListFilterContainer" v-if="isFilterActive" :class="{active: isFilterVisible}">
       <div class="meebidHomePageListFilterContainerHeaderBar">
         <meebid-switch class="meebidHomePageViewSwitcher" v-model="value1" :showHelpText="true" :helpTextSwitchOn="$t('meebid.lotList.MSG_SHOW_UPCOMING_LOTS')" :helpTextSwitchOff="$t('meebid.lotList.MSG_SHOW_PAST_LOTS')" @switchChange="switchChange"></meebid-switch>
         <div class="menu-trigger second" :class="{
@@ -86,6 +86,10 @@
       },
       sceneId: -1,
       hideBusyIndicator: {
+        type: Boolean,
+        default: false
+      },
+      isFilterActive: {
         type: Boolean,
         default: false
       }
@@ -268,13 +272,16 @@
           };
         }
         request.data.old = !this.showUpcomingLot;
-        if (this.filterForm.category && this.filterForm.category.length){
-          request.data.categorys = this.filterForm.category;
-        }
+        if (this.isFilterActive){
+          if (this.filterForm.category && this.filterForm.category.length){
+            request.data.categorys = this.filterForm.category;
+          }
 
-        if (this.filterForm.sort >= 0){
-          request.data.sortType = this.filterForm.sort;
+          if (this.filterForm.sort >= 0){
+            request.data.sortType = this.filterForm.sort;
+          }
         }
+        
         if (token){
           request.header = {
             token: token
