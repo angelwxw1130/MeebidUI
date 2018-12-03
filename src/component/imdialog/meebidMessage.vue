@@ -131,13 +131,13 @@ export default {
     margin: 0 0 0 10px;
 }
 .message .self .text {
-    background-color: #b2e281;
+    background-color: #fafafa;
 }
 .message .self .text:before {
     right: inherit;
     left: 100%;
     border-right-color: transparent;
-    border-left-color: #b2e281;
+    border-left-color: #fafafa;
 }
         
     
