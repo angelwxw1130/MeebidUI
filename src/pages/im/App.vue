@@ -5,10 +5,10 @@
     
    
     <div id="content" class="meebidContent meebidAuctionHouseDetailContent meebidPaddingLeftLarge meebidPaddingRightLarge" >
-       <meebid-button button-type="round" :button-click="show" text="icon" class="im"> 
+       <meebid-button button-type="round" :button-click="show" icon-type="comment" class="im"> 
         </meebid-button>
         <transition name="fold">
-          <meebidim :userId="userId" v-show="panelShow" :panelShow="panelShow" style="transform: translate3d(200px, 0, 0);" ></meebidim>
+          <meebidim :userId="userId" v-show="panelShow" :panelShow="panelShow" style="transform: translate3d(80px, 0, 0);bottom:40px;right:110px;position:fixed;" ></meebidim>
         </transition>
         
     </div>
@@ -116,7 +116,7 @@ export default {
     font-family: "Gotham SSm A", "Gotham SSm B",  arial, sans-serif
   
 }
-.im{position:fixed; bottom:0;right:0; }
+.im{position:fixed; bottom:20px;right:0; }
     .fold-enter-active{
         animation-name: slideInUp;
         animation-duration: .5s;
@@ -134,7 +134,7 @@ export default {
         }
 
         to {
-            transform: translateZ(0)
+            transform: translate3d(10%,0,0);
         }
     }
     @keyframes slideOutDown {
