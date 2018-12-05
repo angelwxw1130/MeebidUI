@@ -8,10 +8,10 @@
         </meebid-homepage-list>
       </div>
       <meebid-button button-type="round" :button-click="show" icon-type="comment" class="im"> 
-        </meebid-button>
-        <transition name="fold">
-          <meebidim :userId="userId" v-show="panelShow" :panelShow="panelShow" style="transform: translate3d(80px, 0, 0);bottom:40px;right:110px;position:fixed;" ></meebidim>
-        </transition>
+      </meebid-button>
+      <transition name="fold">
+        <meebidim :userId="userId" v-show="panelShow" :panelShow="panelShow" style="bottom:40px;right:50px;position:fixed;" ></meebidim>
+      </transition>
       <meebid-busy-indicator ref="busyIndicator" size="Medium"></meebid-busy-indicator>
     </div>
     <meebid-category-dialog :items="categoryItems" ref="categoryDialog">
@@ -30,9 +30,9 @@ import $ from 'jquery'
 export default {
   props: {
     profileData: Object,
-     panelShow: {
-            type: Boolean
-        }
+    panelShow: {
+      type: Boolean
+    }
   },
   data () {
     return {
@@ -168,7 +168,7 @@ export default {
         }
 
         to {
-            transform: translate3d(10%,0,0);
+            transform: translate3d(0%,0,0);
         }
     }
     @keyframes slideOutDown {

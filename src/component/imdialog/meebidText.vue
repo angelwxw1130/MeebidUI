@@ -1,5 +1,5 @@
 <template>
-    <div class="text" style="height: 160px;border-top: solid 1px #ddd;">
+    <div class="text" style="height: 100px;border-top: solid 1px #ddd;">
         <textarea placeholder="按 Enter 发送" v-model="content" @keyup="onKeyup" style="padding: 10px;
         height: 100%;
         width: 100%;

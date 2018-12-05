@@ -1,26 +1,19 @@
 <template>
-  <!--<div id="app" class="meebidHomePage meebid" :style="{minHeight: windowMinHeight}">
-    <meebid-header :first-name="firstName" :profile-tooltip-visible="profileTooltipVisible" :profile-tooltip-disabled="profileTooltipDisabled" @search="onSearch">
-    </meebid-header>
-    <div id="content" class="meebidContent meebidAuctionHouseDetailContent meebidPaddingLeftLarge meebidPaddingRightLarge" >-->
-      <div style="margin: 20px auto;width: 800px;height: 600px;overflow: hidden; border-radius: 3px;"> 
-        <div class="sidebar" style=" float: left;height: 100%;
-          width: 200px;
-          color: #f4f4f4;
-          background-color: #2e3238;">
-          <meebidcard :headPortrait="headPortrait" :firstName="firstName"></meebidcard>
-          <meebidroomlist :chatUsers="chatUsers" @getChatUserId='getChatUserId' @getSocketUrl='getSocketUrl'></meebidroomlist>
-        </div>
-        <div class="main" style="position: relative;height: 100%;
-          overflow: hidden;
-          background-color: #eee;">
-            <meebidmessage style="height:440px" :messages="messages" :headPortrait="headPortrait" :chatUser="chatUser"></meebidmessage>
-            <meebidtext  @sendMessage='sendMessage'></meebidtext>
-        </div>
-      </div>
-    <!--</div>
-    <meebid-busy-indicator ref="busyIndicator" size="Medium"></meebid-busy-indicator>
-  </div>-->
+  <div style="width: 600px;height: 500px; overflow: hidden; border-radius: 3px; box-shadow: 3px 3px 3px #888888;"> 
+    <div class="sidebar" style=" float: left;height: 100%;
+      width: 160px;
+      color: #f4f4f4;
+      background-color: #2e3238;">
+      <meebidcard :headPortrait="headPortrait" :firstName="firstName"></meebidcard>
+      <meebidroomlist :chatUsers="chatUsers" @getChatUserId='getChatUserId' @getSocketUrl='getSocketUrl'></meebidroomlist>
+    </div>
+    <div class="main" style="position: relative;height: 100%;
+      overflow: hidden;
+      background-color: #eee;">
+        <meebidmessage style="height:400px" :messages="messages" :headPortrait="headPortrait" :chatUser="chatUser"></meebidmessage>
+        <meebidtext  @sendMessage='sendMessage'></meebidtext>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -40,20 +33,12 @@ export default {
   },
   data () {
     return {
-      profileTooltipVisible: false,
-      profileTooltipDisabled: true,
-      scrollToElement: null,
       loginUser: loginUtils.getLoginUser(),
       userProfile: {
       },
       firstName: "User",
       windowMinHeight: 0, 
       roomId:"",
-      searchType:"auctionHouseOnline",
-      breadItems: [{
-        path: window.location.origin + "/home.html",
-        label: "Home"
-      }],
       ws:null,
       wsUrl:"",
       socketId:"",
@@ -415,11 +400,6 @@ export default {
 
 <style>
 #app {
-    
-
-   
-    
-    font-family: "Gotham SSm A", "Gotham SSm B",  arial, sans-serif
-  
+  font-family: "Gotham SSm A", "Gotham SSm B",  arial, sans-serif
 }
 </style>
