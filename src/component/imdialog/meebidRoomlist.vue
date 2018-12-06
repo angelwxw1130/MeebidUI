@@ -1,7 +1,7 @@
 <template>
     <div class="meebidroomlist">
         <ul style="padding:0px;">
-            <li v-for="item in chatUsers" :class="{ active: item.userId === currentId }" @click="getChatConn(item.userId)"  style="list-style-type:none; padding: 12px 15px; border-bottom: 1px solid #292C33; cursor: pointer; transition: background-color .1s;" >
+            <li v-for="item in chatUsers" :class="{ active: item.userId === currentId }" @click="getChatConn(item.userId,item.roomId)"  style="list-style-type:none; padding: 12px 15px; border-bottom: 1px solid #292C33; cursor: pointer; transition: background-color .1s;" >
                 <img class="avatar" style="vertical-align: middle; border-radius: 2px; width:30; height:30;"   :alt="item.firstName" :src="item.headPortrait">
                 <p class="name"  style="vertical-align: middle; display: inline-block; margin: 0 0 0 15px;">{{item.firstName}}</p>
             </li>
@@ -32,7 +32,7 @@ export default {
     },
     
     mouted(){
-        this.currentId = chatUsers[0].roomId;
+        this.currentId = chatUsers[0].userId;
         //获取用户信息
         //var request = this.buildGetLastChatsReq();
         //$.ajax(request);
@@ -111,44 +111,13 @@ export default {
                 
             this.chatUsers = chatItems;
         },*/
-        getChatConn(userId){
+        getChatConn(userId,roomId){
             if(this.currentId == userId){
-                //return;
+                return;
             }
             this.currentId = userId;
-            
-            //获取socketID
-            $.ajax({
-                type: "POST",
-                url: "/api/socket/socket",
-                contentType : "application/json", 
-                context: this,
-                headers: {
-                    token: this.loginUser.token
-                },
-                data: {},
-                success(data) {
-                    if (data.code === 1){
-                        var wsUrl = '';
-                    //this.$refs.busyIndicator.hide();
-                        this.socketId = data.content.ws;
-                        if(data.content.ws.startsWith("ws://")){
-                            wsUrl = data.content.ws +"/" + this.loginUser.token;  
-                        }else{
-                            wsUrl = "ws://47.100.84.71:" + data.content.ws +"/" + this.loginUser.token;  
-                        }
-                        console.log(wsUrl);
-                        console.log(data.content.roomId);
-                        console.log(userId);
-                        this.$emit('getSocketUrl',{wsurl: wsUrl, roomId: data.content.roomId,chatUserId:userId}); 
-
-                    }
-
-                },
-                error(data) {
-                    errorUtils.requestError(data);
-                }
-            });
+            this.$emit('getChatRoom',{chatUserId:userId,chatRoomId:roomId}); 
+           
         }
     }
 };

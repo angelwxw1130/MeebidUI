@@ -10,7 +10,7 @@
       <meebid-button button-type="round" :button-click="show" icon-type="comment" class="im"> 
       </meebid-button>
       <transition name="fold">
-        <meebidim :userId="userId" v-show="panelShow" :panelShow="panelShow" style="bottom:40px;right:50px;position:fixed;" ></meebidim>
+        <meebidim :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow" :panelShow="panelShow" style="bottom:40px;right:50px;position:fixed;" ></meebidim>
       </transition>
       <meebid-busy-indicator ref="busyIndicator" size="Medium"></meebid-busy-indicator>
     </div>
@@ -60,6 +60,7 @@ export default {
       categoryItems: [],
       userId:-1,
       roomId:"",
+      headPortrait:"",
     }
   },
   beforeMount() {
@@ -72,17 +73,31 @@ export default {
           this.firstName = this.userProfile.firstName;
         }
         this.userProfileForm = this.userProfile;
+        if (this.userProfile.avatar){
+          this.headPortrait = this.userProfile.avatar;
+        }  
         var categoryItems = this.$parent.$data.categories;
         this.categoryItems = categoryItems;
       } else if (this.userProfile.type === window.meebidConstant.userType.house){
         if (this.userProfile.name){
           this.firstName = this.userProfile.name;
         }
+        if(this.userProfile.bLogoUrl){
+          this.headPortrait = this.userProfile.bLogoUrl;
+        }
       }
       if (this.userProfile.type === window.meebidConstant.userType.member && this.userProfile.favorCategories.length === 0){
         this.$refs.categoryDialog.categoryDialogVisible = true;
         this.profileTooltipVisible = true;
         this.profileTooltipDisabled = false;
+      }
+    }
+    //临时头像 
+    if(this.headPortrait == null || this.headPortrait == ""){
+      if(this.userId == 22){
+          this.headPortrait  = "./static/user1.jpg"
+      }else{
+        this.headPortrait  = "./static/user2.jpg"
       }
     }
     var paramsString = window.location.search;
@@ -96,6 +111,7 @@ export default {
     if (defaultSelectedCategory){
       this.defaultSelectedCategory = defaultSelectedCategory;
     }
+    console.log(this.headPortrait);
   },
   mounted(){
   },

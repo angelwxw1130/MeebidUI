@@ -5,7 +5,7 @@
       color: #f4f4f4;
       background-color: #2e3238;">
       <meebidcard :headPortrait="headPortrait" :firstName="firstName"></meebidcard>
-      <meebidroomlist :chatUsers="chatUsers" @getChatUserId='getChatUserId' @getSocketUrl='getSocketUrl'></meebidroomlist>
+      <meebidroomlist :chatUsers="chatUsers" @getChatUserId='getChatUserId' @getChatRoom='getChatRoom'></meebidroomlist>
     </div>
     <div class="main" style="position: relative;height: 100%;
       overflow: hidden;
@@ -29,14 +29,22 @@ export default {
     userId:-1,
     panelShow: {
             type: Boolean
-    }
+    },
+    headPortrait: {
+        type: String,
+        default: ""
+      },
+      firstName: {
+        type: String,
+        default: ""
+      },
   },
   data () {
     return {
       loginUser: loginUtils.getLoginUser(),
       userProfile: {
       },
-      firstName: "User",
+      //firstName: "User",
       windowMinHeight: 0, 
       roomId:"",
       ws:null,
@@ -45,9 +53,12 @@ export default {
       chatUsers:[],
       messages:[],
       chatUser:[],
+      newChatUser:false,
+      //headPortrait:"",
     }
   },
   beforeMount() {
+    /*
     console.log("app ready");       
     if (this.$parent.$data && this.$parent.$data.user){
       this.userProfile = this.$parent.$data.user;
@@ -77,14 +88,49 @@ export default {
         this.headPortrait  = "./static/user2.jpg"
       }
     }
-    
+    */
     this.windowMinHeight = window.innerHeight - 85 + "px";
     
   },
   mounted(){
-    
+
     var request = this.buildGetLastChatsReq();
     $.ajax(request);
+
+    //获取socketID
+    $.ajax({
+        type: "POST",
+        url: "/api/socket/socket",
+        contentType : "application/json", 
+        context: this,
+        headers: {
+            token: this.loginUser.token
+        },
+        data: {},
+        success(data) {
+            if (data.code === 1){
+                var wsUrl = '';
+            //this.$refs.busyIndicator.hide();
+                this.socketId = data.content.ws;
+                if(data.content.ws.startsWith("ws://")){
+                    wsUrl = data.content.ws +"/" + this.loginUser.token;  
+                }else{
+                    wsUrl = "ws://47.100.84.71:" + data.content.ws +"/" + this.loginUser.token;  
+                }
+                this.wsUrl = wsUrl
+                this.roomId = data.content.roomId;
+                
+                this.connection();
+                //this.$emit('getSocketUrl',{wsurl: wsUrl, roomId: data.content.roomId,chatUserId:userId}); 
+
+            }
+
+        },
+        error(data) {
+            errorUtils.requestError(data);
+        }
+    });
+    
     
     
   },
@@ -133,8 +179,7 @@ export default {
 　　　　console.log("WebSocket连接成功");
        //获取未读信息数
        this.websocketunread();
-       //将未读消息标记为已读
-       this.websocketread();
+       
        //获取近期的聊天室信息
        //this.websocketchats();
        //获取近期某个聊天室下的聊天记录
@@ -155,10 +200,9 @@ export default {
       });
 　　　 console.log(redata.content); 
 　　}, 
-    websocketsend(agentData){//数据发送 
-　　　this.ws.send(agentData); 
-　　},
+    
     websocketclose(e){ //关闭 
+      //this.connection();
 　　　console.log("connection closed (" + e.code + ")"); 
 　　},
     websocketunread(){
@@ -224,8 +268,13 @@ export default {
         },
         success(data) {
           if (data.code === 1){
+            if(this.newChatUser){
+              this.messages = [];
+            }
+            
             if(data.content.msgs.length > 0){
-              for(var i =0;i<data.content.msgs.length; i++){
+              for(var i = data.content.msgs.length - 1;i>=0; i--){
+                //console.log(i);
                 var self = false;
                 if(data.content.msgs[i].sender == this.userId){
                   self = true;
@@ -238,9 +287,8 @@ export default {
                 }
                 this.messages.push(message);
               }
-            }else{
-              this.messages = [];
             }
+            this.newChatUser = false;
           }
           
         },
@@ -347,18 +395,22 @@ export default {
                   roomId : roomId,
                   firstName: firstName,
                   headPortrait : headPortrait,
-                  userId : userId
+                  userId : userId,                
+                  sendMessageRoomId:"22,23"
                   }
                   
                 chatItems.push(chatItem);
               }
+
             
+        
               
             }
       }if(items.length == 0){
+        console.log("无最近聊天室记录");
           if(this.userId == 22){
             var chatItem = {
-                roomId : "22,23",
+                sendMessageRoomId : "22,23",
                 firstName: "zzz",
                 headPortrait : "./static/user1.jpg",
                 userId : 23
@@ -366,7 +418,7 @@ export default {
             chatItems.push(chatItem);
           }else{
             var chatItem = {
-                roomId : "22,23",
+                sendMessageRoomId : "22,23",
                 firstName: "hhh 233",
                 headPortrait : "./static/user2.jpg",
                 userId : 22
@@ -379,19 +431,20 @@ export default {
       }
           
       this.chatUsers = chatItems;
+      //默认激活第一个对象聊天
+      this.chatUser = this.chatUsers[0];
+      this.roomId = this.chatUsers[0].roomId;
     },
-    getSocketUrl(wsConnection){
-      this.wsUrl = wsConnection.wsurl;
-      console.log(wsConnection.chatUserId);
+    getChatRoom(wsConnection){
       for(var i =0;i<this.chatUsers.length;i++){
-
         if(this.chatUsers[i].userId == wsConnection.chatUserId){
           this.chatUser = this.chatUsers[i];
         }
       }
-      this.roomId = wsConnection.roomId;
+      this.roomId = wsConnection.chatRoomId;
+      this.newChatUser = true;
       this.websockethistory();
-      this.connection();
+      this.websocketread();
     },
 
   }
