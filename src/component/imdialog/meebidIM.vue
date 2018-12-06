@@ -94,44 +94,47 @@ export default {
   },
   mounted(){
 
-    var request = this.buildGetLastChatsReq();
-    $.ajax(request);
+    if(this.firstName != 'User'){
 
-    //获取socketID
-    $.ajax({
-        type: "POST",
-        url: "/api/socket/socket",
-        contentType : "application/json", 
-        context: this,
-        headers: {
-            token: this.loginUser.token
-        },
-        data: {},
-        success(data) {
-            if (data.code === 1){
-                var wsUrl = '';
-            //this.$refs.busyIndicator.hide();
-                this.socketId = data.content.ws;
-                if(data.content.ws.startsWith("ws://")){
-                    wsUrl = data.content.ws +"/" + this.loginUser.token;  
-                }else{
-                    wsUrl = "ws://47.100.84.71:" + data.content.ws +"/" + this.loginUser.token;  
-                }
-                this.wsUrl = wsUrl
-                this.roomId = data.content.roomId;
-                
-                this.connection();
-                //this.$emit('getSocketUrl',{wsurl: wsUrl, roomId: data.content.roomId,chatUserId:userId}); 
+      console.log("getchatuser");
+      var request = this.buildGetLastChatsReq();
+      $.ajax(request);
 
-            }
+      //获取socketID
+      $.ajax({
+          type: "POST",
+          url: "/api/socket/socket",
+          contentType : "application/json", 
+          context: this,
+          headers: {
+              token: this.loginUser.token
+          },
+          data: {},
+          success(data) {
+              if (data.code === 1){
+                  var wsUrl = '';
+              //this.$refs.busyIndicator.hide();
+                  this.socketId = data.content.ws;
+                  if(data.content.ws.startsWith("ws://")){
+                      wsUrl = data.content.ws +"/" + this.loginUser.token;  
+                  }else{
+                      wsUrl = "ws://47.100.84.71:" + data.content.ws +"/" + this.loginUser.token;  
+                  }
+                  this.wsUrl = wsUrl
+                  this.roomId = data.content.roomId;
+                  
+                  this.connection();
+                  //this.$emit('getSocketUrl',{wsurl: wsUrl, roomId: data.content.roomId,chatUserId:userId}); 
 
-        },
-        error(data) {
-            errorUtils.requestError(data);
-        }
-    });
+              }
+
+          },
+          error(data) {
+              errorUtils.requestError(data);
+          }
+      });
     
-    
+     }
     
   },
 
