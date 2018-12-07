@@ -425,7 +425,7 @@ body {
   padding: 6px 12px;
 }
 
-.meebidButtonRoundCorner {
+.meebidButton.meebidButtonRoundCorner {
   border-radius: 999px;
   padding: 6px 16px;
 }
@@ -458,15 +458,15 @@ body {
   padding: 6px 12px;
 }
 
-.meebidButtonWhite:hover {
+.meebidButton.meebidButtonWhite:hover {
   background-color: #eeeeee;
 }
 
-.meebidButtonRed:hover {
+.meebidButton.meebidButtonRed:hover {
   background-color: #9d081c;
 }
 
-.meebidButtonOrange:hover {
+.meebidButton.meebidButtonOrange:hover {
   background-color: #d24437;
 }
 
@@ -474,7 +474,7 @@ body {
   color: #ffffff;
 }
 
-.meebidButton.meebidButtonRed .glyphicon{
+.meebidButton.meebidButtonRed .glyphicon, .meebidButton.meebidButtonOrange .glyphicon {
   color: #ffffff;
 }
 
@@ -2562,4 +2562,17 @@ body {
 }
 /**
   Lot Register Dialog End
+  */
+
+
+/**
+  IM Pophover Start
+  */
+.meebidIMPophover {
+  bottom: 70px; 
+  right: 50px; 
+  position: fixed;
+}
+/**
+  IM Pophover End
   */

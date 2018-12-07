@@ -61,20 +61,31 @@ export default {
       }
     },
     buttonTypeCls () {
-      switch (this.buttonType){
-        case 'default':
-          return "";
-        case 'round': 
-          return "meebidButtonRoundCorner";
-        case 'red':
-          return "meebidButtonRed"; 
-        case 'white':
-          return "meebidButtonWhite";
-        case 'orange':
-          return "meebidButtonOrange";
-        case 'grey':
-          return "meebidButtonGrey";
+      var buttonTypeCls = "";
+      var buttonTypeArr = this.buttonType.split(" ");
+      for (var i = 0; i < buttonTypeArr.length; i++){
+        switch (buttonTypeArr[i]){
+          case 'default':
+            buttonTypeCls += "";
+            break;
+          case 'round': 
+            buttonTypeCls += "meebidButtonRoundCorner ";
+            break;
+          case 'red':
+            buttonTypeCls += "meebidButtonRed "; 
+            break;
+          case 'white':
+            buttonTypeCls += "meebidButtonWhite ";
+            break;
+          case 'orange':
+            buttonTypeCls += "meebidButtonOrange ";
+            break;
+          case 'grey':
+            buttonTypeCls += "meebidButtonGrey ";
+            break;
+        }
       }
+      return buttonTypeCls;
     },
     iconTypeCls () {
       return this.iconType ? 'glyphicon glyphicon-' + this.iconType + (this.text ? ' meebidButtonWithText' : '') : '';
