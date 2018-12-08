@@ -7,10 +7,10 @@
         <meebid-homepage-list ref="homePageListContainer" :isFilterActive="true" :initializedKeyword="initializedKeyword" :defaultSelectedCategory="defaultSelectedCategory">
         </meebid-homepage-list>
       </div>
-      <meebid-button button-type="round" :button-click="show" icon-type="comment" class="im"> 
+      <meebid-button button-type="round orange" :button-click="show" icon-type="comment" class="im"> 
       </meebid-button>
       <transition name="fold">
-        <meebidim :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow" :panelShow="panelShow" style="bottom:40px;right:50px;position:fixed;" ></meebidim>
+        <meebidim class="meebidIMPophover" :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow" :panelShow="panelShow" ></meebidim>
       </transition>
       <meebid-busy-indicator ref="busyIndicator" size="Medium"></meebid-busy-indicator>
     </div>
