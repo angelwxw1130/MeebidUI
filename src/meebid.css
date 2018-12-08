@@ -20,7 +20,7 @@ body {
 }
 
 .meebidPaddingTopMedium {
-  padding-top: 20px;
+  padding-top: 0px;
 }
 
 .meebidPaddingTopSmall {
@@ -1113,6 +1113,16 @@ body {
   line-height: 16px;
   word-spacing: 0;
   width: 190px;
+  font-weight: bold;
+  color: #3c3c3c;
+}
+
+.auctionNameDescription {
+  font-size: 18px;
+  letter-spacing: -0.15px;
+  line-height: 16px;
+  word-spacing: 0;
+  width: 300px;
   font-weight: bold;
   color: #3c3c3c;
 }
@@ -2390,7 +2400,7 @@ body {
 }
 
 .meebid .meebidAuctionDetailBreadcrumb {
-
+  margin-top: -70px;
 }
 
 .meebid .meebidAuctionDetailAuctionDescriptionContainer {
@@ -2468,6 +2478,7 @@ body {
 .meebid .meebidAuctionHouseDetailAuctionDescriptionContainer {
   background-color: #eeeeee;
   padding: 20px;
+  height:140px;
 }
 
 .meebid .meebidAuctionHouseDetailDescriptionAuctionHouseContainer .meebidAuctionHouseDetailDescriptionAuctionHouseName {

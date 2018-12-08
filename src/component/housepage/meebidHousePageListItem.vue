@@ -1,49 +1,26 @@
 <template>
-  <div :style="meebidListItemClass" class="meebidListItemWrapper" @mouseover="mousehover(this)" @mouseout="mouseout(this)">
-    <div class="meebidListItemContainer">
-      <div>
+  <div class="col-md-12 meebidHousePageListItemBorder" style="border-top: 1px solid #ccc;padding: 20px 0;vertical-align: middle;">
+   <div class="col-md-12" style="display: flex;flex-direction: row;flex-wrap: nowrap;align-items: center;justify-content: center;">
+    <div class="col-md-2" style="vertical-align: middle;">
+        <p class="pinDescription" :title="item.startAt" style="font-size:18px;">{{item.startAt}}</p>
+    </div>
+    <div class="col-md-3" style="vertical-align: middle;">
         <div :style="imageWrapperStyle" class="meebidListItemImageWrapper">
           <img :style="imageStyle" :src="item.imageUrls"></img>          
         </div>
-        <div class="meebidListItemDescriptionWrapper" >
-          <div class="meebidListItemDescriptionLabelWrapper">
-            <p class="pinDescription" :title="item.name">{{item.name}}</p>
-          </div>
-          <!--<div class="meebidListItemDescriptionIconWrapper">
-            <span class="glyphicon glyphicon-heart"></span>
-            <span>{{item.favor}}</span>
-          </div>
-          <div class="meebidListItemEstimationWrapper">
-            <div>
-              Est: {{getEsitmationPrice(item)}}
-            </div>
-          </div>-->
-          <!--<div class="meebidListItemProviderWrapper">
-            <div class="meebidListItemProviderImageWrapper">
-              <img :src="avatarUrl" class="meebidListItemAvatarImage"></img>
-            </div>
-            <div class="meebidListItemProviderTextWrapper">
-              <p class="meebidListItemProvider">{{imageProvider}}</p>
-              <p class="meebidListItemName">{{imageName}}</p>
-            </div>
-          </div>-->
-        </div>
-      </div>
     </div>
-    <div class="meebidListItemMask" v-show="isMaskVisible" @click="onAuctionClick">
-      <div class="meebidListItemMaskShareButtonWrapper">
-        <meebid-button icon-type="share" button-type="white">
-        </meebid-button>
-      </div>
-      <!--<div class="meebidListItemMaskSaveButtonWrapper">
-        <meebid-button icon-type="save" button-type="orange" text="Save">
-        </meebid-button>
-      </div>-->
-      <div class="meebidListItemMaskAuctionNameWrapper" :style="{top: getTop4AuctionHouseName(item)}">
-        <meebid-button button-type="white" :text="item.name" :button-click="onAuctionClick">
-        </meebid-button>
-      </div>
+    <div class="col-md-5" style="vertical-align: middle;">
+        <div class="meebidListItemDescriptionLabelWrapper">
+            <p class="auctionNameDescription" :title="item.name" style="font-size:18px;">{{item.name}}</p>
+        </div>   
     </div>
+    <div class="col-md-2" style="vertical-align: middle;">
+        <meebid-button wrapper-cls="homeWrapper" button-type="round" text="Browse" :button-click="onAuctionClick" >
+        </meebid-button>
+    </div>
+   </div>
+  
+   
   </div>
 </template>
 

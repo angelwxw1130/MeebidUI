@@ -11,25 +11,27 @@
       
       <div class="meebidAuctionHouseDetailAuctionDescriptionContainer meebidMarginTopMedium">
         <div class="meebidAuctionHouseDetailDescriptionAuctionHouseContainer">
-          <div v-if="houseItem.logo" class="meebidAuctionHouseDetailHouseLogoImageContainer">
+          <div v-if="houseItem.logo" class="col-md-4 meebidAuctionHouseDetailHouseLogoImageContainer">
             <img :src="houseItem.logo"></img>
           </div>
-          <div class="meebidAuctionInfo">
-            <div class="meebidAuctionHouseDetailDescriptionAuctionName">
-              <span>{{houseItem.name}}</span>
+          <div class="col-md-8">
+            <div class="meebidAuctionInfo">
+              <div class="meebidAuctionHouseDetailDescriptionAuctionName">
+                <span>{{houseItem.name}}</span>
+              </div>
+              <div class="meebidAuctionHouseDetailDescriptionAuctionHouseName">
+                <a @click="onClickAuctionHouse(houseItem.website)">{{houseItem.website}}</a>
+              </div>
+              <div>
+                <span>{{houseItem.email}}</span>
+              </div>
+              <div>
+                <span>{{houseItem.cellphone}}</span>
+              </div>
+              <!--<div class="meebidMarginTopSmall">
+                <span>{{getDate(auctionItem.startAt, auctionItem.sceneEx)}}</span>
+              </div>-->
             </div>
-            <div class="meebidAuctionHouseDetailDescriptionAuctionHouseName">
-              <a @click="onClickAuctionHouse(houseItem.website)">{{houseItem.website}}</a>
-            </div>
-            <div>
-              <span>{{houseItem.email}}</span>
-            </div>
-            <div>
-              <span>{{houseItem.cellphone}}</span>
-            </div>
-            <!--<div class="meebidMarginTopSmall">
-              <span>{{getDate(auctionItem.startAt, auctionItem.sceneEx)}}</span>
-            </div>-->
           </div>
         </div>
       </div>
