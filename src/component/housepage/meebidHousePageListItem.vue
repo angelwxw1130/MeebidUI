@@ -6,8 +6,8 @@
           <img :style="imageStyle" :src="item.imageUrls"></img>          
         </div>
     </div>
-    <div class="col-md-2" style="vertical-align: middle;">
-        <p class="pinDescription" :title="item.startAt" style="font-size:18px;">{{item.startAt}}</p>
+    <div class="col-md-3" style="vertical-align: middle;">
+        <p class="pinDescription" style="font-size:18px;width:400px;">{{getDate(item.startAt, null)}}</p>
     </div>
     <div class="col-md-5" style="vertical-align: middle;">
         <div class="meebidListItemDescriptionLabelWrapper">
@@ -26,6 +26,7 @@
 
 <script>
   import meebidUtils from './../../utils/meebidUtils'
+  import i18n from './../../i18n/i18n'
   export default {
     name: 'meebid-housepage-list-item',
     props: {
@@ -125,6 +126,23 @@
       onLotClick() {
         this.$emit('lotClick', this.item.id);
       },
+      getDate(date, sceneEx){
+      if (date){
+        var dateStr = meebidUtils.formatDate(date, i18n.t('meebid.common.MSG_DATE_TIME_DETAIL_FORMAT'));
+        if (sceneEx && sceneEx.timeZone !== null){
+          var timeZoneStr = window.meebidConstant.regionTimeZone[sceneEx.timeZone + ""];
+          if (timeZoneStr){
+            dateStr += " " + timeZoneStr;
+          } else {
+            dateStr += " UTC " + sceneEx.timeZone + ":00 " + i18n.t('meebid.common.MSG_HOURS');
+          }
+        }
+        console.log(dateStr);
+        return dateStr;
+      } else {
+        return "";
+      }
+    }
       /* 
       getEsitmationPrice(item) {
         return meebidUtils.formatMoneyForNumberField(item.currencyCode, item.estMinPrice, true, 0, true) 
