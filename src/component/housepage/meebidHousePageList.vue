@@ -1,10 +1,10 @@
 <template>
   <div class="meebidHomePageList" :class="{meebidTileViewHomePageList: selectedView === 'tile', meebidHomePageListShowSwitch: showViewSwitch === true}" style="height: 1000px;">
     <div ref="meebidHomePageListScrollTag" class="meebidHomePageListScrollTag"></div>
-    <div class="meebidHomePageListViewSwitcher">
+    <!--<div class="meebidHomePageListViewSwitcher">
       <span @click="onTileViewClick" class="glyphicon glyphicon-th-large meebidTileViewIcon meebidPaddingRightMedium"></span>
       <span @click="onWaterfullViewClick"  class="glyphicon glyphicon-stats meebidWaterfallViewIcon"></span>
-    </div>
+    </div>-->
     <div ref="auctionItemListContainer" class="meebidHomePageItemListContainer">
       <meebid-housepage-list-item v-for="item in visibleItems" :viewType="selectedView" :item="item" :key="item.id" :height="item.height" :image-url="item.imageUrl" :meebid-list-item-class="item.meebidListItemClass" :naturalHeight="item.naturalHeight" :naturalWidth="item.naturalWidth" :avatar-url="item.avatarUrl" :image-provider="item.imageProvider" @auctionClick="onAuctionClick"></meebid-housepage-list-item>
     </div>
@@ -43,7 +43,7 @@
     },
     data() {
       return {
-        selectedView: "waterfull",
+        selectedView: "tile",
         items: [],
         pendingItems: [],
         loginUser: loginUtils.getLoginUser(),

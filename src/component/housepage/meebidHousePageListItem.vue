@@ -1,13 +1,13 @@
 <template>
   <div class="col-md-12 meebidHousePageListItemBorder" style="border-top: 1px solid #ccc;padding: 20px 0;vertical-align: middle;">
    <div class="col-md-12" style="display: flex;flex-direction: row;flex-wrap: nowrap;align-items: center;justify-content: center;">
-    <div class="col-md-2" style="vertical-align: middle;">
-        <p class="pinDescription" :title="item.startAt" style="font-size:18px;">{{item.startAt}}</p>
-    </div>
     <div class="col-md-3" style="vertical-align: middle;">
         <div :style="imageWrapperStyle" class="meebidListItemImageWrapper">
           <img :style="imageStyle" :src="item.imageUrls"></img>          
         </div>
+    </div>
+    <div class="col-md-2" style="vertical-align: middle;">
+        <p class="pinDescription" :title="item.startAt" style="font-size:18px;">{{item.startAt}}</p>
     </div>
     <div class="col-md-5" style="vertical-align: middle;">
         <div class="meebidListItemDescriptionLabelWrapper">
@@ -15,7 +15,7 @@
         </div>   
     </div>
     <div class="col-md-2" style="vertical-align: middle;">
-        <meebid-button wrapper-cls="homeWrapper" button-type="round" text="Browse" :button-click="onAuctionClick" >
+        <meebid-button wrapper-cls="homeWrapper" button-type="round orange" text="Browse" :button-click="onAuctionClick" >
         </meebid-button>
     </div>
    </div>
