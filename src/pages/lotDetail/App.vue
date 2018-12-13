@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="meebidHomePage meebid" :style="{minHeight: windowMinHeight}">
-    <meebid-header ref="meebidHeader" :first-name="firstName" :profile-tooltip-visible="profileTooltipVisible" :profile-tooltip-disabled="profileTooltipDisabled" @search="onSearch">
+    <meebid-header ref="meebidHeader" :first-name="firstName">
     </meebid-header>
     <div id="content" class="meebidContent meebidLotDetailContent">
       <el-breadcrumb separator-class="el-icon-arrow-right">
