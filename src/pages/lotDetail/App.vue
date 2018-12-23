@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="meebidHomePage meebid" :style="{minHeight: windowMinHeight}">
-    <meebid-header ref="meebidHeader" :first-name="firstName">
+    <meebid-header ref="meebidHeader" :userProfile="userProfile" :first-name="firstName">
     </meebid-header>
     <div id="content" class="meebidContent meebidLotDetailContent">
       <el-breadcrumb separator-class="el-icon-arrow-right">
@@ -143,7 +143,7 @@
       class="meebidLotDetailImageDialog">
       <img :src="expandUrl"></img>
     </el-dialog>
-    <meebid-register-dialog ref="registerDialog"></meebid-register-dialog>
+    <meebid-register-dialog ref="registerDialog" :userProfile="userProfile"></meebid-register-dialog>
     <meebid-busy-indicator ref="busyIndicator" size="Medium"></meebid-busy-indicator>
   </div>
 </template>
@@ -193,7 +193,6 @@ export default {
         if (this.userProfile.firstName){
           this.firstName = this.userProfile.firstName;
         }
-        this.userProfileForm = this.userProfile;
 
       } else if (this.userProfile.type === window.meebidConstant.userType.house){
         if (this.userProfile.name){

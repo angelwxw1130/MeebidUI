@@ -1,9 +1,9 @@
 <template>
-  <el-dialog title="Category" :visible.sync="categoryDialogVisible" width="800px" :show-close="isProfilePage" :close-on-click-modal="isProfilePage" :close-on-press-escape="isProfilePage">
+  <el-dialog title="Category" :visible.sync="categoryDialogVisible" width="800px" :show-close="isProfilePage" :close-on-click-modal="false" :close-on-press-escape="false">
     <div class="categoryDialogInfoLabel">Please select at least one interested category</div>
     <div class="categoryDialogItemsWrapper">
       <div v-for="(item,index) in categoryFirstLevelItems" :class="{selected:categoryFirstLevelItems[index].selected===true}" :title="item.description" class="meebidCategoryItem" @click="selectItem(item, index, $event)">
-        <meebid-tooltip :disabled="item.kids.length === 0" popper-class="meebidCategorySecItemToolTip" placement="bottom" effect="light">
+        <meebid-tooltip :disabled="item.kids.length === 0" popper-class="meebidCategorySecItemToolTip" placement="right" effect="light">
           <div slot="content">
             <div v-for="(secItem,secIndex) in item.kids" :class="{selected:item.kids[secIndex].selected===true}" :title="secItem.description" class="meebidCategorySecItem" @click="selectSecItem(secItem, secIndex, item)">
               <img class="meebidCategorySecItemImage" :src="secItem.imgUrl">

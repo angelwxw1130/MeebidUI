@@ -307,7 +307,7 @@ meebidConstant.applyState = {
     "Accept": 3,
     "Reject": 4,
     0: "Deleted",
-    1: "Pending Approve",
+    1: "Pending Approval",
     2: "Request More Info",
     3: "Accepted",
     4: "Rejected",

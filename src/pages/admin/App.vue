@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="meebid">
-    <meebid-header ref="meebidHeader" :first-name="firstName">
+    <meebid-header ref="meebidHeader" :first-name="firstName" :userProfile="userProfile">
     </meebid-header>
     <div id="content" class="meebidAdminContentWrapper">
       <meebid-busy-indicator ref="busyIndicator" size="Medium"></meebid-busy-indicator>
@@ -22,7 +22,7 @@
           </template>
           <template v-if="userProfile.type === userType.member">
             <el-menu-item index="memberRegistration">
-              <i class="el-icon-menu"></i>
+              <i class="el-icon-tickets"></i>
               <span slot="title" class="meebidAdminMenuLabel">My Registration</span>
             </el-menu-item>
           </template>
@@ -46,22 +46,22 @@
           </template>
           <template v-if="userProfile.type === userType.house && userProfile.right === 2052">
             <el-menu-item index="houseRegistration">
-              <i class="el-icon-menu"></i>
+              <i class="el-icon-tickets"></i>
               <span slot="title" class="meebidAdminMenuLabel">Registration Management</span>
             </el-menu-item>
           </template>
-          <!--<template v-if="userProfile.type === userType.member && userProfile.right === 4098">
+          <template v-if="userProfile.type === userType.member && userProfile.right === 4098">
             <el-menu-item index="memberAddress">
-              <i class="el-icon-menu"></i>
+              <i class="el-icon-location"></i>
               <span slot="title" class="meebidAdminMenuLabel">Address Management</span>
             </el-menu-item>
           </template>
           <template v-if="userProfile.type === userType.house && userProfile.right === 2050">
             <el-menu-item index="houseAddress">
-              <i class="el-icon-menu"></i>
+              <i class="el-icon-location"></i>
               <span slot="title" class="meebidAdminMenuLabel">Address Management</span>
             </el-menu-item>
-          </template>-->
+          </template>
           <el-menu-item index="message">
             <i class="el-icon-bell"></i>
             <span slot="title" class="meebidAdminMenuLabel">Messages</span>
@@ -161,7 +161,7 @@
                   </div>
                 </el-form-item>                
                 <el-form-item>
-                  <el-button type="primary" @click="onUpdateProfile">UPDATE USER PROFILE</el-button>
+                  <el-button type="primary" @click="onUpdateProfile">SAVE AND UPDATE USER PROFILE</el-button>
                 </el-form-item>
               </el-form>
             </el-col>
@@ -215,7 +215,7 @@
               layout="prev, pager, next, jumper"
               :total="totalCountForMemberRegistration">
             </el-pagination>
-            <meebid-register-dialog ref="registerDialog"></meebid-register-dialog>
+            <meebid-register-dialog :userProfile="userProfile" ref="registerDialog" :startFromLot="false"></meebid-register-dialog>
           </div>
         </div>
         <div v-else-if="active === 'houseProfile'" class="meebidProfileFormWrapper">
@@ -504,17 +504,17 @@
           </el-row>
         </div>
         <!-- Element UI Bug, when form doesn't rendered first time, rules check will not be applied correctly-->
-        <div v-if="active === 'houseProfile' || active === 'memberProfile'" class="meebidPaddingTopMedium meebidMarginTopLarge meebidAddressWrapper">
+        <div v-if="active === 'houseAddress' || active === 'memberAddress'" class="meebidPaddingTopMedium  meebidAddressWrapper">
           <el-row ref="meebidAddressHeader">
-            <el-col :span="24" class="meebidUserProfileFormWrapper">
-              <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">Address Management</div>
-              <div class="meebidRegisterHeaderLabel" v-if="active === 'memberProfile'">You can manage your Billing Address and Shipping Address.</div>
-              <div class="meebidRegisterHeaderLabel" v-if="active === 'houseProfile'">You can manage your Exhibition Address, Bidding Venue Address and Pick-up Warehouse Address.</div>
+            <el-col :span="24" class="meebidUserProfileFormWrapper meebidPaddingBottomMedium">
+              <div class="meebidLoginDialogLabel meebidPaddingLeftSmall">Address Management</div>
+              <div class="meebidPaddingLeftSmall" v-if="active === 'memberAddress'">You can manage your Billing Address and Shipping Address.</div>
+              <div class="meebidPaddingLeftSmall" v-if="active === 'houseAddress'">You can manage your Exhibition Address, Bidding Venue Address and Pick-up Warehouse Address.</div>
             </el-col>
           </el-row>
-          <div v-if="active === 'memberProfile'">
-            <el-button size="small" type="primary" v-if="this.addresses[16].length < 5" class="meebidSquareButton meebidMarginBottomSmall meebidMarginLeftSmall" @click="handleAddAddress(16)">Add</el-button>
+          <div v-if="active === 'memberAddress'">
             <span class="meebidAddressManagementTableHeader meebidPaddingLeftSmall meebidPaddingBottomSmall meebidPaddingTopMedium">Shipping Address</span>
+            <el-button size="small" type="primary" v-if="this.addresses[16].length < 5" class="meebidSquareButton meebidMarginBottomSmall meebidMarginLeftSmall" @click="handleAddAddress(16)">Add</el-button>
             <!-- Shipping Address -->
             <el-alert show-icon v-if="this.addresses[16].length === 5" class="meebidMarginBottomSmall meebidMaximumAddressAlertMessage" :closable="false"
                 title="You cannot have more than 5 same type addresses."
@@ -552,7 +552,7 @@
               </el-table-column>
             </el-table>
           </div>
-          <div v-if="active === 'memberProfile'" class="meebidPaddingTopMedium">
+          <div v-if="active === 'memberAddress'" class="meebidPaddingTopSmall">
             <span class="meebidAddressManagementTableHeader meebidPaddingLeftSmall meebidPaddingBottomSmall meebidPaddingTopMedium">Billing Address</span>
             <el-button size="small" type="primary" v-if="this.addresses[8].length < 5" class="meebidSquareButton meebidMarginBottomSmall meebidMarginLeftSmall" @click="handleAddAddress(8)">Add</el-button>
             <el-alert show-icon v-if="this.addresses[8].length === 5" class="meebidMarginBottomSmall meebidMaximumAddressAlertMessage" :closable="false"
@@ -591,7 +591,7 @@
               </el-table-column>
             </el-table>
           </div>
-          <div v-if="active === 'houseProfile'">
+          <div v-if="active === 'houseAddress'">
             <span class="meebidAddressManagementTableHeader meebidPaddingLeftSmall meebidPaddingBottomSmall meebidPaddingTopMedium">Pick-up Warehouse Address</span>
             <el-button size="small" type="primary" v-if="this.addresses[128].length < 5" class="meebidSquareButton meebidMarginBottomSmall meebidMarginLeftSmall" @click="handleAddAddress(128)">Add</el-button>
             <span style="display: block;" class="meebidPaddingLeftSmall meebidPaddingBottomSmall" >You <b>cannot</b> create Auction without Pick-up Warehouse Address.</span>
@@ -631,7 +631,7 @@
               </el-table-column>
             </el-table>
           </div>
-          <div v-if="active === 'houseProfile'" class="meebidPaddingTopMedium">
+          <div v-if="active === 'houseAddress'" class="meebidPaddingTopSmall">
             <span class="meebidAddressManagementTableHeader meebidPaddingLeftSmall meebidPaddingBottomSmall meebidPaddingTopMedium">Exhibition Address</span>
             <el-button size="small" type="primary" v-if="this.addresses[32].length < 5" class="meebidSquareButton meebidMarginBottomSmall meebidMarginLeftSmall" @click="handleAddAddress(32)">Add</el-button>
             <el-alert show-icon v-if="this.addresses[32].length === 5" class="meebidMarginBottomSmall meebidMaximumAddressAlertMessage" :closable="false"
@@ -670,7 +670,7 @@
               </el-table-column>
             </el-table>
           </div>
-          <div v-if="active === 'houseProfile'" class="meebidPaddingTopMedium">
+          <div v-if="active === 'houseAddress'" class="meebidPaddingTopSmall">
             <span class="meebidAddressManagementTableHeader meebidPaddingLeftSmall meebidPaddingBottomSmall meebidPaddingTopMedium">Bidding Venue Address</span>
             <el-button size="small" type="primary" v-if="this.addresses[64].length < 5" class="meebidSquareButton meebidMarginBottomSmall meebidMarginLeftSmall" @click="handleAddAddress(64)">Add</el-button>
             <el-alert show-icon v-if="this.addresses[64].length === 5" class="meebidMarginBottomSmall meebidMaximumAddressAlertMessage" :closable="false"
@@ -824,7 +824,7 @@
             <el-input v-model="contactUserForm.phone" placeholder="Please input phone number">
               <el-select v-model="contactUserForm.region" style="width:110px;" slot="prepend" placeholder="Select...">
                 <el-option
-                  v-for="item in regionOptions"
+                  v-for="item in regionOptionsForPhone"
                   :key="item.id"
                   :label="item.telCode"
                   :value="item.id">
@@ -836,7 +836,7 @@
             <el-input v-model="contactUserForm.phone1" placeholder="Please input phone number">
               <el-select v-model="contactUserForm.region1" style="width:110px;" slot="prepend" placeholder="Select...">
                 <el-option
-                  v-for="item in regionOptions"
+                  v-for="item in regionOptionsForPhone"
                   :key="item.id"
                   :label="item.telCode"
                   :value="item.id">
@@ -879,7 +879,7 @@
               trigger: 'change'
             } : {}">
             <el-input v-if="item.controlType === 'input'" v-model="addressForm[item.name]" :placeholder="'Please input ' + $t(item.labelKey)" @change="item.forwardFunc ? onAddressAfterChangeFunc($event, item.name, item.forwardFunc) : function(){}"></el-input>
-            <el-select style="width: 300px;" v-else-if="item.controlType === 'select' && item.name === 'secRegion'" v-model="addressForm[item.name]" :placeholder="'Please input ' + $t(item.labelKey)" @change="handleSecondRegionChange">
+            <el-select style="width: 300px;" filterable v-else-if="item.controlType === 'select' && item.name === 'secRegion'" v-model="addressForm[item.name]" :placeholder="'Please input ' + $t(item.labelKey)" @change="handleSecondRegionChange">
               <el-option
                 v-for="regionItem in getRegionOptions(regionOptions, [addressForm['topRegion']])"
                 :key="regionItem.id"
@@ -887,7 +887,7 @@
                 :value="regionItem.id">
               </el-option>
             </el-select>
-            <el-select style="width: 300px;" v-else-if="item.controlType === 'select' && item.name === 'botRegion'" v-model="addressForm[item.name]" :placeholder="'Please input ' + $t(item.labelKey)" >
+            <el-select style="width: 300px;" filterable v-else-if="item.controlType === 'select' && item.name === 'botRegion'" v-model="addressForm[item.name]" :placeholder="'Please input ' + $t(item.labelKey)" >
               <el-option
                 v-for="regionItem in getRegionOptions(regionOptions, [addressForm['topRegion'], addressForm['secRegion']])"
                 :key="regionItem.id"
@@ -1824,6 +1824,7 @@ export default {
       active: "memberProfile",
       isProfilePage: true,
       regionOptions: [],
+      regionOptionsForPhone: [],
       titleOptions: [],
       addressRules: [],
       currentAddressRule: [],
@@ -2072,6 +2073,16 @@ export default {
   beforeMount() {
     if (this.$parent.$data && this.$parent.$data.regions && this.$parent.$data.regions.length){
       this.regionOptions = this.$parent.$data.regions;
+      this.regionOptionsForPhone = []
+      for (var i = 0; i < this.regionOptions.length; i++){
+        this.regionOptionsForPhone.push(this.regionOptions[i]);
+      }
+      var sortRegionForPhone = function(a, b){
+        var num1 = parseInt(a.telCode.substring(1));
+        var num2 = parseInt(b.telCode.substring(1));
+        return num1 - num2;
+      }
+      this.regionOptionsForPhone.sort(sortRegionForPhone);
     }
     if (this.$parent.$data && this.$parent.$data.addrRules && this.$parent.$data.addrRules.length){
       this.addressRules = this.$parent.$data.addrRules;
@@ -2106,6 +2117,9 @@ export default {
             }
           }
         }*/
+        if (this.userProfileForm.titleId === 0){
+          this.userProfileForm.titleId = this.titleOptions[0].id;
+        }
         this.categoryItems = categoryItems;
 
 
@@ -2846,14 +2860,14 @@ export default {
     onAddPhoneNumber() {
       this.updatePhoneIndex = -1;
       this.phoneForm.phone = "";
-      this.phoneForm.region = this.regionOptions[0].id;
+      this.phoneForm.region = this.regionOptionsForPhone[0].id;
       this.phoneNumberDialogVisible = true;
     },
     onEditPhoneNumber(index, item){
       var me = this;
       
       this.updatePhoneIndex = index;
-      var phoneObj = meebidUtils.convertPhoneStrToObj(item.phone, this.regionOptions);
+      var phoneObj = meebidUtils.convertPhoneStrToObj(item.phone, this.regionOptionsForPhone);
       this.phoneForm.phone = phoneObj.phone;
       this.phoneForm.region = phoneObj.region;
       this.phoneNumberDialogVisible = true;
@@ -2869,11 +2883,11 @@ export default {
           if (me.updatePhoneIndex === -1){
             me.userProfileForm.contact_users.push({
               id: 0,
-              phone: meebidUtils.convertPhoneObjToStr(me.phoneForm.region, me.phoneForm.phone, me.regionOptions)
+              phone: meebidUtils.convertPhoneObjToStr(me.phoneForm.region, me.phoneForm.phone, me.regionOptionsForPhone)
             });
             me.phoneNumberDialogVisible = false;
           } else {
-            me.userProfileForm.contact_users[this.updatePhoneIndex].phone = meebidUtils.convertPhoneObjToStr(me.phoneForm.region, me.phoneForm.phone, me.regionOptions);
+            me.userProfileForm.contact_users[this.updatePhoneIndex].phone = meebidUtils.convertPhoneObjToStr(me.phoneForm.region, me.phoneForm.phone, me.regionOptionsForPhone);
             me.phoneNumberDialogVisible = false;
           }
           me.onFieldDataChange();
@@ -2883,9 +2897,9 @@ export default {
     onAddContactUser() {
       this.updateContactUserIndex = -1;
       this.contactUserForm.phone = "";
-      this.contactUserForm.region = this.regionOptions[0].id;
+      this.contactUserForm.region = this.regionOptionsForPhone[0].id;
       this.contactUserForm.phone1 = "";
-      this.contactUserForm.region1 = this.regionOptions[0].id;
+      this.contactUserForm.region1 = this.regionOptionsForPhone[0].id;
       this.contactUserForm.titleId = this.titleOptions[0].id;
       this.contactUserForm.firstName = "";
       this.contactUserForm.lastName = "";
@@ -2894,8 +2908,8 @@ export default {
     },
     onEditContactUser(index, item){
       this.updateContactUserIndex = index;
-      var phoneObj = meebidUtils.convertPhoneStrToObj(item.phone, this.regionOptions);
-      var phoneObj1 = meebidUtils.convertPhoneStrToObj(item.phone1, this.regionOptions);
+      var phoneObj = meebidUtils.convertPhoneStrToObj(item.phone, this.regionOptionsForPhone);
+      var phoneObj1 = meebidUtils.convertPhoneStrToObj(item.phone1, this.regionOptionsForPhone);
       this.contactUserForm.phone = phoneObj.phone;
       this.contactUserForm.region = phoneObj.region;
       this.contactUserForm.phone1 = phoneObj1.phone;
@@ -2921,13 +2935,13 @@ export default {
               lastName: me.contactUserForm.lastName,
               titleId: me.contactUserForm.titleId,
               email: me.contactUserForm.email,
-              phone: meebidUtils.convertPhoneObjToStr(me.contactUserForm.region, me.contactUserForm.phone, me.regionOptions),
-              phone1: meebidUtils.convertPhoneObjToStr(me.contactUserForm.region1, me.contactUserForm.phone1, me.regionOptions)
+              phone: meebidUtils.convertPhoneObjToStr(me.contactUserForm.region, me.contactUserForm.phone, me.regionOptionsForPhone),
+              phone1: meebidUtils.convertPhoneObjToStr(me.contactUserForm.region1, me.contactUserForm.phone1, me.regionOptionsForPhone)
             });
             me.contactUserDialogVisible = false;
           } else {
-            me.houseProfileForm.contact_users[me.updateContactUserIndex].phone = meebidUtils.convertPhoneObjToStr(me.contactUserForm.region, me.contactUserForm.phone, me.regionOptions);
-            me.houseProfileForm.contact_users[me.updateContactUserIndex].phone1 = meebidUtils.convertPhoneObjToStr(me.contactUserForm.region1, me.contactUserForm.phone1, me.regionOptions);
+            me.houseProfileForm.contact_users[me.updateContactUserIndex].phone = meebidUtils.convertPhoneObjToStr(me.contactUserForm.region, me.contactUserForm.phone, me.regionOptionsForPhone);
+            me.houseProfileForm.contact_users[me.updateContactUserIndex].phone1 = meebidUtils.convertPhoneObjToStr(me.contactUserForm.region1, me.contactUserForm.phone1, me.regionOptionsForPhone);
             me.houseProfileForm.contact_users[me.updateContactUserIndex].firstName = me.contactUserForm.firstName;
             me.houseProfileForm.contact_users[me.updateContactUserIndex].lastName = me.contactUserForm.lastName;
             me.houseProfileForm.contact_users[me.updateContactUserIndex].titleId = me.contactUserForm.titleId;
@@ -3016,6 +3030,9 @@ export default {
         if (regionOption.isLoaded === false && regionOption.hasMore === 1){
           this.fetchRegion(val, 2, regionOption);
         }
+      }
+      if (this.addressForm.botRegion){
+        this.addressForm.botRegion = null;
       }
     },
     handleAddressChange(val) {

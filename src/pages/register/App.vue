@@ -1,16 +1,13 @@
 <template>
   <div id="app" class="meebidHomePage meebid">
-    <div id="header" class="meebidAdminHeader meebidRegisterHeader">
-      <div class="meebidHeaderButtonToolbar">
-        <meebid-button wrapper-cls="homeWrapper" button-type="round" text="Home" :button-click="redirectToHome">
-        </meebid-button>
-      </div>
-    </div>
-    <div class="meebidRegisterHeaderText">Log In or Create Account</div>
+    <meebid-header ref="meebidHeader" :first-name="firstName">
+    </meebid-header>
+    
     <div id="content" class="meebidRegisterContent" >
+      <div class="meebidRegisterHeaderText">Log In or Create Account</div>
       
       <el-row>
-        <el-col :span="12" class="meebidLoginFormWrapper">
+        <!--<el-col :span="12" class="meebidLoginFormWrapper">
           <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">Returning User</div>
           <div class="meebidRegisterHeaderLabel">Existing MEEBID.COM members, please sign in with your email address and password here.</div>
           <el-form ref="loginFormRef" status-icon :model="loginForm" label-width="180px">
@@ -25,8 +22,8 @@
               <el-button type="primary" @click="onLogin">LOGGED IN</el-button>
             </el-form-item>
           </el-form>
-        </el-col>
-        <el-col :span="12" class="meebidRegisterFormWrapper">
+        </el-col>-->
+        <el-col :span="24" class="meebidRegisterFormWrapper">
           <div class="meebidLoginDialogLabel meebidRegisterHeaderLabel">New Users</div>
           <div class="meebidRegisterHeaderLabel">Create an account to join Meebid.</div>
           <el-form ref="form" status-icon :rules="formRules" :model="form" label-width="180px" >

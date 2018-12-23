@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="meebidHomePage meebid">
-    <meebid-header :first-name="firstName" :profile-tooltip-visible="profileTooltipVisible" :profile-tooltip-disabled="profileTooltipDisabled" @search="onSearch" :isHomePage="true" @categoryChange="onCategoryChange">
+    <meebid-header :first-name="firstName" :userProfile="userProfile" @search="onSearch" :isHomePage="true" @categoryChange="onCategoryChange">
     </meebid-header>
     <div id="content" class="meebidContent" height="">
       <div class="meebidHomePageListWrapper">
@@ -85,11 +85,6 @@ export default {
         if(this.userProfile.bLogoUrl){
           this.headPortrait = this.userProfile.bLogoUrl;
         }
-      }
-      if (this.userProfile.type === window.meebidConstant.userType.member && this.userProfile.favorCategories.length === 0){
-        this.$refs.categoryDialog.categoryDialogVisible = true;
-        this.profileTooltipVisible = true;
-        this.profileTooltipDisabled = false;
       }
     }
     //临时头像 

@@ -101,8 +101,21 @@
         type: Boolean,
         default: true
       },
+      userProfile: {
+        type: Object,
+        default: {}
+      }
     },
     data () {
+      var validatMaxBidPrice = (rule, value, callback) => {
+        var maxBidPrice = parseFloat(this.absentBidForm.maxBidPrice);
+        var reservePrice = parseFloat(this.lotItem.reservePrice);
+        if (!isNaN(maxBidPrice) && !isNaN(reservePrice) && maxBidPrice < reservePrice) {
+          callback(new Error('Absentee max bid price cannot less than lot reserve price.'));
+        } else {
+          callback();
+        }
+      };
       return {
         step: 1,
         showBackButton: false,
@@ -122,7 +135,8 @@
         absentBidForm: {},
         absentBidFormRules: {
           maxBidPrice: [
-            { required: true, message: 'Please input Maxium Bid Price', trigger: 'change' }          
+            { required: true, message: 'Please input Maxium Bid Price', trigger: 'change' },
+            { validator: validatMaxBidPrice, trigger: 'change' }
           ]
         },
         telBidFormRules: {
@@ -210,7 +224,8 @@
         }
         this.lotItem = {
           no: apply.no,
-          id: apply.lotId
+          id: apply.lotId,
+          reservePrice: apply.reservePrice
         };
         this.step = 1;
         this.showBackButton = false;
@@ -240,6 +255,11 @@
             region1: 36,
             region2: 36,
             region3: 36
+          }
+          if (this.userProfile && this.userProfile.contact_users && this.userProfile.contact_users.length){
+            var phoneObj = meebidUtils.convertPhoneStrToObj(this.userProfile.contact_users[0].phone, this.regionOptions);
+            this.telBidForm.region1 = phoneObj.region;
+            this.telBidForm.telephone1 = phoneObj.phone;
           }
           this.step = 1;
           this.isTelBidFormVisible = true;
@@ -357,8 +377,8 @@
         }
         if (this.bidForm.type === window.meebidConstant.applyType.Telephone){
           requestObj.telephone1 = meebidUtils.convertPhoneObjToStr(this.telBidForm.region1, this.telBidForm.telephone1, this.regionOptions);
-          requestObj.telephone2 = meebidUtils.convertPhoneObjToStr(this.telBidForm.region2, this.telBidForm.telephone2, this.regionOptions);
-          requestObj.telephone3 = meebidUtils.convertPhoneObjToStr(this.telBidForm.region3, this.telBidForm.telephone3, this.regionOptions);
+          requestObj.telephone2 = meebidUtils.convertPhoneObjToStr(this.telBidForm.region2, this.telBidForm.telephone2 || "", this.regionOptions);
+          requestObj.telephone3 = meebidUtils.convertPhoneObjToStr(this.telBidForm.region3, this.telBidForm.telephone3 || "", this.regionOptions);
         } else if (this.bidForm.type === window.meebidConstant.applyType.Absent){
           requestObj.maxBidPrice = this.absentBidForm.maxBidPrice;
         }
@@ -429,7 +449,7 @@
         return apply.type === 1 ? "Telephone Bid" : "Absent Bid";
       },
       getPrice(price){
-        return meebidUtils.formatMoney(this.lotItem.currencyCode, price || 0);
+        return meebidUtils.formatMoney(this.lotItem.currencyCode, parseInt(price) || 0);
       },
       getPhone(phone){
         var phoneObj = meebidUtils.convertPhoneStrToObj(phone || "", this.regionOptions);

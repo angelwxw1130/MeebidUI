@@ -90,14 +90,6 @@
   export default {
     name: 'meebid-header',
     props: {
-      profileTooltipVisible: {
-        type: Boolean,
-        default: false
-      },
-      profileTooltipDisabled: {
-        type: Boolean,
-        default: true
-      },
       firstName: {
         type: String,
         default: "User"
@@ -105,12 +97,18 @@
       isHomePage: {
         type: Boolean,
         default: false
+      },
+      userProfile: {
+        type: Object,
+        default: {}
       }
     },
     data() {
       return {
         loginUser: loginUtils.getLoginUser(),
         loginDialogVisible: false,
+        profileTooltipVisible: false,
+        profileTooltipDisabled: true,
         loginForm: {
           email: "",
           password: ""
@@ -125,9 +123,17 @@
         },
       }
     },
+    beforeMount() {
+
+    },
 
     mounted() {
-
+      if (this.loginUser.isLogin){
+        if (this.userProfile.type === window.meebidConstant.userType.member && this.userProfile.favorCategories.length === 0){
+          this.profileTooltipDisabled = false;
+          this.profileTooltipVisible = true;
+        }  
+      }
     },
     methods: {
       openHomePage: function(){

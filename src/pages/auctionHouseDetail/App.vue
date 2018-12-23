@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="meebidHomePage meebid" :style="{minHeight: windowMinHeight}">
-    <meebid-header :first-name="firstName">
+    <meebid-header :first-name="firstName" :userProfile="userProfile">
     </meebid-header>
     <div id="content" class="meebidContent meebidAuctionHouseDetailContent meebidPaddingLeftLarge meebidPaddingRightLarge">
       <el-breadcrumb separator-class="el-icon-arrow-right" class="meebidAuctionDetailBreadcrumb meebidPaddingTopMedium">

@@ -20,7 +20,7 @@ body {
 }
 
 .meebidPaddingTopMedium {
-  padding-top: 0px;
+  padding-top: 20px;
 }
 
 .meebidPaddingTopSmall {
@@ -1294,7 +1294,7 @@ body {
 }
 
 .meebidCategoryItem.selected:hover {
-  border: 3px solid rgba(0,0,0,0.5);
+  border: 3px solid rgba(255,82,66,0.5);
 }
 
 .meebidCategoryItem .meebidCategoryLabel {
@@ -1314,15 +1314,15 @@ body {
 }
 
 .meebidCategoryItem.selected {
-  border: 3px solid rgba(0,0,0,0.8);
+  border: 3px solid rgba(255,82,66,0.8);
 }
 
 .meebidCategoryItemLabel {
   position: absolute;
   color: #ffffff;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: bold;
-  line-height: 28px;
+  line-height: 24px;
   max-width: 125px;
   bottom: 15px;
   left: 15px;
@@ -1352,7 +1352,7 @@ body {
 }
 
 .meebidCategorySecItemToolTip {
-  max-width: 500px;
+  max-width: 560px;
 }
 
 .meebidCategorySecItem {
@@ -1373,7 +1373,7 @@ body {
 }
 
 .meebidCategorySecItem.selected:hover {
-  border: 1.5px solid rgba(0,0,0,0.5);
+  border: 1.5px solid rgba(255,82,66,0.5);
 }
 
 .meebidCategorySecItem .meebidCategoryLabel {
@@ -1388,12 +1388,12 @@ body {
 }
 
 .meebidCategorySecItemImage {
-  width: 77px;
-  height: 77px;
+  width: 116px;
+  height: 116px;
 }
 
 .meebidCategorySecItem.selected {
-  border: 1.5px solid rgba(0,0,0,0.8);
+  border: 1.5px solid rgba(255,82,66,0.8);
 }
 
 .meebidCategorySecItemLabel {
@@ -1401,8 +1401,9 @@ body {
   color: #ffffff;
   font-size: 12px;
   font-weight: bold;
-  line-height: 14px;
-  max-width: 62.5px;
+  line-height: 18px;
+  max-width: 94px;
+  max-height: 105px;
   bottom: 7.5px;
   left: 7.5px;
   z-index: 2;
@@ -1412,8 +1413,8 @@ body {
 }
 
 .meebidCategorySecItemMask {
-  width: 77px;
-  height: 77px;
+  width: 116px;
+  height: 116px;
   z-index: 1;
   -moz-transition: background 0.3s ease-in,color 0.2s ease-out; 
   -webkit-transition: background 0.3s ease-in,color 0.2s ease-out; 
@@ -1459,9 +1460,9 @@ body {
 
 .meebidRegisterContent {
   width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 15px;
+  padding-left: 20%;
+  padding-right: 20%;
+  margin-top: 71px;
 }
 
 .meebidRegisterContent .el-col-12 {
@@ -1473,10 +1474,10 @@ body {
   padding-top: 25px;
   max-width: 500px;
 }
-
+/**
 .meebidRegisterFormWrapper {
   border-left: 1px solid #bac4c9;;
-}
+}**/
 
 .meebidRegisterHeaderLabel {
   padding-left: 180px;
@@ -1495,8 +1496,8 @@ body {
 
 .meebidAdminContentWrapper {
   width: 100%;
-  height: calc(100% - 75px);
-  margin: 0;
+  margin-top: 71px;
+  height: 100%;
 }
 
 .meebidAdminHeader {
@@ -1595,9 +1596,10 @@ body {
 }
 
 .meebidCategorySelectItemInForm .meebidCategoryItemLabel {
-  font-size: 18px;
+  font-size: 16px;
   bottom: 11px;
   left: 11px;
+  max-width: 110px;
 }
 
 .meebidCategorySelectItemInForm .meebidCategoryItemImage {
@@ -1727,10 +1729,10 @@ body {
 .meebid .meebidAddressWrapper .el-table__empty-block {
   min-height: 160px;
 }
-
+/*
 .meebid .meebidAddressWrapper {
   border-top: 1px solid #efefef; 
-}
+}*/
 
 .meebid .ql-snow .ql-picker-label::before {
   vertical-align: top;
