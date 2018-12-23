@@ -1,5 +1,5 @@
 <template>
-    <div class="message" v-scroll-bottom="messages">
+    <div id="messagebox" class="message" >
         <ul v-if="messages">
             <li v-for="item in messages">
                 <p class="time">
@@ -44,29 +44,41 @@ export default {
         // 发送消息后滚动到底部
         
         'scroll-bottom' () {
-            this.vm.$nextTick(() => {
+            this.$nextTick(() => {
                 this.el.scrollTop = this.el.scrollHeight - this.el.clientHeight;
             });
         }
     },
+    updated:function(){
+      this.$nextTick(function(){
+      var div = document.getElementById('messagebox');
+        div.scrollTop = div.scrollHeight;
+      })
+    },
     methods:{
         getDate(date, sceneEx){
-        if (date){
-            var dateStr = meebidUtils.formatDate(date, i18n.t('meebid.common.MSG_DATE_TIME_DETAIL_FORMAT'));
-            if (sceneEx && sceneEx.timeZone !== null){
-            var timeZoneStr = window.meebidConstant.regionTimeZone[sceneEx.timeZone + ""];
-            if (timeZoneStr){
-                dateStr += " " + timeZoneStr;
+            if (date){
+                var dateStr = meebidUtils.formatDate(date, i18n.t('meebid.common.MSG_DATE_TIME_DETAIL_FORMAT'));
+                if (sceneEx && sceneEx.timeZone !== null){
+                var timeZoneStr = window.meebidConstant.regionTimeZone[sceneEx.timeZone + ""];
+                if (timeZoneStr){
+                    dateStr += " " + timeZoneStr;
+                } else {
+                    dateStr += " UTC " + sceneEx.timeZone + ":00 " + i18n.t('meebid.common.MSG_HOURS');
+                }
+                }
+                return dateStr;
             } else {
-                dateStr += " UTC " + sceneEx.timeZone + ":00 " + i18n.t('meebid.common.MSG_HOURS');
+                return "";
             }
-            }
-            return dateStr;
-        } else {
-            return "";
-        }
         },
-    
+        function(){
+
+        this.$nextTick(function(){
+        var div = document.getElementById('messagebox');
+            div.scrollTop = div.scrollHeight;
+        })
+        }
     }
 };
 </script>
