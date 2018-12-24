@@ -753,7 +753,7 @@
                 width="100">
                 <template slot-scope="scope">
                   <el-button v-if="scope.row.state === 1 || scope.row.state === 2 || scope.row.state === 4" size="small" class="meebidSquareButton" icon="el-icon-circle-check" @click="handleApproveRegistration(scope.row)"></el-button>
-                  <el-button v-if="scope.row.state === 3" size="small" class="meebidSquareButton" icon="el-icon-circle-close" @click="handleRejecteRegistration(scope.row)"></el-button>
+                  <el-button v-if="scope.row.state === 3" size="small" class="meebidSquareButton" icon="el-icon-circle-close" @click="handleRejectRegistration(scope.row)"></el-button>
                 </template>
               </el-table-column>
             </el-table>
