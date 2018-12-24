@@ -3289,7 +3289,7 @@ export default {
             if (me.currentAddressRule[i].controlType === 'select'){
               me.currentAddressRule[i].options = addressDetail.options;
             }
-            addressForm[me.currentAddressRule[i].name] = addressDetail.value;
+            addressForm[me.currentAddressRule[i].name] = addressDetail ? addressDetail.value : "";
           }
           this.$nextTick(function () {
             me.addressForm = addressForm;
@@ -4691,6 +4691,7 @@ export default {
 html
 {
   height:100%;
+  overflow: hidden;
   margin:0;
 }
 body
