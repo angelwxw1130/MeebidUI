@@ -714,7 +714,7 @@
         <div v-if="active === 'houseRegistration'" class="meebidProfileFormWrapper">
           <div>
             <span class="meebidLoginDialogLabel">Registration Management</span>
-            <el-table class="meebidPaddingTopMedium"
+            <el-table class="meebidMarginTopMedium"
               :data="houseRegistrations"
               border
               style="width: 100%">
@@ -752,8 +752,8 @@
                 label="Actions"
                 width="100">
                 <template slot-scope="scope">
-                  <el-button v-if="scope.row.state === 1" size="small" class="meebidSquareButton" icon="el-icon-circle-check" @click="handleApproveRegistration(scope.row)"></el-button>
-                  <el-button v-if="scope.row.state === 1" size="small" class="meebidSquareButton" icon="el-icon-circle-close" @click="handleRejecteRegistration(scope.row)"></el-button>
+                  <el-button v-if="scope.row.state === 1 || scope.row.state === 2 || scope.row.state === 4" size="small" class="meebidSquareButton" icon="el-icon-circle-check" @click="handleApproveRegistration(scope.row)"></el-button>
+                  <el-button v-if="scope.row.state === 3" size="small" class="meebidSquareButton" icon="el-icon-circle-close" @click="handleRejecteRegistration(scope.row)"></el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -2401,13 +2401,14 @@ export default {
       
     },
     handleHouseRegistration(apply, state, msg){
+      var me = this;
       var applyObj = {
         applyId: apply.id,
         result: state
       };
       $.ajax({
         type: "POST",
-        url: "/api/bid/mrg/apply/deal",
+        url: "/api/bid/mgr/apply/deal",
         contentType : "application/json", 
         context: me,
         headers: {

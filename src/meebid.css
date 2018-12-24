@@ -1497,7 +1497,8 @@ body {
 .meebidAdminContentWrapper {
   width: 100%;
   margin-top: 71px;
-  height: 100%;
+  height: calc(100% - 71px);
+  position: fixed;
 }
 
 .meebidAdminHeader {
