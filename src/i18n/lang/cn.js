@@ -84,7 +84,7 @@ const cn = {
             MSG_ADDRESS_ADDRESSLINE2: "Address Line 2",
             MSG_ADDRESS_ADDRESSLINE3: "Address Line 3",
             MSG_ADDRESS_CITY: "City",
-            MSG_ADDRESS_PROVINCE: "Province",
+            MSG_ADDRESS_PROVINCE: "Province/State",
             MSG_ADDRESS_POSTALCODE: "Postal Code",
             MSG_ADDRESS_APTNUM: "Apt/Suite Number",
             MSG_ADDRESS_STATE: "State"

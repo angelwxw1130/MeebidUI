@@ -56,7 +56,7 @@
               <span slot="title" class="meebidAdminMenuLabel">Address Management</span>
             </el-menu-item>
           </template>
-          <template v-if="userProfile.type === userType.house && userProfile.right === 2050">
+          <template v-if="userProfile.type === userType.house && userProfile.right === 2052">
             <el-menu-item index="houseAddress">
               <i class="el-icon-location"></i>
               <span slot="title" class="meebidAdminMenuLabel">Address Management</span>
