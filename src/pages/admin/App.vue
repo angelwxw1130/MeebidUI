@@ -2408,7 +2408,7 @@ export default {
       };
       $.ajax({
         type: "POST",
-        url: "/api/bid/mgr/apply/deal",
+        url: "/api/bid/mgr/applys/deal",
         contentType : "application/json", 
         context: me,
         headers: {
