@@ -4602,7 +4602,7 @@ export default {
     handleBatchUploadDialogCommand(command) {
       switch(command){
         case 'downloadSample':
-          window.open("./../static/template_new.xlsx");
+          window.open("./../static/template_newest.xlsx");
           break;
         case 'exportLots':
           break;
