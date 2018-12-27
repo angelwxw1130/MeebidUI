@@ -750,7 +750,7 @@
               </el-table-column>
               <el-table-column
                 label="Actions"
-                width="60">
+                width="70">
                 <template slot-scope="scope">
                   <el-button v-if="scope.row.state === 1 || scope.row.state === 2 || scope.row.state === 4" type="primary" size="medium" class="meebidSquareButton" icon="el-icon-circle-check" @click="handleApproveRegistration(scope.row)"></el-button>
                   <el-button v-if="scope.row.state === 3" size="medium" type="primary" class="meebidSquareButton" icon="el-icon-circle-close" @click="handleRejectRegistration(scope.row)"></el-button>
