@@ -170,11 +170,11 @@
         <div v-if="active === 'memberRegistration'" class="meebidProfileFormWrapper">
           <div>
             <span class="meebidLoginDialogLabel">My Registration</span>
-            <el-table class="meebidPaddingTopMedium"
+            <el-table class="meebidMarginTopMedium"
               :data="registrations"
               border
               style="width: 100%">
-              <el-table-column label="Lot" width="240">
+              <el-table-column label="Lot" width="300">
                 <template slot-scope="scope">
                   <a class="meebidApplyLotImageContainer">
                     <img :src="buildApplyLotImage(scope.row.imageUrls)">
@@ -184,7 +184,7 @@
               </el-table-column>
               <el-table-column
                 prop="type"
-                label="Apply Type">
+                label="Apply Type" width="120">
                 <template slot-scope="scope">
                   <span>{{getApplyTypeLabel(scope.row)}}</span>
                 </template>
@@ -201,10 +201,10 @@
               </el-table-column>
               <el-table-column
                 label="Actions"
-                width="100">
+                width="120">
                 <template slot-scope="scope">
-                  <el-button size="small" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditRegistration(scope.row)"></el-button>
-                  <el-button size="small" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteRegistration(scope.row)"></el-button>
+                  <el-button size="medium" type="primary" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditRegistration(scope.row)"></el-button>
+                  <el-button size="medium" type="primary" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteRegistration(scope.row)"></el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -544,9 +544,9 @@
                 width="240"
                 >
                 <template slot-scope="scope">
-                  <el-button size="small" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
-                  <el-button size="small" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
-                  <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
+                  <el-button size="medium" type="primary" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
+                  <el-button size="medium" type="primary" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
+                  <el-button size="medium" type="primary" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
                   <span v-else class="meebidAddressTableDefaultLabel">Default</span>
                 </template>
               </el-table-column>
@@ -583,9 +583,9 @@
                 width="240"
                 >
                 <template slot-scope="scope">
-                  <el-button size="small" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
-                  <el-button size="small" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
-                  <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
+                  <el-button size="medium" type="primary" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
+                  <el-button size="medium" type="primary" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
+                  <el-button size="medium" type="primary" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
                   <span v-else class="meebidAddressTableDefaultLabel">Default</span>
                 </template>
               </el-table-column>
@@ -623,9 +623,9 @@
                 width="240"
                 >
                 <template slot-scope="scope">
-                  <el-button size="small" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
-                  <el-button size="small" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
-                  <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
+                  <el-button size="medium" type="primary" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
+                  <el-button size="medium" type="primary" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
+                  <el-button size="medium" type="primary" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
                   <span v-else class="meebidAddressTableDefaultLabel">Default</span>
                 </template>
               </el-table-column>
@@ -662,9 +662,9 @@
                 width="240"
                 >
                 <template slot-scope="scope">
-                  <el-button size="small" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
-                  <el-button size="small" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
-                  <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
+                  <el-button size="medium" type="primary" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
+                  <el-button size="medium" type="primary" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
+                  <el-button size="medium" type="primary" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
                   <span v-else class="meebidAddressTableDefaultLabel">Default</span>
                 </template>
               </el-table-column>
@@ -701,9 +701,9 @@
                 width="240"
                 >
                 <template slot-scope="scope">
-                  <el-button size="small" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
-                  <el-button size="small" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
-                  <el-button size="small" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
+                  <el-button size="medium" type="primary" class="meebidSquareButton" icon="el-icon-edit" @click="handleEditAddress(scope.row)"></el-button>
+                  <el-button size="medium" type="primary" class="meebidSquareButton" icon="el-icon-delete" @click="handleDeleteAddress(scope.row)"></el-button>
+                  <el-button size="medium" type="primary" v-if="scope.row.isDefault !== true" class="meebidSquareButton" @click="handleSetDefaultAddress(scope.row)">Set as Default</el-button>
                   <span v-else class="meebidAddressTableDefaultLabel">Default</span>
                 </template>
               </el-table-column>
@@ -718,7 +718,7 @@
               :data="houseRegistrations"
               border
               style="width: 100%">
-              <el-table-column label="Lot" width="240">
+              <el-table-column label="Lot" width="300">
                 <template slot-scope="scope">
                   <a class="meebidApplyLotImageContainer">
                     <img :src="buildApplyLotImage(scope.row.imageUrls)">
@@ -728,7 +728,7 @@
               </el-table-column>
               <el-table-column
                 prop="type"
-                label="Apply Type">
+                label="Apply Type" width="120">
                 <template slot-scope="scope">
                   <span>{{getApplyTypeLabel(scope.row)}}</span>
                 </template>
@@ -750,10 +750,10 @@
               </el-table-column>
               <el-table-column
                 label="Actions"
-                width="100">
+                width="60">
                 <template slot-scope="scope">
-                  <el-button v-if="scope.row.state === 1 || scope.row.state === 2 || scope.row.state === 4" size="small" class="meebidSquareButton" icon="el-icon-circle-check" @click="handleApproveRegistration(scope.row)"></el-button>
-                  <el-button v-if="scope.row.state === 3" size="small" class="meebidSquareButton" icon="el-icon-circle-close" @click="handleRejectRegistration(scope.row)"></el-button>
+                  <el-button v-if="scope.row.state === 1 || scope.row.state === 2 || scope.row.state === 4" type="primary" size="medium" class="meebidSquareButton" icon="el-icon-circle-check" @click="handleApproveRegistration(scope.row)"></el-button>
+                  <el-button v-if="scope.row.state === 3" size="medium" type="primary" class="meebidSquareButton" icon="el-icon-circle-close" @click="handleRejectRegistration(scope.row)"></el-button>
                 </template>
               </el-table-column>
             </el-table>

@@ -185,13 +185,16 @@ body {
   border-color: transparent;
 }
 
-.meebid .meebidNoBorderButton.el-button--small, .meebid .meebidNoBorderButton.el-button--small.is-round {
-    padding: 9px 9px;
-}
-
+.meebid .meebidNoBorderButton.el-button--small, .meebid .meebidNoBorderButton.el-button--small.is-round,
 .meebid .meebidSquareButton.el-button--small, .meebid .meebidSquareButton.el-button--small.is-round {
     padding: 9px 9px;
 }
+
+.meebid .meebidNoBorderButton.el-button--medium, .meebid .meebidNoBorderButton.el-button--small.is-medium,
+.meebid .meebidSquareButton.el-button--medium, .meebid .meebidSquareButton.el-button--small.is-medium {
+    padding: 10px 10px;
+}
+
 
 .meebidHomeHeader {
   width: 100%; 
@@ -1459,9 +1462,9 @@ body {
 }
 
 .meebidRegisterContent {
-  width: 100%;
-  padding-left: 20%;
-  padding-right: 20%;
+  width: 680px;
+  margin-left: calc(50% - 340px);
+  margin-right: calc(50% - 340px);
   margin-top: 71px;
 }
 
@@ -2002,6 +2005,11 @@ body {
   line-height: 80px;
   display: inline-block;
   vertical-align: middle;
+  max-width: 130px;
+  max-height: 80px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 /**
