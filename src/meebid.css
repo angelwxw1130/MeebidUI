@@ -1465,7 +1465,8 @@ body {
   width: 680px;
   margin-left: calc(50% - 340px);
   margin-right: calc(50% - 340px);
-  margin-top: 71px;
+  top: calc(50% - 300px + 35px);
+  position: absolute; 
 }
 
 .meebidRegisterContent .el-col-12 {

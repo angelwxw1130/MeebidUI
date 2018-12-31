@@ -1681,6 +1681,24 @@ export default {
         callback(new Error('Please input Shipping Info.'));
       }
     };
+    var validateAuctionTime = (rule, value, callback) => {
+      if (this.auctionForm.startAt !== '' && this.auctionForm.exhibitions){
+        var isValid = true;
+        for (var i = 0; i < this.auctionForm.exhibitions.length; i++){
+          if (this.auctionForm.startAt < this.auctionForm.exhibitions[i].endAt){
+            isValid = false;
+            break;
+          }
+        }
+        if (isValid){
+          callback()
+        } else {
+          callback(new Error('Auction Start Time cannot earlier than Exhibition End Time.'));
+        }
+      } else {
+        callback();
+      }
+    };
     var validateExhTime = (rule, value, callback) => {
       if (this.auctionForm.exhLocId){
         if (value) {
@@ -1965,7 +1983,8 @@ export default {
           { required: true, message: 'Please select Currency Code', trigger: 'change' }
         ],
         startAt: [
-          { type: "date", required: true, message: 'Please input Start Date', trigger: 'change' }          
+          { type: "date", required: true, message: 'Please input Start Date', trigger: 'change' },
+          { validator: validateAuctionTime, trigger: 'change' }      
         ],
         exhTime: [
           { validator: validateExhTime, trigger: 'change' }     
