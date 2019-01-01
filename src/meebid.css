@@ -1936,7 +1936,7 @@ body {
 
 .meebidUploadMiniPicture .el-upload-list {
   max-height: 80px;
-  overflow: scroll;
+  overflow-y: scroll;
 }
 
 
@@ -1967,7 +1967,7 @@ body {
 }
 
 .meebid .meebidBatchLotUploadedImageColumn .cell{
-  overflow: scroll;
+  overflow-x: auto;
 }
 
 .meebid .meebidAddressTableDefaultLabel {

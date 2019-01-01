@@ -1232,7 +1232,7 @@
           </el-form>
         </div>
         <div v-if="batchLotDialogStep == 1" class="meebidPaddingTopMedium" style="">
-          <el-form ref="batchLotStep2Form" status-icon :rules="batchLotFormRules" style="width: 90%; overflow: scroll;" :model="batchLotForm" label-width="180px" class="meebidHouseProfileForm">        
+          <el-form ref="batchLotStep2Form" status-icon :rules="batchLotFormRules" style="width: 90%;" :model="batchLotForm" label-width="180px" class="meebidHouseProfileForm">        
             <el-form-item label="Upload Images" prop="imageUrls" required>
               <meebid-upload
                 class="meebidUploadMiniPicture"
@@ -1406,7 +1406,7 @@
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="exhibitionDialogVisible = false" class="">Cancel</el-button>
-          <el-button type="primary" @click="onUpdateExhibitions()">Save</el-button>
+          <el-button type="primary" @click="onUpdateExhibitions()" :disabled="exhibitionDialogSaveButtonDisabled">Save</el-button>
         </span>
       </el-dialog>
       <el-dialog :visible.sync="batchLotImagesDialogVisible" class="meebidBatchLotImagesDialog" title="Batch Upload Images" width="900px" height="500px" :close-on-click-modal="false">
@@ -1685,6 +1685,9 @@ export default {
       if (this.auctionForm.startAt !== '' && this.auctionForm.exhibitions){
         var isValid = true;
         for (var i = 0; i < this.auctionForm.exhibitions.length; i++){
+          if (this.auctionForm.exhibitions[i].state === 0){
+            continue;
+          }
           if (this.auctionForm.startAt < this.auctionForm.exhibitions[i].endAt){
             isValid = false;
             break;
@@ -1693,7 +1696,7 @@ export default {
         if (isValid){
           callback()
         } else {
-          callback(new Error('Auction Start Time cannot earlier than Exhibition End Time.'));
+          callback(new Error('Auction Start Time cannot be earlier than Exhibition End Time.'));
         }
       } else {
         callback();
@@ -1830,6 +1833,7 @@ export default {
       updateContactUserIndex: -1,
       contactUserDialogVisible: false,
       previewDialogVisible: false,
+      exhibitionDialogSaveButtonDisabled: false,
       previewDialogImageUrl: "",
       defaultActiveProfile: 'memberProfile',
       revalidateMemberLabel: "RE-VALIDATE",
@@ -4566,6 +4570,7 @@ export default {
     },
     onUpdateExhibitions() {
       var me = this;
+      this.exhibitionDialogSaveButtonDisabled = true;
       this.$refs.exhibitionForm.validate(function(isValid){
         if (isValid){
           if (me.exhibitionForm.state === window.meebidConstant.exhibitionState.Newing){
@@ -4600,6 +4605,7 @@ export default {
           }
           me.exhibitionDialogVisible = false;
         }
+        me.exhibitionDialogSaveButtonDisabled = false;
       });
     },
     getAddressLabelById(locId){
