@@ -110,8 +110,10 @@
       var validatMaxBidPrice = (rule, value, callback) => {
         var maxBidPrice = parseFloat(this.absentBidForm.maxBidPrice);
         var reservePrice = parseFloat(this.lotItem.reservePrice);
-        if (!isNaN(maxBidPrice) && !isNaN(reservePrice) && maxBidPrice < reservePrice) {
-          callback(new Error('Absentee max bid price cannot less than lot reserve price.'));
+        var startingBid = parseFloat(this.lotItem.startingBid);
+        var lowerPrice = reservePrice > startingBid ? startingBid : reservePrice;
+        if (!isNaN(maxBidPrice) && !isNaN(lowerPrice) && maxBidPrice < lowerPrice) {
+          callback(new Error('Absentee max bid price must greater than or equal to ' + meebidUtils.formatMoney(this.lotItem.currencyCode, parseInt(lowerPrice)) + '.'));
         } else {
           callback();
         }
@@ -225,7 +227,8 @@
         this.lotItem = {
           no: apply.no,
           id: apply.lotId,
-          reservePrice: apply.reservePrice
+          reservePrice: apply.reservePrice,
+          startingBid: apply.startingBid
         };
         this.step = 1;
         this.showBackButton = false;
