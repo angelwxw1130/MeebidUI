@@ -4,7 +4,7 @@
     </meebid-header>
     
     <div id="content" class="meebidRegisterContent" >
-      <div class="meebidRegisterHeaderText">Log In or Create Account</div>
+      <div class="meebidRegisterHeaderText">Create Account</div>
       
       <el-row>
         <!--<el-col :span="12" class="meebidLoginFormWrapper">
