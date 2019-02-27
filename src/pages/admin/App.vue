@@ -394,10 +394,15 @@
               <div style="position: absolute; right: 0px; top: 0px;"> 
                 <el-button class="meebidMarginTopMedium" type="primary" @click="onCreateAuction">CREATE AUCTION</el-button>
               </div>
-              <div class="meebidMarginTopMedium" v-if="auctionList && auctionList.length > 0">
+              <el-tabs v-model="activeAuctionManagementType" @tab-click="handleAuctionManagementTypeClick">
+                <el-tab-pane label="Upcoming Auction" name="publish"></el-tab-pane>
+                <el-tab-pane label="Unpublished Auction" name="draft"></el-tab-pane>
+                <el-tab-pane label="Ended Auction" name="past"></el-tab-pane>
+              </el-tabs>
+              <div class="meebidAdminAuctionManagementAuctionList" v-if="auctionList && auctionList.length > 0">
 
                 <div v-for="(item,index) in auctionList" class="">
-                  <div style="border-top: 1px solid #eeeeee;" class="meebidMarginBottomMedium meebidPaddingTopMedium">
+                  <div style="border-top: 1px solid #eeeeee;" class="meebidAdminAuctionListAuction meebidMarginBottomMedium meebidPaddingTopMedium">
                     <a class="meebidAuctionImageContainer">
                       <img :src="item.logo">
                     </a>
@@ -453,6 +458,7 @@
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item command="batchUploadAuctionLot">Batch Upload Lots</el-dropdown-item>
                     <el-dropdown-item command="batchUploadAuctionLotImages">Batch Upload Images</el-dropdown-item>
+                    <el-dropdown-item command="batchUploadAuctionResult">Batch Upload Auction Result</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
                 <!--<el-button class="meebidMarginTopMedium" type="primary" @click="onBatchUploadAuctionLot">BATCH UPLOAD</el-button>-->
@@ -1142,6 +1148,13 @@
               <el-form-item label="Reserve Price" prop="reservePrice">
                 <meebid-number-input v-model="lotForm.reservePrice" placeholder="Please input reserve price"></meebid-number-input>
               </el-form-item>
+              <el-form-item v-if="lotForm.state === 32" label="Sold Price" prop="soldPrice">
+                <meebid-number-input v-model="lotForm.soldPrice" placeholder="Please input sold price"></meebid-number-input>
+              </el-form-item>
+              <el-form-item v-if="lotForm.state === 32" label="Sold Price" prop="isSold">
+                <el-checkbox v-model="lotForm.isSold"></el-checkbox>
+              </el-form-item>
+
               <el-form-item label="Images" prop="imageUrls" required>
                 <meebid-upload
                   class="meebidUploadSmallPicture"
@@ -1469,6 +1482,68 @@
           <el-button type="primary" :disabled="!isBatchLotImageFormValid" @click="onUpdateLotImages()">Update</el-button>
         </span>
       </el-dialog>
+      <el-dialog :visible.sync="batchAuctionResultDialogVisible" class="meebidBatchLotImagesDialog" title="Batch Upload Auction Result" width="900px" height="500px" :close-on-click-modal="false">
+        <meebid-busy-indicator ref="batchAuctionResultDialogImagesBusyIndicator" size="Medium"></meebid-busy-indicator>
+        <div class="" style="">
+          <el-form ref="batchAuctionResultForm" status-icon :rules="batchAuctionResultFormRules" style="width: 90%; overflow: scroll;" :model="batchAuctionResultForm" label-width="180px" class="meebidHouseProfileForm">        
+            <el-form-item label="Upload Auction Result" prop="batchAuctionResult" required>
+              <meebid-upload
+                field-name="batchAuctionResult"
+                :limit="1"
+                :on-exceed="handleUploadExceed"
+                :on-remove="handleUploadAuctionResultSuccess"
+                :on-success="handleUploadAuctionResultSuccess"
+                :on-error="handleUploadError"
+                :file-list="batchAuctionResultForm.batchAuctionResult"
+                >
+                <el-button size="small" type="primary">Click to upload result</el-button>
+              </meebid-upload>
+            </el-form-item>
+          </el-form>
+        </div>
+        <el-table
+          border
+          empty-text=" "
+          height="350"
+          class="meebidMarginTopLarge"
+          :data="batchAuctionResult"
+          v-loading="batchAuctionResultTableLoading"
+          style="width: 90%; margin-left: 5%;">
+          <el-table-column
+            prop="no"
+            fixed
+            label="No."
+            width="25%">
+            <template slot-scope="scope">
+              <span>{{formatLotNo(scope.row)}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="isSold"
+            label="Sold Status"
+            width="25%"
+            >
+            <template slot-scope="scope">
+              <span>{{formatSoldStatus(scope.row)}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="soldPrice"
+            label="Sold Price"
+            width="50%"
+            >
+            <template slot-scope="scope">
+              <span>{{getFormattedCurrencyNumber(scope.row.soldPrice)}}</span>
+            </template>
+          </el-table-column>
+        </el-table>
+        <span slot="footer" class="dialog-footer">
+          <span class="meebidBatchUploadDialogHintLabel">{{batchUploadAuctionResultHintLabel}}</span>
+          <el-button @click="batchAuctionResultDialogVisible = false" class="">Cancel</el-button>
+          <el-button type="primary" :disabled="!isBatchAuctionResultFormValid" @click="onUpdateAuctionResult()">Update</el-button>
+        </span>
+      </el-dialog>
+      
       <meebid-category-dialog :items="categoryItems" :favorCategories="userProfileForm && userProfileForm.favorCategories ? userProfileForm.favorCategories : []" :isProfilePage="isProfilePage" @update="onCategoryDialogUpdate" ref="categoryDialog">
       </meebid-category-dialog>
     </div>
@@ -1651,6 +1726,54 @@ export default {
         callback(new Error('Please upload lot images.'));
       }
     };
+    var validateBatchAuctionResult = (rule, value, callback) => {
+      var me = this;
+      if (value && value.length > 0 && value[0].rUid) {
+        this.batchAuctionResultTableLoading = true;
+        $.ajax({
+          type: "POST",
+          url: "/api/lot/batch/info/prepare",
+          contentType : "application/json", 
+          context: this,
+          headers: {
+            token: this.loginUser.token
+          },
+          data: JSON.stringify({
+            sceneId: this.currentSceneId,
+            erUid: value[0].rUid
+          }),
+          success(data) {
+            if (data.code === 1){
+              this.isBatchAuctionResultFormValid = true;
+              this.batchAuctionResult = data.content.items;
+              callback();
+            } else {
+              this.$notify.error({
+                title: 'Failure',
+                message: 'Validate Auction Result failure',
+                duration: 5000
+              });
+              this.batchAuctionResult = [];
+              this.isBatchAuctionResultFormValid = false;
+              callback(new Error(data.msg));
+            }
+
+          },
+          error(data) {
+            errorUtils.requestError(data);
+            me.batchAuctionResult = [];
+            me.isBatchAuctionResultFormValid = false;
+            callback(new Error('Error in validate auction result'));
+          }
+        }).done(function(){
+          me.batchAuctionResultTableLoading = false;
+        });
+      } else {
+        this.batchAuctionResult = [];
+        this.isBatchAuctionResultFormValid = false;
+        callback(new Error('Please upload auction result.'));
+      }
+    };
 
     var validateRegions = (rule, value, callback) => {
       if (value && value.length > 0) {
@@ -1794,9 +1917,11 @@ export default {
       }
     };
     return {
+      batchAuctionResultDialogVisible: false,
       batchLotImagesDialogVisible: false,
       batchUploadHintLabel: i18n.t('meebid.batchUpload.MSG_BATCH_UPLOAD_HINT_LABEL'),
       batchUploadImagesHintLabel: i18n.t('meebid.batchUpload.MSG_BATCH_UPLOAD_IMAGES_HINT_LABEL'),
+      batchUploadAuctionResultHintLabel: i18n.t('meebid.batchUpload.MSG_BATCH_UPLOAD_AUCTION_RESULT_HINT_LABEL'),
       exhibitionTimePickertInitialed: false,
       exhibitionDialogVisible: false,
       isAuctionBasicInvalid: false,
@@ -1822,10 +1947,12 @@ export default {
       isBatchLotFormStep1Valid: false,
       isBatchLotFormStep2Valid: false,
       isBatchLotImageFormValid: false,
+      isBatchAuctionResultFormValid: false,
       uploadKeyForBatchLotImages: "batchLotImages" + loginUtils.getLoginUser().token + currentDate.getTime(),
       uploadKeyForBatchImages: "batchImages" + loginUtils.getLoginUser().token + currentDate.getTime(),
       batchLotTemplateResult: [],
       batchTemplateTableLoading: false,
+      batchAuctionResultTableLoading: false,
       addressDialogVisible: false,
       hasPendingChange: false,
       updatePhoneIndex: -1,
@@ -1869,6 +1996,7 @@ export default {
         label: 'name',
         children: 'childrens'
       },
+      activeAuctionManagementType: 'publish',
       auctionLotList: [],
       currentSceneId: 0,
       currentSceneState: 0,
@@ -2067,6 +2195,12 @@ export default {
       batchImagesFormRules: {
         imageUrls: [
           { required: true, validator: validateBatchImages, trigger: 'change' }          
+        ],
+      },
+      batchAuctionResultForm: {},
+      batchAuctionResultFormRules: {
+        batchAuctionResult: [
+          { required: true, validator: validateBatchAuctionResult, trigger: 'change' }          
         ],
       },
       exhibitionForm: {},
@@ -3665,6 +3799,10 @@ export default {
       this.lotForm[fieldName] = fileList;
       this.$refs.lotForm.validateField(fieldName);
     },
+    handleAuctionManagementTypeClick(tab, event) {
+      this.currentPageForAuction = 1;
+      this.refreshAuctions();
+    },
     onCreateAuction() {
       var defaultBiddingAddress;
       if (this.addresses[64] && this.addresses[64].length){
@@ -3724,7 +3862,9 @@ export default {
         termsAndCondition: "",
         paymentInfo: "",
         shippingInfo: "",
-        isTermLoaded: false
+        isTermLoaded: false,
+        isSold: false,
+        soldPrice: "0.00"
       };
       if (this.$refs.lotForm){
         var me = this;
@@ -3934,6 +4074,18 @@ export default {
       var me = this;
       this.$refs.meebidAdminContent.className = "meebidAdminContent meebidAdminContentInLoading";
       this.$refs.busyIndicator.show();
+      var searchType;
+      switch(this.activeAuctionManagementType){
+        case 'publish':
+          searchType = 1 << 4 + 1 << 5;
+          break;
+        case 'draft':
+          searchType = 1 << 0 + 1 << 1 + 1 << 2 + 1 << 3;
+          break;
+        case 'past':
+          searchType = 1 << 6;
+          break;
+      }
       $.ajax({
         type: "GET",
         url: "/api/user/scenes",
@@ -3943,6 +4095,7 @@ export default {
           token: this.loginUser.token
         },
         data: {
+          // state: searchType,
           offset: (this.currentPageForAuction - 1) * 20,
           count: 20
         },
@@ -4270,7 +4423,9 @@ export default {
             paymentInfo: "",
             shippingInfo: "",
             isTermLoaded: false,
-            state: item.state
+            state: item.state,
+            isSold: item.bidResult === window.meebidConstant.lotBidResult.Sold,
+            soldPrice: item.soldPrice
           };
           if (this.$refs.lotForm){
             var me = this;
@@ -4642,7 +4797,16 @@ export default {
         case 'batchUploadAuctionLotImages':
           this.onBatchUploadAuctionLotImages();
           break;
+        case 'batchUploadAuctionResult':
+          this.onBatchUploadAuctionResult();
       }
+    },
+    onBatchUploadAuctionResult() {
+      this.batchAuctionResultDialogVisible = true;
+      this.batchAuctionResult = [];
+      this.batchAuctionResultForm = {
+        batchAuctionResult: []
+      };
     },
     handleUploadBatchImageSuccess(response, file, fileList, fieldName) {
       this.batchImagesForm[fieldName] = fileList;

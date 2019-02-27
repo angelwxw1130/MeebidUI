@@ -76,7 +76,8 @@ const en = {
         },
         batchUpload: {
             MSG_BATCH_UPLOAD_HINT_LABEL: "Notice: Lot No with * are already existing in Auction, your upload will override existing lots' information.",
-            MSG_BATCH_UPLOAD_IMAGES_HINT_LABEL: "Notice: Images with existing Lot No. will be updated. Images without existing Lot No. will be ignored."
+            MSG_BATCH_UPLOAD_IMAGES_HINT_LABEL: "Notice: Images with existing Lot No. will be updated. Images without existing Lot No. will be ignored.",
+            MSG_BATCH_UPLOAD_AUCTION_RESULT_HINT_LABEL: "Notice: Lot result with existing Lot No. will be updated. Lot result without existing Lot No. will be ignored."
         },
         regionLabel: {
             MSG_ADDRESS_COUNTRY: "Country or Territory",

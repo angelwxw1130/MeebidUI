@@ -42,13 +42,17 @@
               <div class="meebidLotDetailDescriptionAuctionTypeContainer meebidPaddingTopSmall meebidMarginBottomMedium">
                 <span>{{getAuctionType(lotItem.sceneEx)}} Auction</span>
               </div>
-              <div class="meebidLotDetailDescriptionStartBidPriceContainer meebidPaddingTopSmall meebidMarginBottomSmall">
+              <div v-if="lotItem.state !== 32" class="meebidLotDetailDescriptionStartBidPriceContainer meebidPaddingTopSmall meebidMarginBottomSmall">
                 <span class="meebidLotDetailFormLabel">Opening Price:</span>
                 {{getStartPrice(lotItem)}}
               </div>
-              <div class="meebidPaddingTopSmall meebidMarginBottomMedium">
+              <div v-if="lotItem.state !== 32" class="meebidPaddingTopSmall meebidMarginBottomMedium">
                 <span class="meebidLotDetailFormLabel">Auctioneer's Estimation:</span>
                 {{getEsitmationPrice(lotItem)}}
+              </div>
+              <div v-if="lotItem.state === 32" class="meebidLotDetailDescriptionStartBidPriceContainer meebidPaddingTopSmall meebidMarginBottomSmall">
+                <span class="meebidLotDetailFormLabel">Selling Price:</span>
+                {{getSellingPrice(lotItem)}}
               </div>
               <div class="meebidLotDetailDescriptionActionContainer">
                 <div class="meebidVerticalDivider"></div>
@@ -249,7 +253,9 @@ export default {
             auctionAt: item.auctionAt,
             sceneEx: item.sceneEx,
             neiLots: item.neiLots,
-            applys: item.applys
+            applys: item.applys,
+            state: item.state,
+            soldPrice: item.soldPrice
           }
           var breadItems = [{
             path: window.location.origin + "/home.html",
@@ -451,6 +457,14 @@ export default {
     },
     getRegisterLabel(applys) {
       return applys && applys.length > 0 ? "My Registration(s)" : "Register to bid";
+    },
+    getSellingPrice(item) {
+      switch (item.bidResult){
+        case window.meebidConstant.lotBidResult.Sold: 
+          return meebidUtils.formatMoneyForNumberField(item.currencyCode, item.soldPrice, true, 0, true) ;
+        default:
+          return "Price not available";
+      }
     }
   }
 }

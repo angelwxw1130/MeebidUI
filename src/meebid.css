@@ -2013,6 +2013,10 @@ body {
   text-overflow: ellipsis;
 }
 
+.meebid .meebidAdminAuctionManagementAuctionList:first-child .meebidAdminAuctionListAuction {
+  border-top: none !important;
+}
+
 /**
   Admin Page End
   */

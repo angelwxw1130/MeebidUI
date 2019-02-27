@@ -105,6 +105,11 @@ meebidConstant.lotStateColor = {
     16: "#B6D957" // 被管理员下架
 }
 
+meebidConstant.lotBidResult = {
+    "Available": 1 << 0,
+    "Sold": 1 << 1 + 1 << 0
+}
+
 
 meebidConstant.currencyCode = [
     {"name":"Australian Dollar","alias":"AUD","id":2},
