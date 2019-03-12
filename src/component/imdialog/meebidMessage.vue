@@ -1,8 +1,8 @@
 <template>
     <div id="messagebox" class="message" >
-        <ul v-if="messages">
+        <ul v-if="messages" style="padding:0;">
             <li v-for="item in messages">
-                <p class="time">
+                <p class="time" v-if="item.ifshowtime">
                     <span>{{ item.date | time }}</span>
                 </p>
                 <div class="main" :class="{ self: item.self }">
@@ -37,7 +37,7 @@ export default {
             if (typeof date === 'string') {
                 date = new Date(date);
             }
-            return date.getHours() + ':' + (Array(2).join(0) + date.getMinutes()).slice(-2);
+            return (Array(2).join(0) + date.getHours()).slice(-2) + ':' + (Array(2).join(0) + date.getMinutes()).slice(-2);
         }
     },
     directives: {

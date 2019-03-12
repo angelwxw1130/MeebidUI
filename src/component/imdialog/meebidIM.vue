@@ -10,7 +10,7 @@
     <div class="main" style="position: relative;height: 100%;
       overflow: hidden;
       background-color: #eee;">
-        <meebidmessage style="height:400px" :messages="messages" :headPortrait="headPortrait" :chatUser="chatUser"></meebidmessage>
+        <meebidmessage style="height:360px" :messages="messages" :headPortrait="headPortrait" :chatUser="chatUser"></meebidmessage>
         <meebidtext  @sendMessage='sendMessage'></meebidtext>
     </div>
   </div>
@@ -54,7 +54,8 @@ export default {
       messages:[],
       chatUser:[],
       newChatUser:false,
-      //headPortrait:"",
+      lastChatTime:"",
+      showChatTime:true,
     }
   },
   beforeMount() {
@@ -133,6 +134,7 @@ export default {
               errorUtils.requestError(data);
           }
       });
+      
     
      }
     
@@ -195,11 +197,25 @@ export default {
       console.log(e);
       //数据接收 
       const redata = JSON.parse(e.data);
+      if(this.lastChatTime == ""){
+        this.showChatTime=true;
+      }else{
+        var num = (new Date(redata.sendAt).getTime()-new Date(this.lastChatTime).getTime())/(1000*60);
+        if(num <= 5){
+          console.log(num);
+          this.showChatTime=false;
+        }else{
+          console.log(num);
+          this.showChatTime=true;
+        }
+      }
+      this.lastChatTime = redata.sendAt;
       this.messages.push({
          date:redata.sendAt ,
          sender:redata.sender,
          content : redata.content,
          self : false,
+         ifshowtime :this.showChatTime,
       });
 　　　 console.log(redata.content); 
 　　}, 
@@ -273,11 +289,27 @@ export default {
           if (data.code === 1){
             if(this.newChatUser){
               this.messages = [];
+              this.lastChatTime = "";
+              this.showChatTime=true;
             }
             
             if(data.content.msgs.length > 0){
               for(var i = data.content.msgs.length - 1;i>=0; i--){
-                //console.log(i);
+                //如果上一个message时间为空 则记录时间
+                if(this.lastChatTime == ""){
+                  this.showChatTime=true;
+                }else{
+                  var num = (new Date(data.content.msgs[i].sendAt).getTime()-new Date(this.lastChatTime).getTime())/(1000*60);
+                  if(num <= 5){
+                    console.log(num);
+                    this.showChatTime=false;
+                  }else{
+                    console.log(num);
+                    this.showChatTime=true;
+                  }
+                }
+                this.lastChatTime = data.content.msgs[i].sendAt;
+                console.log(this.lastChatTime);  
                 var self = false;
                 if(data.content.msgs[i].sender == this.userId){
                   self = true;
@@ -286,7 +318,8 @@ export default {
                   date:data.content.msgs[i].sendAt ,
                   sender:data.content.msgs[i].sender,
                   content : data.content.msgs[i].content,
-                  self : self
+                  self : self,
+                  ifshowtime :this.showChatTime,
                 }
                 this.messages.push(message);
               }
