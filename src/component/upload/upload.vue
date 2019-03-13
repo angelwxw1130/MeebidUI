@@ -358,6 +358,10 @@ export default {
       }
     };
     data.class[`el-upload--${listType}`] = true;
+    if (disabled){
+      data.class['is-disabled'] = true;
+    }
+    
     return (
       <div {...data} tabindex="0" >
         {

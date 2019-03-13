@@ -450,15 +450,15 @@
               <div class="">You can manage your lots here.</div>
               <div style="position: absolute; right: 0px; top: 0px;"> 
                 <el-button class="meebidMarginTopMedium meebidSquareButton" icon="el-icon-back" @click="onBackToAuctionList">BACK</el-button>
-                <el-button class="meebidMarginTopMedium" type="primary" @click="onCreateAuctionLot">CREATE LOT</el-button>
+                <el-button v-if="currentSceneState !== 64" class="meebidMarginTopMedium" type="primary" @click="onCreateAuctionLot">CREATE LOT</el-button>
                 <el-dropdown class="meebidMarginLeftSmall" @command="handleBatchCommand">
                   <el-button type="primary">
                     BATCH ACTIONS<i class="el-icon-arrow-down el-icon--right"></i>
                   </el-button>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item command="batchUploadAuctionLot">Batch Upload Lots</el-dropdown-item>
-                    <el-dropdown-item command="batchUploadAuctionLotImages">Batch Upload Images</el-dropdown-item>
-                    <el-dropdown-item command="batchUploadAuctionResult">Batch Upload Auction Result</el-dropdown-item>
+                    <el-dropdown-item v-if="currentSceneState !== 64" command="batchUploadAuctionLot">Batch Upload Lots</el-dropdown-item>
+                    <el-dropdown-item v-if="currentSceneState !== 64" command="batchUploadAuctionLotImages">Batch Upload Images</el-dropdown-item>
+                    <el-dropdown-item v-if="currentSceneState !== 64" command="batchUploadAuctionResult">Batch Upload Auction Result</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
                 <!--<el-button class="meebidMarginTopMedium" type="primary" @click="onBatchUploadAuctionLot">BATCH UPLOAD</el-button>-->
@@ -484,10 +484,10 @@
                           </el-button>
                           <el-dropdown-menu slot="dropdown">
                             <el-dropdown-item command="edit">Edit</el-dropdown-item>
-                            <el-dropdown-item command="delete">Delete</el-dropdown-item>
+                            <el-dropdown-item v-if="currentSceneState !== 64" command="delete">Delete</el-dropdown-item>
                             <el-dropdown-item v-if="(item.state & 1) == 1 && currentSceneState == 32" command="review">Review</el-dropdown-item>
                             <el-dropdown-item v-if="(item.state & 4) != 0 && currentSceneState == 32" command="online">Online</el-dropdown-item>
-                            <el-dropdown-item v-if="(item.state & 8) != 0" command="offline">Offline</el-dropdown-item>
+                            <el-dropdown-item v-if="(item.state & 8) != 0 && currentSceneState !== 64" command="offline">Offline</el-dropdown-item>
                           </el-dropdown-menu>
                         </el-dropdown>
                         
@@ -1114,16 +1114,16 @@
             </el-alert>
             <el-form ref="lotForm" status-icon :rules="lotFormRules" style="width: 80%;" :model="lotForm" label-width="180px" class="meebidHouseProfileForm">        
               <el-form-item label="Name" prop="name">
-                <el-input v-model="lotForm.name" placeholder="Please input lot name"></el-input>
+                <el-input :disabled="lotForm.state === 32" v-model="lotForm.name" placeholder="Please input lot name"></el-input>
               </el-form-item>
               <el-form-item label="Description" prop="description">
-                <el-input type="textarea" class="meebidAdminAuctionDescription" v-model="lotForm.description" placeholder="Please input description"></el-input>
+                <el-input :disabled="lotForm.state === 32" type="textarea" class="meebidAdminAuctionDescription" v-model="lotForm.description" placeholder="Please input description"></el-input>
               </el-form-item>
               <el-form-item label="Lot No." prop="no">
-                <el-input-number v-model="lotForm.no" :min="1" placeholder="Please input lot number"></el-input-number>
+                <el-input-number :disabled="lotForm.state === 32" v-model="lotForm.no" :min="1" placeholder="Please input lot number"></el-input-number>
               </el-form-item>
               <el-form-item label="Category" prop="category">
-                <el-cascader :options="categoryItems" v-model="lotForm.category" :props="categoryProp" placeholder="Select...">
+                <el-cascader :disabled="lotForm.state === 32" :options="categoryItems" v-model="lotForm.category" :props="categoryProp" placeholder="Select...">
                 </el-cascader>
               </el-form-item>
               <!--<el-form-item label="Category" prop="category">
@@ -1137,16 +1137,16 @@
                 </el-select>
               </el-form-item>-->
               <el-form-item label="Min Est. Price" prop="estMinPrice">
-                <meebid-number-input v-model="lotForm.estMinPrice" placeholder="Please input minimum estimation price"></meebid-number-input>
+                <meebid-number-input :disabled="lotForm.state === 32" v-model="lotForm.estMinPrice" placeholder="Please input minimum estimation price"></meebid-number-input>
               </el-form-item>
               <el-form-item label="Max Est. Price" prop="estMaxPrice">
-                <meebid-number-input v-model="lotForm.estMaxPrice" placeholder="Please input maximum estimation price"></meebid-number-input>
+                <meebid-number-input :disabled="lotForm.state === 32" v-model="lotForm.estMaxPrice" placeholder="Please input maximum estimation price"></meebid-number-input>
               </el-form-item>
               <el-form-item label="Start Bidding Price" prop="startingBid">
-                <meebid-number-input v-model="lotForm.startingBid" placeholder="Please input start bidding price"></meebid-number-input>
+                <meebid-number-input :disabled="lotForm.state === 32" v-model="lotForm.startingBid" placeholder="Please input start bidding price"></meebid-number-input>
               </el-form-item>
               <el-form-item label="Reserve Price" prop="reservePrice">
-                <meebid-number-input v-model="lotForm.reservePrice" placeholder="Please input reserve price"></meebid-number-input>
+                <meebid-number-input :disabled="lotForm.state === 32" v-model="lotForm.reservePrice" placeholder="Please input reserve price"></meebid-number-input>
               </el-form-item>
               <el-form-item v-if="lotForm.state === 32" label="Sold Price" prop="soldPrice">
                 <meebid-number-input v-model="lotForm.soldPrice" placeholder="Please input sold price"></meebid-number-input>
@@ -1157,6 +1157,7 @@
 
               <el-form-item label="Images" prop="imageUrls" required>
                 <meebid-upload
+                  :disabled="lotForm.state === 32"
                   class="meebidUploadSmallPicture"
                   ref="bImages"
                   field-name="imageUrls"
@@ -1186,13 +1187,13 @@
             </el-alert>
             <el-form label-width="180px" ref="lotTermsForm" class="meebidHouseProfileForm" :model="lotForm" :rules="lotFormRules" status-icon>
               <el-form-item label="Terms and Condition" prop="termsAndCondition">
-                <meebid-text-editor ref="termsEditorAuction" style="height: 200px;" compId="termsAuction" v-model="lotForm.termsAndCondition" class="meebidFormFieldMediumLength" placeholder="Please input Terms and Condition"></meebid-text-editor>
+                <meebid-text-editor :disabled="lotForm.state === 32" ref="termsEditorAuction" style="height: 200px;" compId="termsAuction" v-model="lotForm.termsAndCondition" class="meebidFormFieldMediumLength" placeholder="Please input Terms and Condition"></meebid-text-editor>
               </el-form-item>
               <el-form-item label="Payment Info" prop="paymentInfo">
-                <meebid-text-editor ref="paymentEditorAuction" compId="paymentInfoAuction" style="height: 200px;" v-model="lotForm.paymentInfo" class="meebidFormFieldMediumLength" placeholder="Please input Payment Info"></meebid-text-editor>
+                <meebid-text-editor :disabled="lotForm.state === 32" ref="paymentEditorAuction" compId="paymentInfoAuction" style="height: 200px;" v-model="lotForm.paymentInfo" class="meebidFormFieldMediumLength" placeholder="Please input Payment Info"></meebid-text-editor>
               </el-form-item>
               <el-form-item label="Shipping Info" prop="shippingInfo">
-                <meebid-text-editor ref="shipingEditorAuction" compId="shippingInfoAuction" style="height: 200px;" v-model="lotForm.shippingInfo" class="meebidFormFieldMediumLength" placeholder="Please input Shipping Info"></meebid-text-editor>
+                <meebid-text-editor :disabled="lotForm.state === 32" ref="shipingEditorAuction" compId="shippingInfoAuction" style="height: 200px;" v-model="lotForm.shippingInfo" class="meebidFormFieldMediumLength" placeholder="Please input Shipping Info"></meebid-text-editor>
               </el-form-item>
             </el-form>
           </el-tab-pane>
@@ -1483,23 +1484,37 @@
         </span>
       </el-dialog>
       <el-dialog :visible.sync="batchAuctionResultDialogVisible" class="meebidBatchLotImagesDialog" title="Batch Upload Auction Result" width="900px" height="500px" :close-on-click-modal="false">
-        <meebid-busy-indicator ref="batchAuctionResultDialogImagesBusyIndicator" size="Medium"></meebid-busy-indicator>
+        <meebid-busy-indicator ref="batchAuctionResultDialogBusyIndicator" size="Medium"></meebid-busy-indicator>
         <div class="" style="">
-          <el-form ref="batchAuctionResultForm" status-icon :rules="batchAuctionResultFormRules" style="width: 90%; overflow: scroll;" :model="batchAuctionResultForm" label-width="180px" class="meebidHouseProfileForm">        
+          <el-form ref="batchAuctionResultForm" status-icon :rules="batchAuctionResultFormRules" :model="batchAuctionResultForm" label-width="180px" class="meebidHouseProfileForm">        
             <el-form-item label="Upload Auction Result" prop="batchAuctionResult" required>
-              <meebid-upload
-                field-name="batchAuctionResult"
-                :limit="1"
-                :on-exceed="handleUploadExceed"
-                :on-remove="handleUploadAuctionResultSuccess"
-                :on-success="handleUploadAuctionResultSuccess"
-                :on-error="handleUploadError"
-                :file-list="batchAuctionResultForm.batchAuctionResult"
-                >
-                <el-button size="small" type="primary">Click to upload result</el-button>
-              </meebid-upload>
+              <el-col :span="11">
+                <meebid-upload
+                  field-name="batchAuctionResult"
+                  :limit="1"
+                  :on-exceed="handleUploadExceed"
+                  :on-remove="handleUploadAuctionResultSuccess"
+                  :on-success="handleUploadAuctionResultSuccess"
+                  :on-error="handleUploadError"
+                  :file-list="batchAuctionResultForm.batchAuctionResult"
+                  >
+                  <el-button size="small" type="primary">Click to upload result</el-button>
+                </meebid-upload>
+              </el-col>
+              <el-col :span="11" style="text-align:right;">
+                <el-dropdown @command="handleBatchUploadAuctionResultDialogCommand">
+                  <el-button size="small" type="primary">
+                    Actions<i class="el-icon-arrow-down el-icon--right"></i>
+                  </el-button>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="exportLots">Export All Lots</el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+              </el-col>
+
             </el-form-item>
           </el-form>
+
         </div>
         <el-table
           border
@@ -1513,15 +1528,21 @@
             prop="no"
             fixed
             label="No."
-            width="25%">
+            width="60">
             <template slot-scope="scope">
               <span>{{formatLotNo(scope.row)}}</span>
             </template>
           </el-table-column>
           <el-table-column
+            prop="name"
+            label="Name"
+            width="250"
+            >
+          </el-table-column>
+          <el-table-column
             prop="isSold"
             label="Sold Status"
-            width="25%"
+            width="120"
             >
             <template slot-scope="scope">
               <span>{{formatSoldStatus(scope.row)}}</span>
@@ -1530,10 +1551,9 @@
           <el-table-column
             prop="soldPrice"
             label="Sold Price"
-            width="50%"
             >
             <template slot-scope="scope">
-              <span>{{getFormattedCurrencyNumber(scope.row.soldPrice)}}</span>
+              <span>{{getFormattedCurrencyNumber(scope.row.price)}}</span>
             </template>
           </el-table-column>
         </el-table>
@@ -1732,7 +1752,7 @@ export default {
         this.batchAuctionResultTableLoading = true;
         $.ajax({
           type: "POST",
-          url: "/api/lot/batch/info/prepare",
+          url: "/api/lot/simple/sold/snapshot",
           contentType : "application/json", 
           context: this,
           headers: {
@@ -2197,6 +2217,7 @@ export default {
           { required: true, validator: validateBatchImages, trigger: 'change' }          
         ],
       },
+      batchAuctionResult: [],
       batchAuctionResultForm: {},
       batchAuctionResultFormRules: {
         batchAuctionResult: [
@@ -4021,6 +4042,11 @@ export default {
         requestObj.paymentInfo = JSON.stringify(this.lotForm.paymentInfo);
         requestObj.shippingInfo = JSON.stringify(this.lotForm.shippingInfo);
       }
+
+      if (this.lotForm.state === window.meebidConstant.lotState.Expired) {
+        requestObj.soldPrice = parseFloat(this.lotForm.soldPrice);
+        requestObj.bidResult = this.lotForm.isSold ? window.meebidConstant.lotBidResult.Sold : meebidConstant.lotBidResult.Available;
+      }
       
       $.ajax({
         type: "POST",
@@ -4077,10 +4103,10 @@ export default {
       var searchType;
       switch(this.activeAuctionManagementType){
         case 'publish':
-          searchType = 1 << 4 + 1 << 5;
+          searchType = (1 << 4) + (1 << 5);
           break;
         case 'draft':
-          searchType = 1 << 0 + 1 << 1 + 1 << 2 + 1 << 3;
+          searchType = (1 << 0) + (1 << 1) + (1 << 2) + (1 << 3);
           break;
         case 'past':
           searchType = 1 << 6;
@@ -4095,7 +4121,7 @@ export default {
           token: this.loginUser.token
         },
         data: {
-          // state: searchType,
+          state: searchType,
           offset: (this.currentPageForAuction - 1) * 20,
           count: 20
         },
@@ -4425,7 +4451,7 @@ export default {
             isTermLoaded: false,
             state: item.state,
             isSold: item.bidResult === window.meebidConstant.lotBidResult.Sold,
-            soldPrice: item.soldPrice
+            soldPrice: item.soldPrice > 0 ? meebidUtils.formatMoneyForNumberField("", item.soldPrice, true, 2) : meebidUtils.formatMoneyForNumberField("", 0, true, 2)
           };
           if (this.$refs.lotForm){
             var me = this;
@@ -4780,6 +4806,42 @@ export default {
     formatLotNo(item){
       return item.isConflict ? item.no + "*" : item.no;
     },
+    handleBatchUploadAuctionResultDialogCommand(command) {
+      var me = this;
+      switch(command){
+        case 'exportLots':
+          var requestObj = {
+            sceneId: me.currentSceneId
+          };
+          $.ajax({
+            type: "POST",
+            url: "/api/lot/simple/export",
+            contentType : "application/json", 
+            context: this,
+            headers: {
+              token: this.loginUser.token
+            },
+            data: JSON.stringify(requestObj),
+            success(data) {
+              if (data.code === 1){
+                window.open(data.content.download);
+              } else {
+                this.$notify.error({
+                  title: 'Failure',
+                  message: 'Download Simple Lots failure',
+                  duration: 5000
+                });
+              }
+            },
+            error(data) {
+              errorUtils.requestError(data);
+            }
+          }).done(function(){
+            
+          });;
+          break;
+      }
+    },
     handleBatchUploadDialogCommand(command) {
       switch(command){
         case 'downloadSample':
@@ -4808,6 +4870,10 @@ export default {
         batchAuctionResult: []
       };
     },
+    handleUploadAuctionResultSuccess(response, file, fileList, fieldName) {
+      this.batchAuctionResultForm[fieldName] = fileList;
+      this.$refs.batchAuctionResultForm.validateField(fieldName);
+    },
     handleUploadBatchImageSuccess(response, file, fileList, fieldName) {
       this.batchImagesForm[fieldName] = fileList;
       this.$refs.batchImagesForm.validateField(fieldName);
@@ -4819,6 +4885,51 @@ export default {
       this.batchImagesForm = {
         imageUrls: []
       };
+    },
+    onUpdateAuctionResult() {
+      var me = this;
+      this.$refs.batchAuctionResultForm.validate(function(isValid){
+        if (isValid){
+          me.$refs.batchAuctionResultDialogBusyIndicator.show();
+          var requestObj = {
+            erUid: me.batchAuctionResultForm.batchAuctionResult[0].rUid,
+            sceneId: me.currentSceneId
+          };
+          $.ajax({
+            type: "POST",
+            url: "/api/lot/simple/sold/update",
+            contentType : "application/json", 
+            context: me,
+            headers: {
+              token: me.loginUser.token
+            },
+            data: JSON.stringify(requestObj),
+            success(data) {
+              if (data.code === 1){
+                me.$message({
+                  type: 'success',
+                  message: i18n.t('meebid.alertMessage.MSG_ADMIN_BATCH_UPLOAD_IMAGES_SUCCESS')
+                });
+                me.batchAuctionResultDialogVisible = false;
+                me.currentPageForAuctionLot = 1;
+                me.refreshAuctionLots();
+              } else {
+                me.$notify.error({
+                  title: 'Failure',
+                  message: 'Batch Upload Auction Result failure',
+                  duration: 5000
+                });
+              }
+            },
+            error(data) {
+              me.$refs.batchAuctionResultDialogBusyIndicator.hide();
+              errorUtils.requestError(data);
+            }
+          }).done(function(){
+            me.$refs.batchAuctionResultDialogBusyIndicator.hide();
+          });
+        }
+      })
     },
     onUpdateLotImages() {
       var me = this;
@@ -4870,6 +4981,9 @@ export default {
         }
       })
       
+    },
+    formatSoldStatus(item){
+      return item.sold ? "Sold" : "Not sold";
     }
   }
 }

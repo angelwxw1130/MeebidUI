@@ -54,6 +54,7 @@ const cn = {
             MSG_ADMIN_BATCH_UPLOAD_TEMPLATE_DATA_ERROR_LOT_ID_CONFLICT_TEXT: "{0} {1} already exist in auction.<br/>",
             MSG_ADMIN_BATCH_UPLOAD_SUCCESS: "Batch Upload Lots successful, {0} lots updated into auction.",
             MSG_ADMIN_BATCH_UPLOAD_IMAGES_SUCCESS: "Batch Upload Lots images successful.",
+            MSG_ADMIN_BATCH_UPLOAD_AUCTION_RESULT_SUCCESS: "Batch Upload Auction Result successful.",
             MSG_ADMIN_BATCH_UPLOAD_NAME_CONFLICT_TEXT: "File name {0} already existing, click confirm to replace existing file or click cancel to quit upload process.",
             MSG_ADMIN_AUCTION_REVIEW_ALL_LOTS_TEXT: "All un-reviewed lots have been submit for review, please wait for administrator approval.",
             MSG_ADMIN_LOT_VALIDATION_LOT_ID_EXISTING_TEXT: "Lot No. already exist in Auction. Next unused Lot No. is {0}",

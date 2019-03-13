@@ -59,17 +59,17 @@
           <i class="el-icon-delete"></i>
         </span>
       </span>
-      <span class="meebid-upload-list__item-switchBar" v-if="listType === 'picture-card' && files.length > 1">
+      <span class="meebid-upload-list__item-switchBar" v-if="listType === 'picture-card' && files.length > 1 && !disabled">
         <span
           class="el-upload-list__item-left"
-          v-if="listType === 'picture-card' && index > 0"
+          v-if="listType === 'picture-card' && index > 0 && !disabled"
           @click="$emit('switchLeft', file)"
         >
           <i class="el-icon-arrow-left"></i>
         </span>
         <span
           class="el-upload-list__item-right"
-          v-if="listType === 'picture-card' && index < (files.length - 1)"
+          v-if="listType === 'picture-card' && index < (files.length - 1) && !disabled"
           @click="$emit('switchRight', file)"
         >
           <i class="el-icon-arrow-right"></i>

@@ -30,6 +30,10 @@
       value: [String, Number, Object],
       config: {
         type: Object
+      },
+      disabled: {
+        type: Boolean,
+        default: false
       }
     },
     watch: {
@@ -41,7 +45,8 @@
       var me = this;
       this.editor = new Quill('#' + this.compId, {
         placeholder: this.placeholder,
-        theme: 'snow'
+        theme: 'snow',
+        readOnly: this.disabled
       });
       this.editor.on('text-change', function(delta, oldDelta, source) {
         if (source == 'api') {

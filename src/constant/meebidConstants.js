@@ -88,12 +88,14 @@ meebidConstant.lotState = {
     "Offline" : 1 << 2,  // 已审核通过，但未上架
     "Online" : 1 << 3,   // 上架展示
     "Forbidden" : 1 << 4, // 被管理员下架
+    "Expired": 1 << 5, //过期
     0: "Delete",    // 删除
     1: "Draft",      // 刚创建
     2: "Pending Approval",   // 提交审核
     4: "Offline",  // 已审核通过，但未上架
     8: "Online",   // 上架展示
-    16: "Forbidden" // 被管理员下架
+    16: "Forbidden", // 被管理员下架
+    32: "Expired" //过期
 }
 
 meebidConstant.lotStateColor = {
@@ -107,7 +109,7 @@ meebidConstant.lotStateColor = {
 
 meebidConstant.lotBidResult = {
     "Available": 1 << 0,
-    "Sold": 1 << 1 + 1 << 0
+    "Sold": (1 << 1) + (1 << 0)
 }
 
 

@@ -1643,6 +1643,10 @@ body {
   height: 50%;
 }
 
+.meebid .el-upload-list--picture-card.is-disabled .el-upload-list__item-actions.meebid-contain-switchBar{
+ height: 100%;
+}
+
 .meebid .el-upload-list__item:hover .el-upload-list__item-actions,
 .meebid .el-upload-list__item:hover .meebid-upload-list__item-switchBar {
   opacity: 1;
@@ -1884,6 +1888,10 @@ body {
   line-height: 73px;
 }
 
+.meebid .el-upload--picture-card.is-disabled {
+  display: none;
+}
+
 .meebidUploadSmallPicture .el-upload-list--picture-card .el-upload-list__item {
   width: 74px;
   height: 74px;
@@ -2013,7 +2021,7 @@ body {
   text-overflow: ellipsis;
 }
 
-.meebid .meebidAdminAuctionManagementAuctionList:first-child .meebidAdminAuctionListAuction {
+.meebid .meebidAdminAuctionManagementAuctionList div:first-child .meebidAdminAuctionListAuction {
   border-top: none !important;
 }
 
@@ -2602,3 +2610,14 @@ body {
 /**
   IM Pophover End
   */
+
+
+/**
+  Quill Start
+ */
+.el-form-item .ql-toolbar.ql-snow {
+  padding: 0;
+}
+/**
+  Quill End
+ */
