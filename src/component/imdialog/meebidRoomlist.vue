@@ -1,7 +1,7 @@
 <template>
     <div class="meebidroomlist">
         <ul style="padding:0px;">
-            <li v-for="item in chatUsers" :class="{ active: item.userId === currentId }" @click="getChatConn(item.userId,item.roomId)"  style="list-style-type:none; padding: 12px 15px; border-bottom: 1px solid #292C33; cursor: pointer; transition: background-color .1s;" >
+            <li v-for="item in chatUsers" :class="{ active: item.userId === currentId }" @click="getChatConn(item.userId,item.roomId)"  style="list-style-type:none; padding: 12px 15px; border-bottom: 1px solid #FF5242; cursor: pointer; transition: background-color .1s;" >
                 <img class="avatar" style="vertical-align: middle; border-radius: 2px; width:30; height:30;"   :alt="item.firstName" :src="item.headPortrait">
                 <p class="name"  style="vertical-align: middle; display: inline-block; margin: 0 0 0 15px;">{{item.firstName}}</p>
             </li>

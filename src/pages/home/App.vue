@@ -10,7 +10,7 @@
       <meebid-button button-type="round orange" :button-click="show" icon-type="comment" class="im"> 
       </meebid-button>
       <transition name="fold">
-        <meebidim class="meebidIMPophover" :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow" :panelShow="panelShow" ></meebidim>
+        <meebidim class="meebidIMPophover" :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow" :panelShow="panelShow" :ws="ws"></meebidim>
       </transition>
       <meebid-busy-indicator ref="busyIndicator" size="Medium"></meebid-busy-indicator>
     </div>
@@ -61,6 +61,8 @@ export default {
       userId:-1,
       roomId:"",
       headPortrait:"",
+      wsUrl:"",
+      ws:null,
     }
   },
   beforeMount() {
@@ -137,6 +139,50 @@ export default {
       this.$refs.homePageListContainer.setFilterCategory(categoryId);
     },
     show(){
+      if(this.ws == null){
+        //获取socketID
+        $.ajax({
+            type: "POST",
+            url: "/api/socket/socket",
+            contentType : "application/json", 
+            context: this,
+            headers: {
+                token: this.loginUser.token
+            },
+            data: {},
+            success(data) {
+                if (data.code === 1){
+                    var wsUrl = '';
+                //this.$refs.busyIndicator.hide();
+                    this.socketId = data.content.ws;
+                    if(data.content.ws.startsWith("ws://")){
+                        wsUrl = data.content.ws +"/" + this.loginUser.token;  
+                    }else{
+                        wsUrl = "ws://47.100.84.71:" + data.content.ws +"/" + this.loginUser.token;  
+                    }
+                    this.wsUrl = wsUrl
+                    this.roomId = data.content.roomId;
+                    
+                    if ("WebSocket" in window) {
+                      this.ws = new WebSocket(this.wsUrl);
+                    }
+                    else if ("MozWebSocket" in window) {
+                      this.ws = new MozWebSocket(this.wsUrl);
+                    } else {
+                      console.log("当前浏览器不支持WebSocket");
+
+                    }
+                    
+                    //this.$emit('getSocketUrl',{wsurl: wsUrl, roomId: data.content.roomId,chatUserId:userId}); 
+
+                }
+
+            },
+            error(data) {
+                errorUtils.requestError(data);
+            }
+        });
+      }
       if(!this.panelShow){
         this.panelShow = true;
       }else{
@@ -144,6 +190,7 @@ export default {
       }
      
     },
+    
   }
 }
 /**
@@ -184,12 +231,12 @@ export default {
     }
     @keyframes slideOutDown {
         0% {
-            transform: translateZ(0)
+            transform: translate3d(0%,0,0);
         }
 
         to {
             visibility: hidden;
-            transform: translate3d(100%,0,0)
+            transform: translate3d(110%,0,0)
         }
     }
 

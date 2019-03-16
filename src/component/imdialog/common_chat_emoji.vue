@@ -85,7 +85,7 @@ export default {
 </script>
 
 <style>
-.common_chat_emoji-wrapper .iconfont{
+.common_chat_emoji-wrapper .glyphicon{
      
         color: #aaa;
         font-size: 20px;
