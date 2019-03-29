@@ -37,7 +37,16 @@ export default {
             if (typeof date === 'string') {
                 date = new Date(date);
             }
-            return (Array(2).join(0) + date.getHours()).slice(-2) + ':' + (Array(2).join(0) + date.getMinutes()).slice(-2);
+            var nowdate = new Date();
+            if(nowdate.getFullYear() === date.getFullYear() && nowdate.getMonth() === date.getMonth() && nowdate.getDate() === date.getDate()){
+                return (Array(2).join(0) + date.getHours()).slice(-2) + ':' + (Array(2).join(0) + date.getMinutes()).slice(-2);
+            }else{
+                var month = date.getMonth() +1;
+                var fulltime = date.getFullYear() +'年'+month +'月'+date.getDate()+ '日 ' +(Array(2).join(0) + date.getHours()).slice(-2) + ':' + (Array(2).join(0) + date.getMinutes()).slice(-2);
+                return fulltime;
+            }
+            
+            
         }
     },
     directives: {

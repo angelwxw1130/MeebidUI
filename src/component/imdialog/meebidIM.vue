@@ -3,8 +3,8 @@
     <div class="sidebar" style=" float: left;height: 100%;
       width: 160px;
       color: #f4f4f4;
-      background-color: #2e3238;">
-      <meebidcard :headPortrait="headPortrait" :firstName="firstName"></meebidcard>
+      background-color: #FF5242;">
+      <!--<meebidcard :headPortrait="headPortrait" :firstName="firstName"></meebidcard>-->
       <meebidroomlist :chatUsers="chatUsers" @getChatUserId='getChatUserId' @getChatRoom='getChatRoom'></meebidroomlist>
     </div>
     <div class="main" style="position: relative;height: 100%;
@@ -26,18 +26,20 @@ export default {
   name:'meebidim',
   props: {
     profileData: Object,
+    ws: Object,
     userId:-1,
     panelShow: {
             type: Boolean
     },
     headPortrait: {
-        type: String,
-        default: ""
-      },
-      firstName: {
-        type: String,
-        default: ""
-      },
+      type: String,
+      default: ""
+    },
+    firstName: {
+      type: String,
+      default: ""
+    },
+    
   },
   data () {
     return {
@@ -101,42 +103,15 @@ export default {
       var request = this.buildGetLastChatsReq();
       $.ajax(request);
 
-      //获取socketID
-      $.ajax({
-          type: "POST",
-          url: "/api/socket/socket",
-          contentType : "application/json", 
-          context: this,
-          headers: {
-              token: this.loginUser.token
-          },
-          data: {},
-          success(data) {
-              if (data.code === 1){
-                  var wsUrl = '';
-              //this.$refs.busyIndicator.hide();
-                  this.socketId = data.content.ws;
-                  if(data.content.ws.startsWith("ws://")){
-                      wsUrl = data.content.ws +"/" + this.loginUser.token;  
-                  }else{
-                      wsUrl = "ws://47.100.84.71:" + data.content.ws +"/" + this.loginUser.token;  
-                  }
-                  this.wsUrl = wsUrl
-                  this.roomId = data.content.roomId;
-                  
-                  this.connection();
-                  //this.$emit('getSocketUrl',{wsurl: wsUrl, roomId: data.content.roomId,chatUserId:userId}); 
-
-              }
-
-          },
-          error(data) {
-              errorUtils.requestError(data);
-          }
-      });
+      //注册各类回调
+      if(this.ws != null){
+        this.ws.onopen = this.websocketonopen;
+        this.ws.onerror = this.websocketonerror;
+        this.ws.onmessage = this.websocketonmessage; 
+        this.ws.onclose = this.websocketclose;
+      }
       
-    
-     }
+    }
     
   },
 
@@ -146,6 +121,18 @@ export default {
       //尝试向服务端发送消息
       console.log(message);
       var date = new Date();
+      if(this.lastChatTime == ""){
+        this.showChatTime=true;
+      }else{
+        var num = (date.getTime()-new Date(this.lastChatTime).getTime())/(1000*60);
+        if(num <= 5){
+          this.showChatTime=false;
+        }else{
+          this.showChatTime=true;
+        }
+      }
+      this.lastChatTime = date;
+
       this.ws.send(JSON.stringify({
         id:date.getTime(),
         content: message,
@@ -157,6 +144,7 @@ export default {
          sender:this.userId,
          content : message,
          self : true,
+         ifshowtime :this.showChatTime,
       });
     },
     connection(){
@@ -193,8 +181,7 @@ export default {
 　　websocketonerror(e) { //错误
  　　　console.log("WebSocket连接发生错误");
 　　},
-　　websocketonmessage(e){ 
-      console.log(e);
+　　websocketonmessage(e){       
       //数据接收 
       const redata = JSON.parse(e.data);
       if(this.lastChatTime == ""){
@@ -202,10 +189,8 @@ export default {
       }else{
         var num = (new Date(redata.sendAt).getTime()-new Date(this.lastChatTime).getTime())/(1000*60);
         if(num <= 5){
-          console.log(num);
           this.showChatTime=false;
         }else{
-          console.log(num);
           this.showChatTime=true;
         }
       }
@@ -220,8 +205,7 @@ export default {
 　　　 console.log(redata.content); 
 　　}, 
     
-    websocketclose(e){ //关闭 
-      //this.connection();
+    websocketclose(e){ //关闭       
 　　　console.log("connection closed (" + e.code + ")"); 
 　　},
     websocketunread(){

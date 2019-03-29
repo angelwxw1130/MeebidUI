@@ -38,7 +38,12 @@ export default {
     },
     data () {
         return {
-            content: ''
+            content: '',
+            inputContent_setTimeout: null, // 输入文字时在输入结束才修改具体内容
+            selectionRange: null, // 输入框选中的区域
+            shortcutMsgList: [], // 聊天区域的快捷回复列表
+            imgViewDialogVisible: false, // 图片查看dialog的显示
+            imgViewDialog_imgSrc: '' // 图片查看dialog的图片地址
         };
     },
     methods: {
