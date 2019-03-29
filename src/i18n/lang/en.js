@@ -57,12 +57,15 @@ const en = {
             MSG_ADMIN_BATCH_UPLOAD_AUCTION_RESULT_SUCCESS: "Batch Upload Auction Result successful.",
             MSG_ADMIN_BATCH_UPLOAD_NAME_CONFLICT_TEXT: "File name {0} already existing, click confirm to replace existing file or click cancel to quit upload process.",
             MSG_ADMIN_AUCTION_REVIEW_ALL_LOTS_TEXT: "All un-reviewed lots have been submit for review, please wait for administrator approval.",
+            MSG_ADMIN_AUCTION_END_AUCTION_TEXT: "Auction is ended",
+            MSG_ADMIN_END_AUCTION_CONFIRMATION_TEXT: "Are you sure to end this auction?",
             MSG_ADMIN_LOT_VALIDATION_LOT_ID_EXISTING_TEXT: "Lot No. already exist in Auction. Next unused Lot No. is {0}",
             MSG_LOT_DETAIL_REGISTER_SUCCESS: "Registration updated",
             MSG_LOT_DETAIL_DELETE_APPLY_CONFIRM_TEXT: "Are you sure to cancel this registration?",
             MSG_LOT_DETAIL_CANCEL_SUCCESS: "Registration cancelled",
             MSG_LOT_REGISTRATION_APPLY_SUCCESS: "Registration Approved",
-            MSG_LOT_REGISTRATION_DENY_SUCCESS: "Registration Rejected"
+            MSG_LOT_REGISTRATION_DENY_SUCCESS: "Registration Rejected",
+            MSG_ADMIN_SEND_INVOICE_SUCCESS: "Send Invoice Successful"
         },
         forgetPassword: {
             MSG_FORGET_PASSWORD_HEADER_TEXT: "Send an email to reset your password"

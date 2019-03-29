@@ -414,7 +414,7 @@
                       <span style="font-size: 16px; display: inline-block;" v-if="(item.state & 2) != 0" :style="{background: getStateColor(2)}" class="meebidPaddingLeftSmall meebidPaddingRightSmall meebidMarginTopSmall">{{getStateLabel(2)}}</span>
                     </div>
                     <div style="width: 100px; display: inline-block; float: right;">
-                      <el-dropdown @command="handleAuctionItemCommand($event, item)" v-if="item.state != 0">
+                      <el-dropdown @command="handleAuctionItemCommand($event, item)" v-if="item.state != 0 && (item.state & 64) == 0">
                         <el-button type="primary" size="small" class="meebidAuctionListButton">
                           Actions<i class="el-icon-arrow-down el-icon--right"></i>
                         </el-button>
@@ -425,6 +425,7 @@
                           <el-dropdown-item v-if="(item.state & 16) != 0" command="deList">De-List</el-dropdown-item>
                           <el-dropdown-item v-if="(item.state & 32) == 0 && (item.state & 2) == 0" command="publish">Publish</el-dropdown-item>
                           <el-dropdown-item v-if="(item.state & 32) != 0" command="review">Review Lots</el-dropdown-item>
+                          <el-dropdown-item v-if="(item.state & 32) != 0" command="end">End Auction</el-dropdown-item>
                         </el-dropdown-menu>
                       </el-dropdown>
                       <el-button type="primary" size="small" v-if="item.state != 0" class="meebidMarginTopMedium meebidAuctionListButton meebidMarginLeftClean" @click="onManageLots(item)">Manage Lots</el-button>
@@ -458,7 +459,7 @@
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item v-if="currentSceneState !== 64" command="batchUploadAuctionLot">Batch Upload Lots</el-dropdown-item>
                     <el-dropdown-item v-if="currentSceneState !== 64" command="batchUploadAuctionLotImages">Batch Upload Images</el-dropdown-item>
-                    <el-dropdown-item v-if="currentSceneState !== 64" command="batchUploadAuctionResult">Batch Upload Auction Result</el-dropdown-item>
+                    <el-dropdown-item v-if="currentSceneState === 64" command="batchUploadAuctionResult">Batch Upload Auction Result</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
                 <!--<el-button class="meebidMarginTopMedium" type="primary" @click="onBatchUploadAuctionLot">BATCH UPLOAD</el-button>-->
@@ -478,7 +479,7 @@
                       <span class="meebidAdminLotStartPrice" >{{getLotStartPrice(item)}}</span>
                       <span :style="{background: getLotStateColor(item.state)}" class="meebidAdminLotState meebidPaddingLeftSmall meebidPaddingRightSmall">{{getLotStateLabel(item.state)}}</span>
                       <div class="meebidLotActionButtonContainer">
-                        <el-dropdown @command="handleLotItemCommand($event, item)" v-if="item.state != 0 && currentSceneState != 8 && currentSceneState != 64">
+                        <el-dropdown @command="handleLotItemCommand($event, item)" v-if="item.state != 0 && currentSceneState != 8">
                           <el-button type="primary" size="super-mini">
                             <i class="el-icon-setting"></i>
                           </el-button>
@@ -488,6 +489,7 @@
                             <el-dropdown-item v-if="(item.state & 1) == 1 && currentSceneState == 32" command="review">Review</el-dropdown-item>
                             <el-dropdown-item v-if="(item.state & 4) != 0 && currentSceneState == 32" command="online">Online</el-dropdown-item>
                             <el-dropdown-item v-if="(item.state & 8) != 0 && currentSceneState !== 64" command="offline">Offline</el-dropdown-item>
+                            <el-dropdown-item v-if="item.state === 32 && currentSceneState === 64" command="invoice">Send Invoice</el-dropdown-item>
                           </el-dropdown-menu>
                         </el-dropdown>
                         
@@ -1486,7 +1488,7 @@
       <el-dialog :visible.sync="batchAuctionResultDialogVisible" class="meebidBatchLotImagesDialog" title="Batch Upload Auction Result" width="900px" height="500px" :close-on-click-modal="false">
         <meebid-busy-indicator ref="batchAuctionResultDialogBusyIndicator" size="Medium"></meebid-busy-indicator>
         <div class="" style="">
-          <el-form ref="batchAuctionResultForm" status-icon :rules="batchAuctionResultFormRules" :model="batchAuctionResultForm" label-width="180px" class="meebidHouseProfileForm">        
+          <el-form ref="batchAuctionResultForm" status-icon :rules="batchAuctionResultFormRules" :model="batchAuctionResultForm" label-width="180px" class="meebidHouseProfileForm meebidPaddingLeftLarge">        
             <el-form-item label="Upload Auction Result" prop="batchAuctionResult" required>
               <el-col :span="11">
                 <meebid-upload
@@ -1564,6 +1566,64 @@
         </span>
       </el-dialog>
       
+      <el-dialog :visible.sync="sendInvoiceDialogVisible" class="meebidBatchLotImagesDialog" title="Send Invoice" width="900px" height="500px" :close-on-click-modal="false">
+        <meebid-busy-indicator ref="sendInvoiceDialogBusyIndicator" size="Medium"></meebid-busy-indicator>
+        <div class="" style="">
+          <el-form ref="batchAuctionResultForm" status-icon :rules="sendInvoiceFormRules" :model="sendInvoiceForm" label-width="180px" class="meebidHouseProfileForm">        
+            <el-form-item label="Invoice" prop="invoiceImage" required>
+              <meebid-upload
+                class="meebidUploadMiniPicture"
+                :multiple="false"
+                :limit="1"
+                :allowSameFileName="false"
+                field-name="invoiceImage"
+                :on-exceed="handleUploadExceed"
+                :on-remove="handleUploadInvoiceSuccess"
+                :on-success="handleUploadInvoiceSuccess"
+                :on-preview="handlePictureCardPreview"
+                :on-error="handleUploadError"
+                :file-list="sendInvoiceForm.invoiceImage"
+                >
+                <el-button size="small" type="primary">Click to upload invoice</el-button>
+              </meebid-upload>
+
+            </el-form-item>
+          </el-form>
+
+        </div>
+        <el-table
+          border
+          empty-text=" "
+          height="350"
+          class="meebidMarginTopLarge"
+          @current-change="handleSendInvoiceTableChange"
+          :data="invoiceUserList"
+          style="width: 90%; margin-left: 5%;">
+          <el-table-column
+            type="selection"
+            width="35">
+          </el-table-column>
+          <el-table-column
+            fixed
+            label="User Name"
+            width="350">
+            <template slot-scope="scope">
+              <span>{{formatUserName(scope.row)}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="telephone1"
+            label="Phone"
+            width="350"
+            >
+          </el-table-column>
+        </el-table>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="sendInvoiceDialogVisible = false" class="">Cancel</el-button>
+          <el-button type="primary" :disabled="!isSendInvoiceFormValid" @click="onSendInvoice()">Send</el-button>
+        </span>
+      </el-dialog>
+
       <meebid-category-dialog :items="categoryItems" :favorCategories="userProfileForm && userProfileForm.favorCategories ? userProfileForm.favorCategories : []" :isProfilePage="isProfilePage" @update="onCategoryDialogUpdate" ref="categoryDialog">
       </meebid-category-dialog>
     </div>
@@ -1794,7 +1854,15 @@ export default {
         callback(new Error('Please upload auction result.'));
       }
     };
-
+    var validateInvoiceImage = (rule, value, callback) => {
+      var me = this;
+      if (value && value.length > 0 && value[0].rUid) {
+        callback();
+      } else {
+        callback(new Error('Please upload invoice image.'));
+      }
+      this.validateInvoiceDialog();
+    };
     var validateRegions = (rule, value, callback) => {
       if (value && value.length > 0) {
         callback();
@@ -1937,6 +2005,10 @@ export default {
       }
     };
     return {
+      invoiceUserSelectedIdx: -1,
+      invoiceUserList: [],
+      sendInvoiceDialogVisible: false,
+      isSendInvoiceFormValid: false,
       batchAuctionResultDialogVisible: false,
       batchLotImagesDialogVisible: false,
       batchUploadHintLabel: i18n.t('meebid.batchUpload.MSG_BATCH_UPLOAD_HINT_LABEL'),
@@ -2240,6 +2312,12 @@ export default {
           { required: true, message: 'Please select End Time', trigger: 'change' },
           { validator: validateExhibitionEndTime, trigger: 'change' }
         ],
+      },
+      sendInvoiceForm: {},
+      sendInvoiceFormRules: {
+        invoiceImage: [
+          { required: true, validator: validateInvoiceImage, trigger: 'change' }          
+        ]
       }
     }
   },
@@ -3948,6 +4026,7 @@ export default {
       }
     },
     saveAuction() {
+      var me = this;
       this.checkExhibitionsStatus();
       var requestObj = {
         name: this.auctionForm.name,
@@ -3975,7 +4054,7 @@ export default {
         requestObj.paymentInfo = JSON.stringify(this.auctionForm.paymentInfo);
         requestObj.shippingInfo = JSON.stringify(this.auctionForm.shippingInfo);
       }
-      
+      this.$refs.busyIndicator.show();
       $.ajax({
         type: "POST",
         url: "/api/scene/insupd",
@@ -4003,14 +4082,16 @@ export default {
               duration: 5000
             })
           }
-          
+          me.$refs.busyIndicator.hide();
         },
         error(data) {
           errorUtils.requestError(data);
+          me.$refs.busyIndicator.hide();
         }
       });
     },
     saveLot() {
+      var me = this;
       var requestObj = {
         sceneId: this.lotForm.sceneId,
         name: this.lotForm.name,
@@ -4047,7 +4128,7 @@ export default {
         requestObj.soldPrice = parseFloat(this.lotForm.soldPrice);
         requestObj.bidResult = this.lotForm.isSold ? window.meebidConstant.lotBidResult.Sold : meebidConstant.lotBidResult.Available;
       }
-      
+      this.$refs.busyIndicator.show();
       $.ajax({
         type: "POST",
         url: "/api/lot/insupd",
@@ -4086,9 +4167,10 @@ export default {
               duration: 5000
             })
           }
-          
+          me.$refs.busyIndicator.hide();
         },
         error(data) {
+          me.$refs.busyIndicator.hide();
           errorUtils.requestError(data);
         }
       });
@@ -4423,6 +4505,52 @@ export default {
             me.$refs.busyIndicator.hide();
           });
           break;
+        case 'end':
+          var me = this;
+          this.$confirm(i18n.t('meebid.alertMessage.MSG_ADMIN_END_AUCTION_CONFIRMATION_TEXT'), 'End Auction', {
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel',
+            type: 'warning'
+          }).then(() => {
+            me.$refs.busyIndicator.show();
+            $.ajax({
+              type: "POST",
+              url: "/api/scene/end",
+              contentType : "application/json", 
+              context: this,
+              headers: {
+                token: this.loginUser.token
+              },
+              data: JSON.stringify({
+                sceneId: item.id
+              }),
+              success(data) {
+                if (data.code === 1){
+                  item.state = window.meebidConstant.auctionState.Ended;
+                  this.$message({
+                    type: 'success',
+                    message: i18n.t('meebid.alertMessage.MSG_ADMIN_AUCTION_END_AUCTION_TEXT')
+                  });
+                } else {
+                  this.$notify.error({
+                    title: 'Failure',
+                    message: 'End Auction failure',
+                    duration: 5000
+                  })
+                }
+              },
+              error(data) {
+                errorUtils.requestError(data);
+                me.$refs.busyIndicator.show();
+              }
+            }).done(function(){
+              me.$refs.busyIndicator.hide();
+            });
+          }).catch(() => {
+            
+          });
+          
+          break;
       }
     },
     handleLotItemCommand(command, item){
@@ -4573,6 +4701,45 @@ export default {
             }
           }).done(function(){
             me.$refs.busyIndicator.hide();
+          });
+          break;
+        case 'invoice':
+          var me = this;
+          this.sendInvoiceDialogVisible = true;
+          this.$nextTick(function () {
+            me.$refs.sendInvoiceDialogBusyIndicator.show();
+            me.sendInvoiceForm.invoiceImage = [];
+            me.invoiceLotItem = item;
+            $.ajax({
+              type: "GET",
+              url: "/api/bid/mgr/applys/users",
+              contentType : "application/json", 
+              context: me,
+              headers: {
+                token: me.loginUser.token
+              },
+              data: {
+                lotId: item.id
+              },
+              success(data) {
+                if (data.code === 1){
+                  me.invoiceUserList = data.content || [];
+                } else {
+                  me.$notify.error({
+                    title: 'Failure',
+                    message: 'Fetch Registered User List failure',
+                    duration: 5000
+                  })
+                }
+                
+              },
+              error(data) {
+                me.$refs.sendInvoiceDialogBusyIndicator.hide();
+                errorUtils.requestError(data);
+              }
+            }).done(function(){
+              me.$refs.sendInvoiceDialogBusyIndicator.hide();
+            });
           });
           break;
 
@@ -4813,6 +4980,7 @@ export default {
           var requestObj = {
             sceneId: me.currentSceneId
           };
+          this.$refs.batchAuctionResultDialogBusyIndicator.show();
           $.ajax({
             type: "POST",
             url: "/api/lot/simple/export",
@@ -4837,8 +5005,8 @@ export default {
               errorUtils.requestError(data);
             }
           }).done(function(){
-            
-          });;
+            me.$refs.batchAuctionResultDialogBusyIndicator.hide();
+          });
           break;
       }
     },
@@ -4873,6 +5041,9 @@ export default {
     handleUploadAuctionResultSuccess(response, file, fileList, fieldName) {
       this.batchAuctionResultForm[fieldName] = fileList;
       this.$refs.batchAuctionResultForm.validateField(fieldName);
+    },
+    handleUploadInvoiceSuccess(response, file, fileList, fieldName) {
+      this.sendInvoiceForm[fieldName] = fileList;
     },
     handleUploadBatchImageSuccess(response, file, fileList, fieldName) {
       this.batchImagesForm[fieldName] = fileList;
@@ -4984,6 +5155,65 @@ export default {
     },
     formatSoldStatus(item){
       return item.sold ? "Sold" : "Not sold";
+    },
+    formatUserName(user){
+      return user.firstName + " " + user.lastName;
+    },
+    handleSendInvoiceTableChange(val){
+      if (val >= 0 ){
+        this.invoiceUserSelectedIdx = val;
+      } else {
+        this.invoiceUserSelectedIdx = -1;
+      }
+      this.validateInvoiceDialog();
+    },
+    validateInvoiceDialog(){
+      if (this.invoiceUserSelectedIdx >= 0 && this.sendInvoiceForm.invoiceImage && this.sendInvoiceForm.invoiceImage[0] && this.sendInvoiceForm.invoiceImage[0].rUid){
+        this.isSendInvoiceFormValid = true;
+      } else {
+        this.isSendInvoiceFormValid = false;
+      }
+    },
+    onSendInvoice() {
+      var me = this;
+      me.$refs.sendInvoiceDialogBusyIndicator.hide();
+      var requestObj = {
+        lotId: me.invoiceLotItem.id,
+        userId: me.invoiceUserList[invoiceUserSelectedIdx].id,
+        fileName: me.sendInvoiceForm.invoiceImage[0].name,
+        rUid: me.sendInvoiceForm.invoiceImage[0].rUid
+      }
+      $.ajax({
+        type: "POST",
+        url: "/api/lot/invoice",
+        contentType : "application/json", 
+        context: me,
+        headers: {
+          token: me.loginUser.token
+        },
+        data: JSON.stringify(requestObj),
+        success(data) {
+          if (data.code === 1){
+            me.$message({
+              type: 'success',
+              message: i18n.t('meebid.alertMessage.MSG_ADMIN_BATCH_UPLOAD_IMAGES_SUCCESS')
+            });
+            me.sendInvoiceDialogVisible = false;
+          } else {
+            me.$notify.error({
+              title: 'Failure',
+              message: 'Send Invoice failure',
+              duration: 5000
+            });
+          }
+        },
+        error(data) {
+          me.$refs.sendInvoiceDialogBusyIndicator.hide();
+          errorUtils.requestError(data);
+        }
+      }).done(function(){
+        me.$refs.sendInvoiceDialogBusyIndicator.hide();
+      });
     }
   }
 }

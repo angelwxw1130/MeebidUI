@@ -104,7 +104,8 @@ meebidConstant.lotStateColor = {
     2: "#FAC364", // 提交审核
     4: "#93B9C6", // 已审核通过，但未上架
     8: "#DBDB46",  // 上架展示
-    16: "#B6D957" // 被管理员下架
+    16: "#B6D957", // 被管理员下架
+    32: "#CCC5A8" //过期
 }
 
 meebidConstant.lotBidResult = {
