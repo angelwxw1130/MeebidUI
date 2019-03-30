@@ -66,23 +66,19 @@
         menuItems: null,
         menuItemsArray: null,
         dropdownElm: null,
-        focusing: false
+        focusing: false,
+        listId: `dropdown-menu-${generateId()}`
       };
     },
 
     computed: {
       dropdownSize() {
         return this.size || (this.$ELEMENT || {}).size;
-      },
-      listId() {
-        return `dropdown-menu-${generateId()}`;
       }
     },
 
     mounted() {
       this.$on('menu-item-click', this.handleMenuItemClick);
-      this.initEvent();
-      this.initAria();
     },
 
     watch: {
@@ -147,7 +143,6 @@
         } else if ([9, 27].indexOf(keyCode) > -1) { // tab || esc
           this.hide();
         }
-        return;
       },
       handleItemKeyDown(ev) {
         const keyCode = ev.keyCode;
@@ -169,14 +164,13 @@
         } else if (keyCode === 13) { // enter选中
           this.triggerElm.focus();
           target.click();
-          if (!this.hideOnClick) { // click关闭
+          if (this.hideOnClick) { // click关闭
             this.visible = false;
           }
         } else if ([9, 27].indexOf(keyCode) > -1) { // tab // esc
           this.hide();
           this.triggerElm.focus();
         }
-        return;
       },
       resetTabindex(ele) { // 下次tab时组件聚焦元素
         this.removeTabindex();
@@ -192,8 +186,6 @@
         this.dropdownElm.setAttribute('id', this.listId);
         this.triggerElm.setAttribute('aria-haspopup', 'list');
         this.triggerElm.setAttribute('aria-controls', this.listId);
-        this.menuItems = this.dropdownElm.querySelectorAll("[tabindex='-1']");
-        this.menuItemsArray = Array.prototype.slice.call(this.menuItems);
 
         if (!this.splitButton) { // 自定义
           this.triggerElm.setAttribute('role', 'button');
@@ -207,7 +199,7 @@
           ? this.$refs.trigger.$el
           : this.$slots.default[0].elm;
 
-        let dropdownElm = this.dropdownElm = this.$slots.dropdown[0].elm;
+        let dropdownElm = this.dropdownElm;
 
         this.triggerElm.addEventListener('keydown', handleTriggerKeyDown); // triggerElm keydown
         dropdownElm.addEventListener('keydown', handleItemKeyDown, true); // item keydown
@@ -240,6 +232,14 @@
       },
       focus() {
         this.triggerElm.focus && this.triggerElm.focus();
+      },
+      initDomOperation() {
+        this.dropdownElm = this.popperElm;
+        this.menuItems = this.dropdownElm.querySelectorAll("[tabindex='-1']");
+        this.menuItemsArray = [].slice.call(this.menuItems);
+
+        this.initEvent();
+        this.initAria();
       }
     },
 

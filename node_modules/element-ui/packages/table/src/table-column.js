@@ -180,7 +180,16 @@ export default {
       type: Boolean,
       default: true
     },
-    index: [Number, Function]
+    index: [Number, Function],
+    sortOrders: {
+      type: Array,
+      default() {
+        return ['ascending', 'descending', null];
+      },
+      validator(val) {
+        return val.every(order => ['ascending', 'descending', null].indexOf(order) > -1);
+      }
+    }
   },
 
   data() {
@@ -266,10 +275,29 @@ export default {
       filterOpened: false,
       filteredValue: this.filteredValue || [],
       filterPlacement: this.filterPlacement || '',
-      index: this.index
+      index: this.index,
+      sortOrders: this.sortOrders
     });
 
-    objectAssign(column, forced[type] || {});
+    let source = forced[type] || {};
+    Object.keys(source).forEach((prop) => {
+      let value = source[prop];
+      if (value !== undefined) {
+        if (prop === 'renderHeader') {
+          if (type === 'selection' && column[prop]) {
+            console.warn('[Element Warn][TableColumn]Selection column doesn\'t allow to set render-header function.');
+          } else {
+            value = column[prop] || value;
+          }
+        }
+        column[prop] = prop === 'className' ? `${column[prop]} ${value}` : value;
+      }
+    });
+
+    // Deprecation warning for renderHeader property
+    if (this.renderHeader) {
+      console.warn('[Element Warn][TableColumn]Comparing to render-header, scoped-slot header is easier to use. We recommend users to use scoped-slot header.');
+    }
 
     this.columnConfig = column;
 
@@ -298,10 +326,16 @@ export default {
       if (!renderCell) {
         renderCell = DEFAULT_RENDER_CELL;
       }
+      const children = [
+        _self.renderTreeCell(data),
+        renderCell(h, data)
+      ];
 
       return _self.showOverflowTooltip || _self.showTooltipWhenOverflow
-        ? <div class="cell el-tooltip" style={ {width: (data.column.realWidth || data.column.width) - 1 + 'px'} }>{ renderCell(h, data) }</div>
-        : <div class="cell">{ renderCell(h, data) }</div>;
+        ? <div class="cell el-tooltip" style={ {width: (data.column.realWidth || data.column.width) - 1 + 'px'} }>{ children }</div>
+        : (<div class="cell">
+          { children }
+        </div>);
     };
   },
 
@@ -395,6 +429,44 @@ export default {
       if (this.columnConfig) {
         this.columnConfig.formatter = newVal;
       }
+    },
+
+    className(newVal) {
+      if (this.columnConfig) {
+        this.columnConfig.className = newVal;
+      }
+    },
+
+    labelClassName(newVal) {
+      if (this.columnConfig) {
+        this.columnConfig.labelClassName = newVal;
+      }
+    }
+  },
+
+  methods: {
+    renderTreeCell(data) {
+      if (!data.treeNode) return null;
+      const ele = [];
+      ele.push(<span class="el-table__indent" style={{'padding-left': data.treeNode.indent + 'px'}}></span>);
+      if (data.treeNode.hasChildren) {
+        ele.push(<div class={ ['el-table__expand-icon', data.treeNode.expanded ? 'el-table__expand-icon--expanded' : '']}
+          on-click={this.handleTreeExpandIconClick.bind(this, data)}>
+          <i class='el-icon el-icon-arrow-right'></i>
+        </div>);
+      } else {
+        ele.push(<span class="el-table__placeholder"></span>);
+      }
+      return ele;
+    },
+
+    handleTreeExpandIconClick(data, e) {
+      e.stopPropagation();
+      if (data.store.states.lazy && !data.treeNode.loaded) {
+        data.store.loadData(data.row, data.treeNode);
+      } else {
+        data.store.toggleTreeExpansion(data.treeNode.rowKey);
+      }
     }
   },
 
@@ -407,6 +479,14 @@ export default {
       columnIndex = [].indexOf.call(parent.$refs.hiddenColumns.children, this.$el);
     } else {
       columnIndex = [].indexOf.call(parent.$el.children, this.$el);
+    }
+
+    if (this.$scopedSlots.header) {
+      if (this.type === 'selection') {
+        console.warn('[Element Warn][TableColumn]Selection column doesn\'t allow to set scoped-slot header.');
+      } else {
+        this.columnConfig.renderHeader = (h, scope) => this.$scopedSlots.header(scope);
+      }
     }
 
     owner.store.commit('insertColumn', this.columnConfig, columnIndex, this.isSubColumn ? parent.columnConfig : null);

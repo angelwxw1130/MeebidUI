@@ -1569,18 +1569,14 @@
       <el-dialog :visible.sync="sendInvoiceDialogVisible" class="meebidBatchLotImagesDialog" title="Send Invoice" width="900px" height="500px" :close-on-click-modal="false">
         <meebid-busy-indicator ref="sendInvoiceDialogBusyIndicator" size="Medium"></meebid-busy-indicator>
         <div class="" style="">
-          <el-form ref="batchAuctionResultForm" status-icon :rules="sendInvoiceFormRules" :model="sendInvoiceForm" label-width="180px" class="meebidHouseProfileForm">        
+          <el-form ref="sendInvoiceForm" status-icon :rules="sendInvoiceFormRules" :model="sendInvoiceForm" label-width="180px" class="meebidHouseProfileForm">        
             <el-form-item label="Invoice" prop="invoiceImage" required>
               <meebid-upload
-                class="meebidUploadMiniPicture"
-                :multiple="false"
-                :limit="1"
-                :allowSameFileName="false"
                 field-name="invoiceImage"
+                :limit="1"                
                 :on-exceed="handleUploadExceed"
                 :on-remove="handleUploadInvoiceSuccess"
                 :on-success="handleUploadInvoiceSuccess"
-                :on-preview="handlePictureCardPreview"
                 :on-error="handleUploadError"
                 :file-list="sendInvoiceForm.invoiceImage"
                 >
@@ -1594,17 +1590,17 @@
         <el-table
           border
           empty-text=" "
+          highlight-current-row
           height="350"
           class="meebidMarginTopLarge"
           @current-change="handleSendInvoiceTableChange"
           :data="invoiceUserList"
           style="width: 90%; margin-left: 5%;">
           <el-table-column
-            type="selection"
+            type="index"
             width="35">
           </el-table-column>
           <el-table-column
-            fixed
             label="User Name"
             width="350">
             <template slot-scope="scope">
@@ -1614,11 +1610,11 @@
           <el-table-column
             prop="telephone1"
             label="Phone"
-            width="350"
             >
           </el-table-column>
         </el-table>
         <span slot="footer" class="dialog-footer">
+          <span class="meebidBatchUploadDialogHintLabel">{{sendInvoiceHintLabel}}</span>
           <el-button @click="sendInvoiceDialogVisible = false" class="">Cancel</el-button>
           <el-button type="primary" :disabled="!isSendInvoiceFormValid" @click="onSendInvoice()">Send</el-button>
         </span>
@@ -2014,6 +2010,7 @@ export default {
       batchUploadHintLabel: i18n.t('meebid.batchUpload.MSG_BATCH_UPLOAD_HINT_LABEL'),
       batchUploadImagesHintLabel: i18n.t('meebid.batchUpload.MSG_BATCH_UPLOAD_IMAGES_HINT_LABEL'),
       batchUploadAuctionResultHintLabel: i18n.t('meebid.batchUpload.MSG_BATCH_UPLOAD_AUCTION_RESULT_HINT_LABEL'),
+      sendInvoiceHintLabel: i18n.t('meebid.sendInvoice.MSG_SEND_INVOICE_HINT_LABEL'),
       exhibitionTimePickertInitialed: false,
       exhibitionDialogVisible: false,
       isAuctionBasicInvalid: false,
@@ -2283,6 +2280,7 @@ export default {
           { required: true, validator: validateBatchLotsImages, trigger: 'change' }          
         ],
       },
+      batchLotImages: [],
       batchImagesForm: {},
       batchImagesFormRules: {
         imageUrls: [
@@ -2316,8 +2314,8 @@ export default {
       sendInvoiceForm: {},
       sendInvoiceFormRules: {
         invoiceImage: [
-          { required: true, validator: validateInvoiceImage, trigger: 'change' }          
-        ]
+          { required: true, trigger: 'change' }          
+        ],
       }
     }
   },
@@ -5043,7 +5041,9 @@ export default {
       this.$refs.batchAuctionResultForm.validateField(fieldName);
     },
     handleUploadInvoiceSuccess(response, file, fileList, fieldName) {
+      var me = this;
       this.sendInvoiceForm[fieldName] = fileList;
+      this.validateInvoiceDialog();      
     },
     handleUploadBatchImageSuccess(response, file, fileList, fieldName) {
       this.batchImagesForm[fieldName] = fileList;
@@ -5160,11 +5160,11 @@ export default {
       return user.firstName + " " + user.lastName;
     },
     handleSendInvoiceTableChange(val){
-      if (val >= 0 ){
-        this.invoiceUserSelectedIdx = val;
-      } else {
-        this.invoiceUserSelectedIdx = -1;
+      var idx = -1;
+      if (val && val.id){
+        idx = meebidUtils.findIndex(this.invoiceUserList, val.id);
       }
+      this.invoiceUserSelectedIdx = idx;
       this.validateInvoiceDialog();
     },
     validateInvoiceDialog(){
@@ -5179,7 +5179,7 @@ export default {
       me.$refs.sendInvoiceDialogBusyIndicator.hide();
       var requestObj = {
         lotId: me.invoiceLotItem.id,
-        userId: me.invoiceUserList[invoiceUserSelectedIdx].id,
+        userId: me.invoiceUserList[this.invoiceUserSelectedIdx].id,
         fileName: me.sendInvoiceForm.invoiceImage[0].name,
         rUid: me.sendInvoiceForm.invoiceImage[0].rUid
       }

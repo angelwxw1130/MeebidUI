@@ -83,6 +83,9 @@ const cn = {
             MSG_BATCH_UPLOAD_IMAGES_HINT_LABEL: "Notice: Images with existing Lot No. will be updated. Images without existing Lot No. will be ignored.",
             MSG_BATCH_UPLOAD_AUCTION_RESULT_HINT_LABEL: "Notice: Lot result with existing Lot No. will be updated. Lot result without existing Lot No. will be ignored."
         },
+        sendInvoice: {
+            MSG_SEND_INVOICE_HINT_LABEL: "Notice: Please upload invoice, then select registered user for sending invoice."
+        },
         regionLabel: {
             MSG_ADDRESS_COUNTRY: "Country or Territory",
             MSG_ADDRESS_BUILDINGNAME: "Building Name & Street",
