@@ -27,7 +27,10 @@ export default {
   props: {
     profileData: Object,
     ws: Object,
-    userId:-1,
+    userId: {
+      type: Number,
+      default: -1
+    },
     panelShow: {
             type: Boolean
     },
