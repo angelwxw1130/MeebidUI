@@ -95,7 +95,8 @@ const cn = {
             MSG_ADDRESS_PROVINCE: "Province/State",
             MSG_ADDRESS_POSTALCODE: "Postal Code",
             MSG_ADDRESS_APTNUM: "Apt/Suite Number",
-            MSG_ADDRESS_STATE: "State"
+            MSG_ADDRESS_STATE: "State",
+            MSG_ADDRESS_STREETNAME: "Street Name"
         },
         lotDetail: {
             MSG_FAVOR_TEXT: "{0} Saved",
