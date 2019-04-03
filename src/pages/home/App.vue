@@ -6,12 +6,7 @@
       <div class="meebidHomePageListWrapper">
         <meebid-homepage-list ref="homePageListContainer" :isFilterActive="true" :initializedKeyword="initializedKeyword" :defaultSelectedCategory="defaultSelectedCategory">
         </meebid-homepage-list>
-      </div>
-      <meebid-button button-type="round orange" :button-click="show" icon-type="comment" class="im"> 
-      </meebid-button>
-      <transition name="fold">
-        <meebidim class="meebidIMPophover" :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow" :panelShow="panelShow" :ws="ws"></meebidim>
-      </transition>
+      </div>      
       <meebid-busy-indicator ref="busyIndicator" size="Medium"></meebid-busy-indicator>
     </div>
     <meebid-category-dialog :items="categoryItems" ref="categoryDialog">
@@ -57,12 +52,7 @@ export default {
           { required: true, message: 'Please input password', trigger: 'blur' }    
         ],
       },
-      categoryItems: [],
-      userId:-1,
-      roomId:"",
-      headPortrait:"",
-      wsUrl:"",
-      ws:null,
+      categoryItems: [],      
     }
   },
   beforeMount() {
@@ -138,59 +128,6 @@ export default {
     onCategoryChange(categoryId) {
       this.$refs.homePageListContainer.setFilterCategory(categoryId);
     },
-    show(){
-      if(this.ws == null){
-        //获取socketID
-        $.ajax({
-            type: "POST",
-            url: "/api/socket/socket",
-            contentType : "application/json", 
-            context: this,
-            headers: {
-                token: this.loginUser.token
-            },
-            data: {},
-            success(data) {
-                if (data.code === 1){
-                    var wsUrl = '';
-                //this.$refs.busyIndicator.hide();
-                    this.socketId = data.content.ws;
-                    if(data.content.ws.startsWith("ws://")){
-                        wsUrl = data.content.ws +"/" + this.loginUser.token;  
-                    }else{
-                        wsUrl = "ws://47.100.84.71:" + data.content.ws +"/" + this.loginUser.token;  
-                    }
-                    this.wsUrl = wsUrl
-                    this.roomId = data.content.roomId;
-                    
-                    if ("WebSocket" in window) {
-                      this.ws = new WebSocket(this.wsUrl);
-                    }
-                    else if ("MozWebSocket" in window) {
-                      this.ws = new MozWebSocket(this.wsUrl);
-                    } else {
-                      console.log("当前浏览器不支持WebSocket");
-
-                    }
-                    
-                    //this.$emit('getSocketUrl',{wsurl: wsUrl, roomId: data.content.roomId,chatUserId:userId}); 
-
-                }
-
-            },
-            error(data) {
-                errorUtils.requestError(data);
-            }
-        });
-      }
-      if(!this.panelShow){
-        this.panelShow = true;
-      }else{
-        this.panelShow = false;
-      }
-     
-    },
-    
   }
 }
 /**

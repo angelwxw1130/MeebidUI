@@ -7,7 +7,28 @@
                 </p>
                 <div class="main" :class="{ self: item.self }">
                     <img class="avatar" width="30" height="30" :src="item.self ? headPortrait : chatUser.headPortrait" />
-                    <div class="text">{{ item.content }}</div>
+                    <!-- <div class="text">{{ item.content }}</div> -->
+                    <div v-if="item.contentType=='text'" class="item-content common_chat_emoji-wrapper-global">
+                        <p class="text" v-html="getqqemojiEmoji(item.content)"></p>
+                    </div>
+                    <!-- 2)图片类型 -->
+                    <div v-else-if="item.contentType=='image'" class="text">
+                        <img class="img" :src="item.content" @click="imgViewDialog_show(item)" />
+                    </div>
+                    <!-- 3)文件类型 -->
+                    <div v-else-if="item.contentType=='file'" class="text">
+                        <div class="file">
+                            <i class="file-icon iconfont fa fa-file"></i>
+                            <div class="file-info">
+                                <p class="file-name">{{getFileName(item.fileName)}}</p>
+                                <div class="file-opr">
+                                    <div v-show="item.state=='success'">
+                                        <a class="file-download" :href="item.fileUrl" target='_blank' :download="item.fileUrl">下载</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </li>
         </ul>
@@ -15,6 +36,8 @@
 </template>
 
 <script>
+import i18n from './../../i18n/i18n'
+import bridgeUtils from './../../utils/BridgeUtils'
 export default {
     name:'meebidmessage',
     props: {
@@ -45,7 +68,20 @@ export default {
                 var fulltime = date.getFullYear() +'年'+month +'月'+date.getDate()+ '日 ' +(Array(2).join(0) + date.getHours()).slice(-2) + ':' + (Array(2).join(0) + date.getMinutes()).slice(-2);
                 return fulltime;
             }
-            
+            // if (date){
+            //     var dateStr = meebidUtils.formatDate(date, i18n.t('meebid.common.MSG_DATE_TIME_DETAIL_FORMAT'));
+            //     if (sceneEx && sceneEx.timeZone !== null){
+            //         var timeZoneStr = window.meebidConstant.regionTimeZone[sceneEx.timeZone + ""];
+            //         if (timeZoneStr){
+            //             dateStr += " " + timeZoneStr;
+            //         } else {
+            //             dateStr += " UTC " + sceneEx.timeZone + ":00 " + i18n.t('meebid.common.MSG_HOURS');
+            //         }
+            //     }
+            //     return dateStr;
+            // } else {
+            //     return "";
+            // }
             
         }
     },
@@ -80,6 +116,16 @@ export default {
             } else {
                 return "";
             }
+        },
+        getqqemojiEmoji: function(value) {
+            console.log(value);
+            if (value == undefined) {
+                return;
+            }
+            var self = this;
+            return value.replace(/\[(.+?)\]/g, function(item, value) {
+                return bridgeUtils.$emit('demo',value);
+            });
         },
         function(){
 
@@ -133,6 +179,7 @@ export default {
     word-break: break-all;
     background-color: #fafafa;
     border-radius: 4px;
+    max-width:350px;
 }
 .message .text:before {
     content: " ";

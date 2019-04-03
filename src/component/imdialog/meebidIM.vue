@@ -7,19 +7,21 @@
       <!--<meebidcard :headPortrait="headPortrait" :firstName="firstName"></meebidcard>-->
       <meebidroomlist :chatUsers="chatUsers" @getChatUserId='getChatUserId' @getChatRoom='getChatRoom'></meebidroomlist>
     </div>
-    <div class="main" style="position: relative;height: 100%;
-      overflow: hidden;
-      background-color: #eee;">
-        <meebidmessage style="height:360px" :messages="messages" :headPortrait="headPortrait" :chatUser="chatUser"></meebidmessage>
-        <meebidtext  @sendMessage='sendMessage'></meebidtext>
+    <div class="main" style="position: relative;height: 100%;overflow: hidden;background-color: #eee;">
+        <div style="height:50px;border-bottom:1px solid #d4dde4;"><p style="font-size:20px;padding:10px 0px 0px 40px;">{{chatUser.firstName}}</p></div>
+        <meebidmessage style="height:310px" :messages="messages" :headPortrait="headPortrait" :chatUser="chatUser"></meebidmessage>
+        <meebidtext ref="textarea"  @sendMessage='sendMessage' @sendMessageCtx='sendMessageCtx'></meebidtext>
     </div>
   </div>
 </template>
 
 <script>
+import ajax from './ajax';
 import loginUtils from './../../utils/loginUtils'
 import errorUtils from './../../utils/errorUtils'
 import meebidUtils from './../../utils/meebidUtils'
+import base64Utils from './../../utils/base64Utils'
+import meebidConstant from './../../constant/meebidConstants';
 import i18n from './../../i18n/i18n'
 import $ from 'jquery'
 export default {
@@ -27,7 +29,10 @@ export default {
   props: {
     profileData: Object,
     ws: Object,
-    userId:-1,
+    userId:{
+      type:Number,
+      default:-1
+    },
     panelShow: {
             type: Boolean
     },
@@ -39,7 +44,38 @@ export default {
       type: String,
       default: ""
     },
-    
+    headers: Object,
+    withCredentials: Boolean,
+    multiple: {
+      type:Boolean,
+      default :false
+    },
+    accept: String,
+    onStart: Function,
+    onProgress: Function,
+    onSuccess: Function,
+    onError: Function,
+    beforeUpload: Function,
+    drag: Boolean,
+    onPreview: {
+      type: Function,
+      default: function() {}
+    },
+    onRemove: {
+      type: Function,
+      default: function() {}
+    },
+    fileList: Array,
+    overlimit: Boolean,
+    autoUpload: Boolean,
+    listType: String,
+    httpRequest: {
+      type: Function,
+      default: ajax
+    },
+    disabled: Boolean,
+    limit: Number,
+    onExceed: Function
   },
   data () {
     return {
@@ -58,40 +94,11 @@ export default {
       newChatUser:false,
       lastChatTime:"",
       showChatTime:true,
+      reqs: {},
+      finishReqs: {}
     }
   },
-  beforeMount() {
-    /*
-    console.log("app ready");       
-    if (this.$parent.$data && this.$parent.$data.user){
-      this.userProfile = this.$parent.$data.user;
-      this.userId = this.userProfile.id;
-      if (this.userProfile.type === window.meebidConstant.userType.member){
-        if (this.userProfile.firstName){
-          this.firstName = this.userProfile.firstName;
-        }
-        this.userProfileForm = this.userProfile;
-        if (this.userProfile.avatar){
-          this.headPortrait = this.userProfile.avatar;
-        }        
-
-      } else if (this.userProfile.type === window.meebidConstant.userType.house){
-        if (this.userProfile.name){
-          this.firstName = this.userProfile.name;        
-        }
-        if(this.userProfile.bLogoUrl){
-          this.headPortrait = this.userProfile.bLogoUrl;
-        }
-      }
-    }
-    if(this.headPortrait == null){
-      if(this.userId == 22){
-          this.headPortrait  = "./static/user1.jpg"
-      }else{
-        this.headPortrait  = "./static/user2.jpg"
-      }
-    }
-    */
+  beforeMount() {    
     this.windowMinHeight = window.innerHeight - 85 + "px";
     
   },
@@ -116,10 +123,56 @@ export default {
   },
 
   methods: {
-    
+    sendMessageCtx(message) {
+      //尝试向服务端发送控制消息
+      
+      this.ws.send(message);
+      
+    },
     sendMessage(message) {
       //尝试向服务端发送消息
-      console.log(message);
+      //console.log(message);
+      var date = new Date();
+      if(this.lastChatTime == ""){
+        this.showChatTime=true;
+      }else{
+        var num = (date.getTime()-new Date(this.lastChatTime).getTime())/(1000*60);
+        if(num <= 5){
+          this.showChatTime=false;
+        }else{
+          this.showChatTime=true;
+        }
+      }
+      this.lastChatTime = date;
+
+      this.ws.send(JSON.stringify({
+        id:date.getTime(),
+        content: message,
+        sender : this.userId,   
+        roomId:"22,23",     
+        type:0,
+      }));
+      this.messages.push({
+         date:date ,
+         sender:this.userId,
+         content : message,
+         self : true,
+         ifshowtime :this.showChatTime,
+         contentType : "text"
+      });
+    },
+    sendFileMessage(message,type) {
+      //尝试向服务端发送消息
+      //console.log(message);
+      var fileType = 0;
+      if(type == 'FILE')
+      {
+        fileType = 2;
+      }
+      if(type == 'IMAGE')
+      {
+        fileType = 1;
+      }
       var date = new Date();
       if(this.lastChatTime == ""){
         this.showChatTime=true;
@@ -137,15 +190,10 @@ export default {
         id:date.getTime(),
         content: message,
         sender : this.userId,
-        roomId:"22,23"
+        roomId:"22,23",
+        type:fileType
       }));
-      this.messages.push({
-         date:date ,
-         sender:this.userId,
-         content : message,
-         self : true,
-         ifshowtime :this.showChatTime,
-      });
+      
     },
     connection(){
       console.log("test connection");
@@ -183,28 +231,195 @@ export default {
 　　},
 　　websocketonmessage(e){       
       //数据接收 
+      
       const redata = JSON.parse(e.data);
-      if(this.lastChatTime == ""){
-        this.showChatTime=true;
-      }else{
-        var num = (new Date(redata.sendAt).getTime()-new Date(this.lastChatTime).getTime())/(1000*60);
-        if(num <= 5){
-          this.showChatTime=false;
+      let fileNameObject = null;
+      // type=3 控制信息返回
+      if(redata.type == 3)
+      {
+        const content = JSON.parse(redata.content);
+        
+        if(this.$refs.textarea.Files){
+          let fileNameObjects = this.$refs.textarea.Files;
+          fileNameObjects.forEach(item => {
+            if(item.id == redata.id){
+              fileNameObject = item;
+              if(fileNameObject.File){
+                console.log(fileNameObject.File.name);
+              }
+              
+                console.log("file:"+fileNameObject.File.name);
+            }
+          });
         }else{
-          this.showChatTime=true;
+          return;
         }
+        //上传文件
+        this.upload(fileNameObject.File, redata);
+
       }
-      this.lastChatTime = redata.sendAt;
-      this.messages.push({
-         date:redata.sendAt ,
-         sender:redata.sender,
-         content : redata.content,
-         self : false,
-         ifshowtime :this.showChatTime,
-      });
-　　　 console.log(redata.content); 
+      else {
+        if(this.lastChatTime == ""){
+          this.showChatTime=true;
+        }else{
+          var num = (new Date(redata.sendAt).getTime()-new Date(this.lastChatTime).getTime())/(1000*60);
+          if(num <= 5){
+            this.showChatTime=false;
+          }else{
+            this.showChatTime=true;
+          }
+        }
+        this.lastChatTime = redata.sendAt;
+
+        let contentType = '';
+        let content = '';
+        let self = false;
+        if(redata.type === 0){
+          contentType = "text";
+          content = redata.content;
+        }else if(redata.type === 1){
+          contentType = "image";
+          content = redata.content.rUid;
+        }else if(redata.type === 2){
+          contentType = "file";
+          content = redata.content.rUid;
+        }
+        if(this.userId == redata.sender){
+          self = true;
+        }
+        this.messages.push({
+          date:redata.sendAt ,
+          sender:redata.sender,
+          content : content,
+          self : self,
+          ifshowtime :this.showChatTime,
+          contentType:contentType
+        });
+      }
 　　}, 
     
+    //上传文件
+    upload(rawFile, redata) {
+       const content = JSON.parse(redata.content);
+          if (!this.beforeUpload) {
+              return this.post(rawFile, redata);
+          }
+          const before = this.beforeUpload(rawFile);
+          if (before && before.then) {
+              before.then(processedFile => {
+              const fileType = Object.prototype.toString.call(processedFile);
+              if (fileType === '[object File]' || fileType === '[object Blob]') {
+                  this.post(processedFile, redata);
+              } else {
+                  this.post(rawFile, redata);
+              }
+              }, () => {
+              this.onRemove(null, rawFile);
+              });
+          } else if (before !== false) {
+              this.post(rawFile, redata);
+          } else {
+              this.onRemove(null, rawFile);
+          }
+    },
+    // abort(file) {
+    //     const { reqs } = this;
+    //     if (file) {
+    //         let uid = file;
+    //         if (file.uid) uid = file.uid;
+    //         if (reqs[uid]) {
+    //         reqs[uid].abort();
+    //         }
+    //     } else {
+    //         Object.keys(reqs).forEach((uid) => {
+    //         if (reqs[uid]) reqs[uid].abort();
+    //         delete reqs[uid];
+    //         });
+    //     }
+    // },
+    post(rawFile, redata) {
+        this.doPost(rawFile, redata);      
+    },
+    doPost(rawFile, redata){
+      const content = JSON.parse(redata.content);
+        var me = this;
+        const { uid } = rawFile;
+        const options = {
+            headers: this.headers,
+            withCredentials: this.withCredentials,
+            file: rawFile,
+            //contentData: content,
+            data: {
+              OSSAccessKeyId: content.accessid,
+              policy: content.policy,
+              Signature: content.signature,
+              key: this.multiple ? content.fileKey + rawFile.name : content.fileKey,
+              success_action_status: 200
+            },
+            filename: "file",
+            action: content.ossUrl,
+            // onProgress: e => {
+            // this.onProgress(e, rawFile);
+            // },
+            onSuccess: res => {
+              // console.log(Object.keys(me.finishReqs).length);
+              // console.log(Object.keys(me.reqs).length);
+              me.finishReqs[uid] = rawFile;
+              delete me.reqs[uid];
+              // console.log(Object.keys(me.reqs).length);
+              if (Object.keys(me.reqs).length === 0){
+                  me.confirmPost(res, redata);
+              }
+            },
+            onError: err => {
+            this.onError(err, rawFile);
+            delete me.reqs[uid];
+            }
+        };
+        const req = this.httpRequest(options);
+        this.reqs[uid] = req;
+        if (req && req.then) {
+            req.then(options.onSuccess, options.onError);
+        }
+    },
+    confirmPost(res, redata) {
+      const content = JSON.parse(redata.content);
+        var fileKeys = [];
+        if (this.multiple){
+            for (var key in this.finishReqs){
+            fileKeys.push(content.fileKey + this.finishReqs[key].name);
+            }
+        } else {
+            fileKeys.push(content.fileKey);
+        }
+        let fileNameObject = null;        
+        if(this.$refs.textarea.Files){
+          let fileNameObjects = this.$refs.textarea.Files;
+          fileNameObjects.forEach(item => {
+            if(item.id == redata.id){
+              fileNameObject = item;
+              if(fileNameObject.File){
+                console.log(fileNameObject.File.name);
+              }
+              
+                console.log("file:"+fileNameObject.File.name);
+            }
+          });
+        }else{
+          return;
+        }
+
+        var ctxType = fileNameObject.type;        
+        var fileName = File.name;           
+        var extend = fileName.substring(fileName.lastIndexOf('.') + 1);
+        var MessageCtx = {id:fileNameObject.id,suffix:extend,name:fileName,rUid:content.rUid};        
+        
+        
+        this.sendFileMessage(JSON.stringify(MessageCtx),fileNameObject.type);//File 2
+        
+    },
+
+
     websocketclose(e){ //关闭       
 　　　console.log("connection closed (" + e.code + ")"); 
 　　},
@@ -285,18 +500,32 @@ export default {
                 }else{
                   var num = (new Date(data.content.msgs[i].sendAt).getTime()-new Date(this.lastChatTime).getTime())/(1000*60);
                   if(num <= 5){
-                    console.log(num);
+                    //console.log(num);
                     this.showChatTime=false;
                   }else{
-                    console.log(num);
+                    //console.log(num);
                     this.showChatTime=true;
                   }
                 }
                 this.lastChatTime = data.content.msgs[i].sendAt;
-                console.log(this.lastChatTime);  
+                //console.log(this.lastChatTime);  
                 var self = false;
                 if(data.content.msgs[i].sender == this.userId){
                   self = true;
+                }
+                let contentType;
+                let content;
+                if(data.content.msgs[i].type === 0){
+                  contentType = "text";
+                  content = data.content.msgs[i].content;
+                }else if(data.content.msgs[i].type === 1){
+                  contentType = "image";
+                  let contentArray = JSON.parse(data.content.msgs[i].content);
+                  content = contentArray.rUid;
+                }else if(data.content.msgs[i].type === 2){
+                  contentType = "file";
+                  let contentArray = JSON.parse(data.content.msgs[i].content);
+                  content = contentArray.rUid;
                 }
                 var message = {
                   date:data.content.msgs[i].sendAt ,
@@ -304,6 +533,7 @@ export default {
                   content : data.content.msgs[i].content,
                   self : self,
                   ifshowtime :this.showChatTime,
+                  contentType:contentType,
                 }
                 this.messages.push(message);
               }
@@ -433,7 +663,8 @@ export default {
                 sendMessageRoomId : "22,23",
                 firstName: "zzz",
                 headPortrait : "./static/user1.jpg",
-                userId : 23
+                userId : 23,
+                //roomId: "22,23",
                 }
             chatItems.push(chatItem);
           }else{
@@ -441,7 +672,8 @@ export default {
                 sendMessageRoomId : "22,23",
                 firstName: "hhh 233",
                 headPortrait : "./static/user2.jpg",
-                userId : 22
+                userId : 22,
+                //roomId: "22,23",
                 }
             chatItems.push(chatItem);
           }
@@ -461,6 +693,7 @@ export default {
           this.chatUser = this.chatUsers[i];
         }
       }
+      this.$refs.textarea.getFocus();
       this.roomId = wsConnection.chatRoomId;
       this.newChatUser = true;
       this.websockethistory();

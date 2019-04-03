@@ -77,7 +77,7 @@
             <div class="meebidLotDetailDescriptionAuctionLocationContainer">
               <span class="meebidLotDetailFormLightLabel">Shipping:</span>
               <div class="meebidLink meebidLotDetailSeeOptionLink" @click="showShippingInfo">See options</div>
-            </div>
+            </div>            
             <!--<div class="meebidLotDetailDescriptionAuctionTypeContainer meebidPaddingTopSmall meebidMarginBottomMedium">
               <span>{{getAuctionType(lotItem.sceneEx)}}</span>
             </div>-->
@@ -140,6 +140,9 @@
         </el-collapse>
 
       </div>
+      <transition name="fold">
+        <meebidim ref="meebidIM" class="meebidIMPophover" :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow" :panelShow="panelShow" :ws="ws"></meebidim>
+      </transition>
     </div>
     
     <el-dialog
@@ -186,7 +189,12 @@ export default {
         label: "Home"
       }],
       isTermsLoaded: false,
-      expandUrl: ""
+      expandUrl: "",
+      userId:-1,
+      roomId:"",
+      headPortrait:"",
+      wsUrl:"",
+      ws:null,
     }
   },
   beforeMount() {
@@ -465,7 +473,62 @@ export default {
         default:
           return "Price not available";
       }
-    }
+    },
+    show(){
+      if(this.ws == null){
+        //获取socketID
+        $.ajax({
+            type: "POST",
+            url: "/api/socket/socket",
+            contentType : "application/json", 
+            context: this,
+            headers: {
+                token: this.loginUser.token
+            },
+            data: {},
+            success(data) {
+                if (data.code === 1){
+                    var wsUrl = '';
+                //this.$refs.busyIndicator.hide();
+                    this.socketId = data.content.ws;
+                    if(data.content.ws.startsWith("ws://")){
+                        wsUrl = data.content.ws +"/" + this.loginUser.token;  
+                    }else{
+                        wsUrl = "ws://47.100.84.71:" + data.content.ws +"/" + this.loginUser.token;  
+                    }
+                    this.wsUrl = wsUrl
+                    this.roomId = data.content.roomId;
+                    
+                    if ("WebSocket" in window) {
+                      this.ws = new WebSocket(this.wsUrl);
+                    }
+                    else if ("MozWebSocket" in window) {
+                      this.ws = new MozWebSocket(this.wsUrl);
+                    } else {
+                      console.log("当前浏览器不支持WebSocket");
+
+                    }
+                    this.ws.onopen = this.$refs.meebidIM.websocketonopen;
+                    this.ws.onerror = this.$refs.meebidIM.websocketonerror;
+                    this.ws.onmessage = this.$refs.meebidIM.websocketonmessage; 
+                    this.ws.onclose = this.$refs.meebidIM.websocketclose;
+                    //this.$emit('getSocketUrl',{wsurl: wsUrl, roomId: data.content.roomId,chatUserId:userId}); 
+
+                }
+
+            },
+            error(data) {
+                errorUtils.requestError(data);
+            }
+        });
+      }
+      if(!this.panelShow){
+        this.panelShow = true;
+      }else{
+        this.panelShow = false;
+      }
+     
+    },
   }
 }
 </script>

@@ -39,82 +39,13 @@ export default {
       
     },
     methods:{
-        /*
-        buildGetLastChatsReq(){
-            var request = {   
-                type : 'GET', 
-                context: this, 
-                url : "/api/socket/chats",
-                dataType : 'json' ,
-                data : {
-                    nearN: 5
-                },
-                success : function(data) {
-                    if (data.code == '1'){
-                    var items = this.buildChatItems(data.content.rooms.group ? data.content.rooms.group : []);
-                        
-                    } else {  
-                    this.$notify({
-                        title: 'Failure',
-                        message: 'Fetch Online Items failed',
-                        duration: 5000
-                        })
-                    }
-                    //me.inLoadingAuctionItems = false; 
-                },  
-                error : function(data) {  
-                    errorUtils.requestError(data);
-                    //me.inLoadingAuctionItems = false;
-                },  
-            
-            };
-            if (this.loginUser.token){
-                request.header = {
-                    token: this.loginUser.token
-                }
-            }
-            return request;
-        },
-        buildChatItems(items){
-            var chatItems = [];
-            for (var i = 0; i < items.length; i++){
-                var firstName = "";
-                var headPortrait = "";                    
-                var item = items[i];
-                if (item.type === window.meebidConstant.userType.member){
-                    if (item.firstName){
-                        firstName = item.firstName;
-                    }else{
-                        firstName = email;
-                    }
-                    
-                    if (item.avatar){
-                        headPortrait = item.avatar;
-                    
-                } else if (item.type === window.meebidConstant.userType.house){
-                    if (item.name){
-                        firstName = item.name;        
-                    }else{
-                        firstName = email;
-                    }
-                    if(item.bLogoUrl){
-                        headPortrait = item.bLogoUrl;
-                    }
-                }      
-                var chatItem = {
-                    firstName: firstName,
-                    headPortrait : headPortrait,
-                }
-                chatItems.push(chatItem);
-                }
-            }
-                
-            this.chatUsers = chatItems;
-        },*/
+        
         getChatConn(userId,roomId){
+            
             if(this.currentId == userId){
                 return;
             }
+            console.log("roomId:"+roomId);
             this.currentId = userId;
             this.$emit('getChatRoom',{chatUserId:userId,chatRoomId:roomId}); 
            

@@ -7,7 +7,7 @@
                             <!--<i class="iconfont glyphicon glyphicon-folder-open"></i>-->
                             <span class='glyphicon glyphicon-folder-open'></span>
                         </a>
-                        <form method="post" enctype="multipart/form-data">
+                        <form method="post" enctype="multipart/form-data" id="cp_upload">
                             <input type="file" name="uploadFile" id="common_chat_opr_fileUpload" style="display:none;position:absolute;left:0;top:0;width:0%;height:0%;opacity:0;">
                         </form>
                     </div>
@@ -25,6 +25,7 @@
 <script>
 import loginUtils from './../../utils/loginUtils'
 import errorUtils from './../../utils/errorUtils'
+import base64Utils from './../../utils/base64Utils'
 import common_chat_emoji from './common_chat_emoji.vue';
 import $ from 'jquery'
 
@@ -34,6 +35,7 @@ export default {
         commonChatEmoji: common_chat_emoji
     },
     props: {
+
      
     },
     data () {
@@ -43,17 +45,122 @@ export default {
             selectionRange: null, // 输入框选中的区域
             shortcutMsgList: [], // 聊天区域的快捷回复列表
             imgViewDialogVisible: false, // 图片查看dialog的显示
-            imgViewDialog_imgSrc: '' // 图片查看dialog的图片地址
+            imgViewDialog_imgSrc: '', // 图片查看dialog的图片地址
+            Files:[],//文件待上传列表
         };
     },
     methods: {
         onKeyup (e) {
             if (e.keyCode === 13 && this.content.length) {
                 this.$emit('sendMessage',this.content)
-                //this.sendMessage(this.content);
                 this.content = '';
             }
         },
+        
+
+        /**
+         * 设置input输入框的选择焦点
+         */
+        setInputContentSelectRange: function() {
+            if (window.getSelection && window.getSelection().rangeCount > 0) {
+                var selectRange = window.getSelection().getRangeAt(0);
+                if (
+                    selectRange.commonAncestorContainer.nodeName == '#text' &&
+                    selectRange.commonAncestorContainer.parentElement &&
+                    selectRange.commonAncestorContainer.parentElement.id == 'common_chat_input'
+                ) {
+                    // 选中了输入框内的文本
+                    this.$data.selectionRange = selectRange;
+                } else if (selectRange.commonAncestorContainer.id == 'common_chat_input') {
+                    // 选中了输入框
+                    this.$data.selectionRange = selectRange;
+                }
+            }
+        },
+
+        /**
+         * 输入框的mouseup
+         */
+        inputContent_mouseup: function(e) {
+            this.setInputContentSelectRange();
+        },
+
+        /**
+         * 输入框的keydown
+         */
+        inputContent_keydown: function(e) {
+            // 1.快捷键判断
+            if (e.keyCode == 13) {
+                // 回车直接发送
+                this.sendText();
+                e.returnValue = false;
+                return;
+            }
+
+            this.setInputContentSelectRange();
+            var self = this;
+            // keyup触发时，绑定的数据还没有被变更，需要进行延后访问
+            clearTimeout(this.$data.inputContent_setTimeout);
+            this.$data.inputContent_setTimeout = setTimeout(function() {
+                self.setInputContentByDiv();
+            }, 200);
+        },
+
+        /**
+         * 输入框的粘贴
+         */
+        inputContent_paste: function(e) {
+            var self = this;
+            var isImage = false;
+            if (e.clipboardData && e.clipboardData.items.length > 0) {
+                // 1.上传图片
+                for (var i = 0; i < e.clipboardData.items.length; i++) {
+                    var item = e.clipboardData.items[i];
+                    if (item.kind == 'file' && item.type.indexOf('image') >= 0) {
+                        // 粘贴板为图片类型
+                        var file = item.getAsFile();
+                        let formData = new FormData();
+                        formData.append('uploadFile', file);
+                        this.$http.uploadFile({
+                            url: '/upload',
+                            params: formData,
+                            successCallback: (rs) => {
+                                console.log(file);
+                                console.log(rs);
+                                document.getElementById('common_chat_opr_fileUpload').value = '';
+                                this.sendMsg({
+                                    contentType: 'image',
+                                    fileName: rs.fileName,
+                                    fileUrl: rs.fileUrl,
+                                    state: 'success'
+                                });
+                            }
+                        });
+                        isImage = true;
+                    }
+                }
+
+                // 2.非图片，粘贴纯文本
+                if (!isImage) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    var str = e.clipboardData.getData('text/plain');
+                    // 转化为纯文字
+                    var span = document.createElement('span');
+                    span.innerHTML = str;
+                    var txt = span.innerText;
+                    this.setInputDiv(
+                        txt
+                            .replace(/\n/g, '')
+                            .replace(/\r/g, '')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;')
+                    );
+                }
+            }
+        },
+
+
         /**
          * 文件上传_点击
          */
@@ -66,40 +173,106 @@ export default {
          * 文件上传_选中文件
          */
         fileUpload_change: function(e) {
+            const files = e.target.files;
+            let postFiles = Array.prototype.slice.call(files);
+            postFiles = postFiles.slice(0, 1);
+            
+            
             var fileNameIndex = document.getElementById('common_chat_opr_fileUpload').value.lastIndexOf('\\') + 1;
             var fileName = document.getElementById('common_chat_opr_fileUpload').value.substr(fileNameIndex);
             var extend = fileName.substring(fileName.lastIndexOf('.') + 1);
+            var ctxType = ['png', 'jpg', 'jpeg', 'gif', 'bmp','ico'].indexOf(extend) >= 0 ? 'IMAGE' : 'FILE';
+            var MessageCtx = {id:new Date().getTime(),suffix:extend,name:fileName,rUid:""};
+            var base64Str = base64Utils.encode(JSON.stringify(MessageCtx));            
+
+            this.Files.push({id:MessageCtx.id,type:ctxType,File:postFiles[0]});
+            
+            //console.log(fileNameObject.fullFileName);
+            this.$emit('sendMessageCtx',"msgctx://"+ctxType+"/"+base64Str);
             // 1.判断有效
             // 1)大小
-            if (document.getElementById('common_chat_opr_fileUpload').files[0].size >= 1000 * 1000 * 10) {
-                this.$ak.Msg.toast('文件大小不能超过10M', 'error');
-                document.getElementById('common_chat_opr_fileUpload').value = '';
-                return false;
-            }
+            // if (document.getElementById('common_chat_opr_fileUpload').files[0].size >= 1000 * 1000 * 10) {
+            //     this.$ak.Msg.toast('文件大小不能超过10M', 'error');
+            //     document.getElementById('common_chat_opr_fileUpload').value = '';
+            //     return false;
+            // }
 
             // 2.文件上传
-            let formData = new FormData();
-            formData.append('uploadFile', document.getElementById('common_chat_opr_fileUpload').files[0]);
-            this.$http.uploadFile({
-                url: '/upload',
-                params: formData,
-                successCallback: (rs) => {
-                    console.log(rs);
-                    document.getElementById('common_chat_opr_fileUpload').value = '';
-                    this.sendMsg({
-                        contentType: ['png', 'jpg', 'jpeg', 'gif', 'bmp'].indexOf(extend) >= 0 ? 'image' : 'file',
-                        fileName: fileName,
-                        fileUrl: rs.fileUrl,
-                        state: 'success'
-                    });
-                }
-            });
+            // let formData = new FormData();
+            // formData.append('uploadFile', document.getElementById('common_chat_opr_fileUpload').files[0]);
+            // this.$http.uploadFile({
+            //     url: '/upload',
+            //     params: formData,
+            //     successCallback: (rs) => {
+            //         console.log(rs);
+            //         document.getElementById('common_chat_opr_fileUpload').value = '';
+            //         this.sendMsg({
+            //             contentType: ['png', 'jpg', 'jpeg', 'gif', 'bmp'].indexOf(extend) >= 0 ? 'image' : 'file',
+            //             fileName: fileName,
+            //             fileUrl: rs.fileUrl,
+            //             state: 'success'
+            //         });
+            //     }
+            // });
         },
 
+        // uploadFiles(files) {
+        //     var me = this;
+        //     if (this.limit && this.fileList.length + files.length > this.limit) {
+        //         this.onExceed && this.onExceed(files, this.fileList);
+        //         return;
+        //     }
+
+        //     let postFiles = Array.prototype.slice.call(files);
+        //     if (!this.multiple) { postFiles = postFiles.slice(0, 1); }
+
+        //     if (postFiles.length === 0) { return; }
+        //     var requestObj = {
+        //         type: this.fieldName === "batchTemplate" ? window.meebidConstant.uploadType.LotExcel : this.multiple ? window.meebidConstant.uploadType.LotImages : window.meebidConstant.uploadType.Image
+        //     };
+        //     if (this.uploadKey) {
+        //         requestObj.key = this.uploadKey;
+        //     }
+        //     $.ajax({
+        //         type: "POST",
+        //         url: "/api/public/resource/create",
+        //         contentType : "application/json", 
+        //         context: this,
+        //         headers: {
+        //         token: this.loginUser.token
+        //         },
+        //         data: JSON.stringify(requestObj),
+        //         success(data) {
+        //         if (data.code === 1){
+        //             postFiles.forEach(rawFile => {
+        //             me.onStart(rawFile);
+        //             if (this.autoUpload) me.upload(rawFile, data.content);
+        //             });
+        //         } else {
+        //             this.$notify.error({
+        //             title: 'Failure',
+        //             message: 'Upload initialization failure',
+        //             duration: 5000
+        //             })
+        //         }
+                
+        //         },
+        //         error() {
+        //         this.$notify.error({
+        //             title: 'Failure',
+        //             message: 'Upload initialization failure',
+        //             duration: 5000
+        //         })
+        //         }
+        //     });
+        
+        // },
+        
         /**
          * qqemoji选中表情
          */
         qqemoji_selectFace: function(rs) {
+            //console.log(rs.imgStr);
             var imgStr = rs.imgStr;
             this.setInputDiv(imgStr);
             
@@ -128,7 +301,7 @@ export default {
         setInputContentByDiv: function() {
             var self = this;
             var htmlStr = document.getElementById('common_chat_input').innerHTML;
-
+            console.log(htmlStr);
             // 1.转换表情为纯文本：<img textanme="[笑]"/> => [笑]
             var tmpInputContent = htmlStr.replace(/<img.+text=\"(.+?)\".+>/g, '[$1]').replace(/<.+?>/g, '');
 
@@ -150,7 +323,9 @@ export default {
          * @param {String} vlaue 设置的值
          */
         setInputDiv: function(value) {
+            //console.log(value);
             if (this.$data.selectionRange == null) {
+                console.log("if1");
                 document.getElementById('common_chat_input').focus();
                 return;
             }
@@ -158,17 +333,20 @@ export default {
             if (window.getSelection) {
                 window.getSelection().removeAllRanges();
                 window.getSelection().addRange(this.$data.selectionRange);
+                console.log("if2");
             } else {
                 this.$data.selectionRange && this.$data.selectionRange.select();
+                console.log("if3");
             }
 
             // 2.表情转换为img
             value = this.getqqemojiEmoji(value);
-
+            console.log(value);
             // 3.填充内容
             var sel, range;
             if (window.getSelection) {
                 // IE9 and non-IE
+                console.log("CHROME");
                 sel = window.getSelection();
                 if (sel.getRangeAt && sel.rangeCount) {
                     range = sel.getRangeAt(0);
@@ -209,6 +387,14 @@ export default {
                 return self.$refs.qqemoji.getImgByFaceName(value);
             });
         },
+
+        getFocus:function(){
+            //console.log("getFocus");
+            document.getElementById('common_chat_input').innerHTML='';
+            document.getElementById('common_chat_input').focus();
+        },
+
+        
     }
 };
 </script>
