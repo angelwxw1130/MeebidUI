@@ -3,7 +3,7 @@
     <div ref="meebidHomePageListScrollTag" class="meebidHomePageListScrollTag"></div>
     <div class="meebidHomePageListFilterContainer" v-if="isFilterActive" :class="{active: isFilterVisible}">
       <div class="meebidHomePageListFilterContainerHeaderBar">
-        <meebid-switch class="meebidHomePageViewSwitcher" v-model="value1" :showHelpText="true" :helpTextSwitchOn="$t('meebid.lotList.MSG_SHOW_UPCOMING_LOTS')" :helpTextSwitchOff="$t('meebid.lotList.MSG_SHOW_PAST_LOTS')" @switchChange="switchChange"></meebid-switch>
+        <meebid-switch class="meebidHomePageViewSwitcher" v-model="switchValue" :showHelpText="true" :helpTextSwitchOn="$t('meebid.lotList.MSG_SHOW_UPCOMING_LOTS')" :helpTextSwitchOff="$t('meebid.lotList.MSG_SHOW_PAST_LOTS')" @switchChange="switchChange"></meebid-switch>
         <div class="menu-trigger second" :class="{
           active: isFilterVisible
         }" @click="onFilterIconClick">
@@ -53,7 +53,7 @@
       </div>
       <div v-if="noResult">No Lots</div>
       <div style="position: relative; width: 100%; height: 80px;" :style="{transform: busyIndicatorPosition}">
-        <meebid-busy-indicator ref="lotListItemsBusyIndicator" transparency="true" size="Medium"></meebid-busy-indicator>
+        <meebid-busy-indicator ref="lotListItemsBusyIndicator" :transparency="true" size="Medium"></meebid-busy-indicator>
       </div>
     </div>
   </div>
@@ -96,6 +96,7 @@
     },
     data() {
       return {
+        switchValue: true,
         isFilterVisible: false,
         showUpcomingLot: true,
         selectedView: "waterfull",

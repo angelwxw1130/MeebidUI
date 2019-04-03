@@ -475,8 +475,10 @@
                     <div class="meebidLotTextContainer meebidPaddingLeftSmall meebidPaddingRightSmall">
                       <span class="meebidAdminLotName meebidMarginTopSmall" :title="item.name">{{getLotName(item.name)}}</span>
                       <span class="meebidAdminLotNumber" >Lot {{item.no}}</span>
-                      <span class="meebidAdminLotEstimation" >{{getLotEstimationPrice(item)}}</span>
-                      <span class="meebidAdminLotStartPrice" >{{getLotStartPrice(item)}}</span>
+                      <span v-if="item.state !== 32" class="meebidAdminLotEstimation" >{{getLotEstimationPrice(item)}}</span>
+                      <span v-if="item.state === 32" class="meebidAdminLotEstimation" >{{getLotSoldPrice(item)}}</span>
+                      <span v-if="item.state !== 32" class="meebidAdminLotStartPrice" >{{getLotStartPrice(item)}}</span>
+                      <span v-if="item.state === 32" class="meebidAdminLotStartPrice" >{{getLotSoldStatus(item)}}</span>
                       <span :style="{background: getLotStateColor(item.state)}" class="meebidAdminLotState meebidPaddingLeftSmall meebidPaddingRightSmall">{{getLotStateLabel(item.state)}}</span>
                       <div class="meebidLotActionButtonContainer">
                         <el-dropdown @command="handleLotItemCommand($event, item)" v-if="item.state != 0 && currentSceneState != 8">
@@ -1422,7 +1424,7 @@
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="exhibitionDialogVisible = false" class="">Cancel</el-button>
-          <el-button type="primary" @click="onUpdateExhibitions()" :disabled="exhibitionDialogSaveButtonDisabled">Save</el-button>
+          <el-button type="primary" @click="onUpdateExhibitions()" >Save</el-button>
         </span>
       </el-dialog>
       <el-dialog :visible.sync="batchLotImagesDialogVisible" class="meebidBatchLotImagesDialog" title="Batch Upload Images" width="900px" height="500px" :close-on-click-modal="false">
@@ -2049,7 +2051,6 @@ export default {
       updateContactUserIndex: -1,
       contactUserDialogVisible: false,
       previewDialogVisible: false,
-      exhibitionDialogSaveButtonDisabled: false,
       previewDialogImageUrl: "",
       defaultActiveProfile: 'memberProfile',
       revalidateMemberLabel: "RE-VALIDATE",
@@ -2316,7 +2317,9 @@ export default {
         invoiceImage: [
           { required: true, trigger: 'change' }          
         ],
-      }
+      },
+      exhibitionDialogLastClickTime: 0,
+      contactUserDialogLastClickTime: 0,
     }
   },
   computed: {
@@ -3181,6 +3184,10 @@ export default {
     },
     onSaveContactUser() {
       var me = this;
+      if ((new Date().getTime() - this.contactUserDialogLastClickTime) < 500){
+        return;
+      }
+      this.contactUserDialogLastClickTime = new Date().getTime();
       this.$refs.contactUserFormRef.validate(function(isValid){
         if (isValid){
           if (me.updateContactUserIndex === -1){
@@ -3230,7 +3237,11 @@ export default {
       for (var i = 0; i < detailList.length; i++){
         if (detailList[i].controlType === 'select') {
           var detailOption = meebidUtils.findObject(detailList[i].options, "id", detailList[i].value);
-          detailLabel += detailOption.label ? detailOption.label + " " : detailOption.name + " ";
+          if (detailOption) {
+            detailLabel += detailOption.label ? detailOption.label + " " : detailOption.name + " ";
+          } else {
+            detailLabel += " unknown address get";
+          }          
         } else {
           detailLabel += detailList[i].value ? detailList[i].value + " " : "";
         }
@@ -4776,8 +4787,14 @@ export default {
     getLotEstimationPrice(item){
       return "Est: " + meebidUtils.formatMoney(item.currencyCode, item.estMinPrice) + " - " + meebidUtils.formatMoney(item.currencyCode, item.estMaxPrice);
     },
+    getLotSoldPrice(item){
+      return "Sold Price: " + (item.soldPrice >= 0 ? meebidUtils.formatMoney(item.currencyCode, item.soldPrice) : "Price not available");
+    },
     getLotStartPrice(item){
       return "Start: " + meebidUtils.formatMoney(item.currencyCode, item.startingBid);
+    },
+    getLotSoldStatus(item){
+      return window.meebidConstant.lotBidResult[item.bidResult];
     },
     getLotStateColor(state) {
       return window.meebidConstant.lotStateColor[state];
@@ -4915,8 +4932,11 @@ export default {
       item.state = window.meebidConstant.exhibitionState.Delete;
     },
     onUpdateExhibitions() {
+      if ((new Date().getTime() - this.exhibitionDialogLastClickTime) < 500){
+        return;
+      }
       var me = this;
-      this.exhibitionDialogSaveButtonDisabled = true;
+      this.exhibitionDialogLastClickTime = new Date().getTime();
       this.$refs.exhibitionForm.validate(function(isValid){
         if (isValid){
           if (me.exhibitionForm.state === window.meebidConstant.exhibitionState.Newing){
@@ -4951,8 +4971,8 @@ export default {
           }
           me.exhibitionDialogVisible = false;
         }
-        me.exhibitionDialogSaveButtonDisabled = false;
       });
+
     },
     getAddressLabelById(locId){
       var exhibitionAddresses = this.addresses[32];
@@ -5162,7 +5182,7 @@ export default {
     handleSendInvoiceTableChange(val){
       var idx = -1;
       if (val && val.id){
-        idx = meebidUtils.findIndex(this.invoiceUserList, val.id);
+        idx = meebidUtils.findIndex(this.invoiceUserList, 'id', val.id);
       }
       this.invoiceUserSelectedIdx = idx;
       this.validateInvoiceDialog();

@@ -110,7 +110,10 @@ meebidConstant.lotStateColor = {
 
 meebidConstant.lotBidResult = {
     "Available": 1 << 0,
-    "Sold": (1 << 1) + (1 << 0)
+    "Sold": (1 << 1) + (1 << 0),
+    0: "Data not available",
+    1: "Not sold",
+    3: "Sold"
 }
 
 
