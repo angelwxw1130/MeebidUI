@@ -18,6 +18,11 @@ import MeebidCarouselItem from './../../component/carousel/meebidCarouselItem.vu
 import MeebidCarousel from './../../component/carousel/meebidCarousel.vue'
 import MeebidNumberInput from './../../component/numberinput/meebidNumberInput.vue'
 import MeebidRegisterDialog from './../../component/dialog/meebidRegisterDialog.vue'
+import MeebidCard from './../../component/imdialog/meebidCard.vue'
+import MeebidRoomlist from './../../component/imdialog/meebidRoomlist.vue'
+import MeebidText from './../../component/imdialog/meebidText.vue'
+import MeebidMessage from './../../component/imdialog/MeebidMessage.vue'
+import MeebidIM from './../../component/imdialog/MeebidIM.vue'
 import App from './App.vue'
 import loginUtils from './../../utils/loginUtils'
 import errorUtils from './../../utils/errorUtils'
@@ -38,7 +43,11 @@ Vue.component(MeebidCarouselItem.name, MeebidCarouselItem);
 Vue.component(MeebidCarousel.name, MeebidCarousel);
 Vue.component(MeebidNumberInput.name, MeebidNumberInput);
 Vue.component(MeebidRegisterDialog.name, MeebidRegisterDialog);
-
+Vue.component(MeebidCard.name, MeebidCard);
+Vue.component(MeebidRoomlist.name, MeebidRoomlist);
+Vue.component(MeebidText.name, MeebidText);
+Vue.component(MeebidMessage.name, MeebidMessage);
+Vue.component(MeebidIM.name, MeebidIM);
 
 var loginUser = loginUtils.getLoginUser();
 if (loginUser.token){

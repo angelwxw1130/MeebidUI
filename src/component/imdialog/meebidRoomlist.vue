@@ -1,9 +1,10 @@
 <template>
     <div class="meebidroomlist">
         <ul style="padding:0px;">
-            <li v-for="item in chatUsers" :class="{ active: item.userId === currentId }" @click="getChatConn(item.userId,item.roomId)"  style="list-style-type:none; padding: 12px 15px; border-bottom: 1px solid #FF5242; cursor: pointer; transition: background-color .1s;" >
-                <img class="avatar" style="vertical-align: middle; border-radius: 2px; width:30; height:30;"   :alt="item.firstName" :src="item.headPortrait">
-                <p class="name"  style="vertical-align: middle; display: inline-block; margin: 0 0 0 15px;">{{item.firstName}}</p>
+            <li v-for="item in chatUsers" :class="{ active: item.userId === currentId }" @click="getChatConn(item.userId,item.roomId)"  
+            style="white-space:nowrap;list-style-type:none; padding: 10px 10px; border-bottom: 1px solid #FF5242; cursor: pointer; transition: background-color .1s;" >
+                <img class="avatar" style="vertical-align: middle; border-radius: 2px; max-width:30px; max-height:30px;"   :alt="item.firstName" :src="item.headPortrait">
+                <p class="name"  style="vertical-align: middle; display: inline-block; margin: 0 0 0 5px;">{{item.firstName}}</p>
             </li>
         </ul>
     </div>
@@ -16,12 +17,8 @@ import $ from 'jquery'
 
 export default {
     name:'meebidroomlist',
-    props: {
-      currentId:0,
-      chatUsers: {
-        type: Object,
-        default: {}
-      },
+    props: {      
+      chatUsers:Array,
     },
     data(){
         return{

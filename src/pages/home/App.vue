@@ -25,9 +25,7 @@ import $ from 'jquery'
 export default {
   props: {
     profileData: Object,
-    panelShow: {
-      type: Boolean
-    }
+    
   },
   data () {
     return {
@@ -59,32 +57,15 @@ export default {
     console.log("app ready");
     if (this.$parent.$data && this.$parent.$data.user){
       this.userProfile = this.$parent.$data.user;
-      this.userId = this.userProfile.id;
       if (this.userProfile.type === window.meebidConstant.userType.member){
         if (this.userProfile.firstName){
           this.firstName = this.userProfile.firstName;
-        }
-        this.userProfileForm = this.userProfile;
-        if (this.userProfile.avatar){
-          this.headPortrait = this.userProfile.avatar;
-        }  
-        var categoryItems = this.$parent.$data.categories;
-        this.categoryItems = categoryItems;
+        }        
       } else if (this.userProfile.type === window.meebidConstant.userType.house){
         if (this.userProfile.name){
           this.firstName = this.userProfile.name;
         }
-        if(this.userProfile.bLogoUrl){
-          this.headPortrait = this.userProfile.bLogoUrl;
-        }
-      }
-    }
-    //临时头像 
-    if(this.headPortrait == null || this.headPortrait == ""){
-      if(this.userId == 22){
-          this.headPortrait  = "./static/user1.jpg"
-      }else{
-        this.headPortrait  = "./static/user2.jpg"
+        
       }
     }
     var paramsString = window.location.search;
@@ -98,7 +79,6 @@ export default {
     if (defaultSelectedCategory){
       this.defaultSelectedCategory = defaultSelectedCategory;
     }
-    console.log(this.headPortrait);
   },
   mounted(){
   },
@@ -145,39 +125,5 @@ export default {
 #app {
   font-family: "Gotham SSm A", "Gotham SSm B",  arial, sans-serif
 }
-.im{position:fixed; bottom:20px;right:0; }
-    .fold-enter-active{
-        animation-name: slideInUp;
-        animation-duration: .5s;
-        animation-fill-mode: both
-    }
-    .fold-leave-active {
-        animation-name: slideOutDown;
-        animation-duration: .7s;
-        animation-fill-mode: both
-    }
-    @keyframes slideInUp {
-        0% {
-            transform: translate3d(100%,0,0);
-            visibility: visible
-        }
 
-        to {
-            transform: translate3d(0%,0,0);
-        }
-    }
-    @keyframes slideOutDown {
-        0% {
-            transform: translate3d(0%,0,0);
-        }
-
-        to {
-            visibility: hidden;
-            transform: translate3d(110%,0,0)
-        }
-    }
-
-    .fold-enter, .fold-leave-active {
-      transform: translate3d(0, 0, 0);
-    }
 </style>

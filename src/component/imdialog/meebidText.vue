@@ -5,7 +5,7 @@
                         <common-chat-emoji class="item" ref="qqemoji" @select="qqemoji_selectFace"></common-chat-emoji>
                         <a class="item" href="javascript:void(0)" @click="fileUpload_click('file')">
                             <!--<i class="iconfont glyphicon glyphicon-folder-open"></i>-->
-                            <span class='glyphicon glyphicon-folder-open'></span>
+                            <i class='fa fa-folder-open' style="font-size:20px;color:#FF5242;vertical-align: middle;"></i>
                         </a>
                         <form method="post" enctype="multipart/form-data" id="cp_upload">
                             <input type="file" name="uploadFile" id="common_chat_opr_fileUpload" style="display:none;position:absolute;left:0;top:0;width:0%;height:0%;opacity:0;">
@@ -185,9 +185,9 @@ export default {
             var MessageCtx = {id:new Date().getTime(),suffix:extend,name:fileName,rUid:""};
             var base64Str = base64Utils.encode(JSON.stringify(MessageCtx));            
 
-            this.Files.push({id:MessageCtx.id,type:ctxType,File:postFiles[0]});
+            this.Files.push({id:MessageCtx.id,type:ctxType,File:postFiles[0],FileName:fileName,Extend:extend});
             
-            //console.log(fileNameObject.fullFileName);
+            //console.log("fileName:"+ fileName+",extend:"+extend);
             this.$emit('sendMessageCtx',"msgctx://"+ctxType+"/"+base64Str);
             // 1.判断有效
             // 1)大小
@@ -216,57 +216,7 @@ export default {
             // });
         },
 
-        // uploadFiles(files) {
-        //     var me = this;
-        //     if (this.limit && this.fileList.length + files.length > this.limit) {
-        //         this.onExceed && this.onExceed(files, this.fileList);
-        //         return;
-        //     }
-
-        //     let postFiles = Array.prototype.slice.call(files);
-        //     if (!this.multiple) { postFiles = postFiles.slice(0, 1); }
-
-        //     if (postFiles.length === 0) { return; }
-        //     var requestObj = {
-        //         type: this.fieldName === "batchTemplate" ? window.meebidConstant.uploadType.LotExcel : this.multiple ? window.meebidConstant.uploadType.LotImages : window.meebidConstant.uploadType.Image
-        //     };
-        //     if (this.uploadKey) {
-        //         requestObj.key = this.uploadKey;
-        //     }
-        //     $.ajax({
-        //         type: "POST",
-        //         url: "/api/public/resource/create",
-        //         contentType : "application/json", 
-        //         context: this,
-        //         headers: {
-        //         token: this.loginUser.token
-        //         },
-        //         data: JSON.stringify(requestObj),
-        //         success(data) {
-        //         if (data.code === 1){
-        //             postFiles.forEach(rawFile => {
-        //             me.onStart(rawFile);
-        //             if (this.autoUpload) me.upload(rawFile, data.content);
-        //             });
-        //         } else {
-        //             this.$notify.error({
-        //             title: 'Failure',
-        //             message: 'Upload initialization failure',
-        //             duration: 5000
-        //             })
-        //         }
-                
-        //         },
-        //         error() {
-        //         this.$notify.error({
-        //             title: 'Failure',
-        //             message: 'Upload initialization failure',
-        //             duration: 5000
-        //         })
-        //         }
-        //     });
         
-        // },
         
         /**
          * qqemoji选中表情
@@ -425,8 +375,8 @@ export default {
 }
 
 .opr-wrapper {
-                height: 20px;
-                padding: 10px;
+                height: 0px;
+                padding: 0px 0px 0px 10px;
                 text-align: left;
 }
                .opr-wrapper > .item {
@@ -440,7 +390,6 @@ export default {
                         font-size: 20px;
                     }
                 
-            
 
 </style>
 

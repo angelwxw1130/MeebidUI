@@ -5,11 +5,16 @@
       color: #f4f4f4;
       background-color: #FF5242;">
       <!--<meebidcard :headPortrait="headPortrait" :firstName="firstName"></meebidcard>-->
-      <meebidroomlist :chatUsers="chatUsers" @getChatUserId='getChatUserId' @getChatRoom='getChatRoom'></meebidroomlist>
+      <meebidroomlist :chatUsers="chatUsers" @getChatRoom='getChatRoom'></meebidroomlist>
     </div>
     <div class="main" style="position: relative;height: 100%;overflow: hidden;background-color: #eee;">
-        <div style="height:50px;border-bottom:1px solid #d4dde4;"><p style="font-size:20px;padding:10px 0px 0px 40px;">{{chatUser.firstName}}</p></div>
-        <meebidmessage style="height:310px" :messages="messages" :headPortrait="headPortrait" :chatUser="chatUser"></meebidmessage>
+        <div style="height:50px;border-bottom:1px solid #d4dde4;">
+          <p style="font-size:20px;padding:10px 0px 0px 40px;">{{chatUser.firstName}}</p>
+          <a href="javascript:void(0)" @click='hideWindow'>
+            <span class="fa fa-arrow-circle-o-right" style="display:inline-block;font-size:25px;color:#FF5242; position: absolute;  left: 390px;  top: 15px;cursor:pointer;" ></span>
+          </a>
+        </div>
+        <meebidmessage style="height:310px" :messages="messages" :headPortrait="headPortrait" :chatUser="chatUser" @showImage="showImage" ></meebidmessage>
         <meebidtext ref="textarea"  @sendMessage='sendMessage' @sendMessageCtx='sendMessageCtx'></meebidtext>
     </div>
   </div>
@@ -28,14 +33,17 @@ export default {
   name:'meebidim',
   props: {
     profileData: Object,
-    ws: Object,
+    ws: WebSocket,
     userId:{
       type:Number,
       default:-1
     },
-    panelShow: {
-            type: Boolean
+    lotId:"",
+    chatUserId:{
+      type:Number,
+      default:-1
     },
+    
     headPortrait: {
       type: String,
       default: ""
@@ -49,6 +57,14 @@ export default {
     multiple: {
       type:Boolean,
       default :false
+    },
+    socketRoomId: {
+      type: String,
+      default: ""
+    },
+    roomId: {
+      type: String,
+      default: ""
     },
     accept: String,
     onStart: Function,
@@ -83,14 +99,13 @@ export default {
       userProfile: {
       },
       //firstName: "User",
-      windowMinHeight: 0, 
-      roomId:"",
-      ws:null,
+      windowMinHeight: 0,       
+      //ws:null,
       wsUrl:"",
       socketId:"",
       chatUsers:[],
       messages:[],
-      chatUser:[],
+      chatUser:{},
       newChatUser:false,
       lastChatTime:"",
       showChatTime:true,
@@ -104,21 +119,6 @@ export default {
   },
   mounted(){
 
-    if(this.firstName != 'User'){
-
-      console.log("getchatuser");
-      var request = this.buildGetLastChatsReq();
-      $.ajax(request);
-
-      //注册各类回调
-      if(this.ws != null){
-        this.ws.onopen = this.websocketonopen;
-        this.ws.onerror = this.websocketonerror;
-        this.ws.onmessage = this.websocketonmessage; 
-        this.ws.onclose = this.websocketclose;
-      }
-      
-    }
     
   },
 
@@ -149,8 +149,9 @@ export default {
         id:date.getTime(),
         content: message,
         sender : this.userId,   
-        roomId:"22,23",     
+        roomId:this.userId+","+this.chatUserId,     
         type:0,
+        lotId:this.lotId
       }));
       this.messages.push({
          date:date ,
@@ -158,7 +159,8 @@ export default {
          content : message,
          self : true,
          ifshowtime :this.showChatTime,
-         contentType : "text"
+         contentType : "text",
+         fileName:"",
       });
     },
     sendFileMessage(message,type) {
@@ -190,8 +192,9 @@ export default {
         id:date.getTime(),
         content: message,
         sender : this.userId,
-        roomId:"22,23",
-        type:fileType
+        roomId:this.userId+","+this.chatUserId,
+        type:fileType,
+        lotId:this.lotId,
       }));
       
     },
@@ -217,14 +220,7 @@ export default {
             
     },
     websocketonopen() {
-　　　　console.log("WebSocket连接成功");
-       //获取未读信息数
-       this.websocketunread();
-       
-       //获取近期的聊天室信息
-       //this.websocketchats();
-       //获取近期某个聊天室下的聊天记录
-       this.websockethistory();
+　　　　console.log("WebSocket连接成功");       
 　　},
 　　websocketonerror(e) { //错误
  　　　console.log("WebSocket连接发生错误");
@@ -245,14 +241,14 @@ export default {
             if(item.id == redata.id){
               fileNameObject = item;
               if(fileNameObject.File){
-                console.log(fileNameObject.File.name);
+                //console.log(fileNameObject.File.name);
               }
               
-                console.log("file:"+fileNameObject.File.name);
+                //console.log("file:"+fileNameObject.File.name);
             }
           });
         }else{
-          return;
+            return;
         }
         //上传文件
         this.upload(fileNameObject.File, redata);
@@ -274,26 +270,50 @@ export default {
         let contentType = '';
         let content = '';
         let self = false;
+        let jsoncontent
+        let fileName;
         if(redata.type === 0){
           contentType = "text";
           content = redata.content;
-        }else if(redata.type === 1){
-          contentType = "image";
-          content = redata.content.rUid;
-        }else if(redata.type === 2){
-          contentType = "file";
-          content = redata.content.rUid;
+          fileName = '';
+        }else {
+          const jsoncontent = JSON.parse(redata.content);
+        
+          if(this.$refs.textarea.Files){
+            let fileNameObjects = this.$refs.textarea.Files;
+            // console.log("length:"+fileNameObjects.length);
+            fileNameObjects.forEach(item => {
+              if(item.id == jsoncontent.id){
+                fileNameObject = item;
+                //console.log("file:"+fileNameObject.FileName);
+              }
+            });
+          }else{
+              return;
+          }
+          if(redata.type === 1){
+            contentType = "image";
+            content = jsoncontent.rUid;
+            fileName = fileNameObject.FileName;
+          }else if(redata.type === 2){
+            contentType = "file";
+            content = jsoncontent.rUid;
+            fileName = fileNameObject.FileName;
+          }
+          
         }
         if(this.userId == redata.sender){
           self = true;
         }
+                
         this.messages.push({
           date:redata.sendAt ,
           sender:redata.sender,
           content : content,
           self : self,
           ifshowtime :this.showChatTime,
-          contentType:contentType
+          contentType:contentType,
+          fileName:fileName,
         });
       }
 　　}, 
@@ -362,11 +382,9 @@ export default {
             // this.onProgress(e, rawFile);
             // },
             onSuccess: res => {
-              // console.log(Object.keys(me.finishReqs).length);
-              // console.log(Object.keys(me.reqs).length);
+              
               me.finishReqs[uid] = rawFile;
-              delete me.reqs[uid];
-              // console.log(Object.keys(me.reqs).length);
+              delete me.reqs[uid];              
               if (Object.keys(me.reqs).length === 0){
                   me.confirmPost(res, redata);
               }
@@ -398,21 +416,14 @@ export default {
           fileNameObjects.forEach(item => {
             if(item.id == redata.id){
               fileNameObject = item;
-              if(fileNameObject.File){
-                console.log(fileNameObject.File.name);
-              }
               
-                console.log("file:"+fileNameObject.File.name);
             }
           });
         }else{
           return;
         }
-
-        var ctxType = fileNameObject.type;        
-        var fileName = File.name;           
-        var extend = fileName.substring(fileName.lastIndexOf('.') + 1);
-        var MessageCtx = {id:fileNameObject.id,suffix:extend,name:fileName,rUid:content.rUid};        
+        
+        var MessageCtx = {id:fileNameObject.id,suffix:fileNameObject.Extend,name:fileNameObject.FileName,rUid:content.rUid};        
         
         
         this.sendFileMessage(JSON.stringify(MessageCtx),fileNameObject.type);//File 2
@@ -437,7 +448,7 @@ export default {
         //}),
         success(data) {
           if (data.code === 1){
-            console.log(data.content.count);
+            //console.log(data.content.count);
           }
           
         },
@@ -460,7 +471,7 @@ export default {
         //}),
         success(data) {
           if (data.code === 1){
-            console.log(data.msg);
+            //console.log(data.msg);
           }
           
         },
@@ -483,6 +494,7 @@ export default {
           roomId:this.roomId,
           offset:0,
           count:20,
+          lotId:this.lotId
         },
         success(data) {
           if (data.code === 1){
@@ -515,25 +527,31 @@ export default {
                 }
                 let contentType;
                 let content;
+                let fileName;
                 if(data.content.msgs[i].type === 0){
                   contentType = "text";
                   content = data.content.msgs[i].content;
+                  fileName = '';
                 }else if(data.content.msgs[i].type === 1){
                   contentType = "image";
                   let contentArray = JSON.parse(data.content.msgs[i].content);
                   content = contentArray.rUid;
+                  fileName = contentArray.name;
                 }else if(data.content.msgs[i].type === 2){
                   contentType = "file";
                   let contentArray = JSON.parse(data.content.msgs[i].content);
                   content = contentArray.rUid;
+                  fileName = contentArray.name;
                 }
+                
                 var message = {
                   date:data.content.msgs[i].sendAt ,
                   sender:data.content.msgs[i].sender,
-                  content : data.content.msgs[i].content,
+                  content : content,
                   self : self,
                   ifshowtime :this.showChatTime,
                   contentType:contentType,
+                  fileName : fileName,
                 }
                 this.messages.push(message);
               }
@@ -554,7 +572,7 @@ export default {
           url : "/api/socket/chats",
           dataType : 'json' ,
           data : {
-              nearN: 5
+              nearN: 10
           },
           headers: {
               token: this.loginUser.token
@@ -583,6 +601,8 @@ export default {
     },
     buildChatItems(items){
       var chatItems = [];
+      var hasChated = false;       
+      // console.log("chatUserId:"+this.chatUserId);
       if(items.length > 0){
         for (var i = 0; i < items.length; i++){
             var item = items[i];
@@ -594,51 +614,33 @@ export default {
               if(item.group[j].id == this.userId){
                 continue;
               }
+              
               userId = item.group[j].id;
               if (item.group[j].type === window.meebidConstant.userType.member){
                 if (item.group[j].firstName){
                     firstName = item.group[j].firstName;
                 }
                 
-                if (item.group[j].avatar){
-                    headPortrait = item.group[j].avatar;
-                
-                } 
-                //临时头像
-                if(headPortrait == null || headPortrait == '' && item.group[j].id == 22){
-                  headPortrait = "./static/user1.jpg"
+                if (item.group[j].avatar != null){
+                    headPortrait = item.group[j].avatar;                    
                 }
-                if(headPortrait == null  || headPortrait == ''&& item.group[j].id == 23){
-                  headPortrait = "./static/user2.jpg"
+                else{
+                  headPortrait = "/src/assets/user9.png"
                 }
-                //临时名字
-                if(firstName == null || firstName == '' && item.group[j].id == 22){
-                  firstName = "hhh   233"
-                }
-                if(firstName == null  || firstName == ''&& item.group[j].id == 23){
-                  firstName = "zzz"
-                }
+
+               
               }else if (item.group[j].type === window.meebidConstant.userType.house){
-                if (item.group[j].name){
-                    firstName = item.group[j].name;        
+                if (item.group[j].firstName){
+                    firstName = item.group[j].firstName;
                 }
-                if(item.group[j].bLogoUrl){
-                    headPortrait = item.group[j].bLogoUrl;
-                }
-                //临时头像
-                if(headPortrait == null || headPortrait == '' && item.group[j].id == 22){
-                  headPortrait = "./static/user1.jpg"
-                }
-                if(headPortrait == null  || headPortrait == '' && item.group[j].id == 23){
-                  headPortrait = "./static/user2.jpg"
-                }
-                //临时名字
-                if(firstName == null || firstName == '' && item.group[j].id == 22){
-                  firstName = "hhh   233"
-                }
-                if(firstName == null  || firstName == ''&& item.group[j].id == 23){
-                  firstName = "zzz"
-                }
+                
+                if (item.group[j].avatar != null){
+                    headPortrait = item.group[j].avatar;
+                    
+                }else{
+                  headPortrait = "/src/assets/user9.png"
+                } 
+                
               }
                 
                 var chatItem = {
@@ -646,46 +648,77 @@ export default {
                   firstName: firstName,
                   headPortrait : headPortrait,
                   userId : userId,                
-                  sendMessageRoomId:"22,23"
+                  sendMessageRoomId:this.userId+","+this.chatUserId
                   }
-                  
-                chatItems.push(chatItem);
-              }
-
-            
-        
-              
-            }
-      }if(items.length == 0){
-        console.log("无最近聊天室记录");
-          if(this.userId == 22){
-            var chatItem = {
-                sendMessageRoomId : "22,23",
-                firstName: "zzz",
-                headPortrait : "./static/user1.jpg",
-                userId : 23,
-                //roomId: "22,23",
+                if(this.chatUserId == item.group[j].id){
+                  chatItems.unshift(chatItem);
+                  hasChated = true;
+                }else if(this.chatUserId != item.group[j].id){
+                  chatItems.push(chatItem);
                 }
-            chatItems.push(chatItem);
-          }else{
-            var chatItem = {
-                sendMessageRoomId : "22,23",
-                firstName: "hhh 233",
-                headPortrait : "./static/user2.jpg",
-                userId : 22,
-                //roomId: "22,23",
-                }
-            chatItems.push(chatItem);
-          }
-          
                 
+              }
+            }
+      }
+      
+      if(hasChated == false){   
+        // TODO:roomId有问题     
+        // 无最近聊天室记录 创建本chatuserid为对象的聊天室
+        // 调用接口，获取chatUserId 对应用户信息
+        $.ajax({
+          type: "Get",
+          url: "/api/user/profile",
+          contentType : "application/json", 
+          context: this,
+          headers: {
+            token: this.loginUser.token
+          },
+          data: {
+            userId:this.chatUserId
+          },
+          success(data) {
+            var chatItem = {};
+            if (data.code == '1'){
+              if (data.content.user.type === window.meebidConstant.userType.member){                
+                chatItem = {
+                      roomId : this.roomId,
+                      firstName: data.content.user.firstName,
+                      headPortrait : data.content.user.avatar,
+                      userId : data.content.user.id,                
+                      sendMessageRoomId:this.userId+","+this.chatUserId
+                  }
+              }else if(data.content.user.type === window.meebidConstant.userType.house){
+                  chatItem = {
+                      roomId : this.roomId,
+                      firstName: data.content.user.name,
+                      headPortrait : data.content.user.bLogoUrl,
+                      userId : data.content.user.id,                
+                      sendMessageRoomId:this.userId+","+this.chatUserId
+                  }
+              }
               
+              chatItems.unshift(chatItem);
+            }
+          },
+          error(data) {
+            errorUtils.requestError(data);
+          }
+        });
       }
           
       this.chatUsers = chatItems;
       //默认激活第一个对象聊天
       this.chatUser = this.chatUsers[0];
       this.roomId = this.chatUsers[0].roomId;
+
+      //获取未读信息数
+      this.websocketunread();
+       
+       //获取近期的聊天室信息
+       //this.websocketchats();
+       //获取近期某个聊天室下的聊天记录
+       this.websockethistory();
+      // console.log("chats-roomid:"+this.roomId);
     },
     getChatRoom(wsConnection){
       for(var i =0;i<this.chatUsers.length;i++){
@@ -699,7 +732,24 @@ export default {
       this.websockethistory();
       this.websocketread();
     },
+    getChatRooms(){
+      var request = this.buildGetLastChatsReq();
+      $.ajax(request);
 
+      //注册各类回调
+      // if(this.ws != null){
+      //   this.ws.onopen = this.websocketonopen;
+      //   this.ws.onerror = this.websocketonerror;
+      //   this.ws.onmessage = this.websocketonmessage; 
+      //   this.ws.onclose = this.websocketclose;
+      // }
+    },
+    hideWindow(){
+      this.$emit('hidewindow',false); 
+    },
+    showImage(url){
+      this.$emit('showImage',url); 
+    }
   }
 }
 </script>
