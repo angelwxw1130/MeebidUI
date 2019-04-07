@@ -42,13 +42,13 @@
               <div class="meebidLotDetailDescriptionAuctionTypeContainer meebidPaddingTopSmall meebidMarginBottomMedium">
                 <span>{{getAuctionType(lotItem.sceneEx)}} Auction</span>
               </div>
+              <div class="meebidPaddingTopSmall meebidMarginBottomMedium">
+                <span class="meebidLotDetailFormLabel">Auctioneer's Estimation:</span>
+                {{getEsitmationPrice(lotItem)}}
+              </div>
               <div v-if="lotItem.state !== 32" class="meebidLotDetailDescriptionStartBidPriceContainer meebidPaddingTopSmall meebidMarginBottomSmall">
                 <span class="meebidLotDetailFormLabel">Opening Price:</span>
                 {{getStartPrice(lotItem)}}
-              </div>
-              <div v-if="lotItem.state !== 32" class="meebidPaddingTopSmall meebidMarginBottomMedium">
-                <span class="meebidLotDetailFormLabel">Auctioneer's Estimation:</span>
-                {{getEsitmationPrice(lotItem)}}
               </div>
               <div v-if="lotItem.state === 32" class="meebidLotDetailDescriptionStartBidPriceContainer meebidPaddingTopSmall meebidMarginBottomSmall">
                 <span class="meebidLotDetailFormLabel">Selling Price:</span>
@@ -61,7 +61,7 @@
                   <span> ({{getFavorText(lotItem.favor)}})</span>
                 </div>
                 <div class="meebidLotDetailDescriptionActionRightContainer" @click="onRegisterLot">
-                  <div class="meebidLink"><span class="glyphicon glyphicon-registration-mark"></span> {{getRegisterLabel(lotItem.applys)}}</div>
+                  <div class="meebidLink"><span class="glyphicon glyphicon-registration-mark"></span> {{getRegisterLabel(lotItem)}}</div>
                 </div>
               </div>
             </div>
@@ -455,7 +455,11 @@ export default {
         this.$refs.registerDialog.openDialog(this.lotItem);
       }
     },
-    getRegisterLabel(applys) {
+    getRegisterLabel(lotItem) {
+      var applys = lotItem.applys;
+      if (lotItem.state === window.meebidConstant.lotState.Expired){
+        return "View My Registration(s)";
+      }
       return applys && applys.length > 0 ? "My Registration(s)" : "Register to bid";
     },
     getSellingPrice(item) {

@@ -22,6 +22,9 @@
             <el-button size="small" type="primary" icon="el-icon-delete" class="meebidNoBorderButton" @click="onDeleteApply(apply)"></el-button>
           </span>
         </div>
+        <div v-if="lotItem.applys.length ===0" class="meebidPaddingTopMedium">
+          <span style="font-size: 12px;">No Regristation</span>
+        </div>
       </div>
       <div v-if="step == 1">
         <el-form ref="bidForm" label-width="180px" :model="bidForm" class="meebidPaddingRightMedium">
@@ -83,7 +86,7 @@
     <span slot="footer" class="dialog-footer">
       <el-button @click="onCancel">Cancel</el-button>
       <el-button v-if="showBackButton" @click="onBack">Back</el-button>
-      <el-button type="primary" v-if="step == 1" @click="onSave" :disabled="noItemSelected">{{saveButtonText}}</el-button>
+      <el-button type="primary" v-if="step == 1" @click="onSave">{{saveButtonText}}</el-button>
     </span>
   </el-dialog>
 </template>
@@ -237,13 +240,13 @@
       openDialog(lotItem){
         this.registerDialogVisible = true;
         this.lotItem = lotItem;
-        if (this.lotItem.applys.length){
+        if (this.lotItem.applys.length || this.lotItem.state === window.meebidConstant.lotState.Expired){
           this.step = 0;
           var telBidObj = meebidUtils.findObject(this.lotItem.applys, 'type', window.meebidConstant.applyType.Telephone);
           var absentBidObj = meebidUtils.findObject(this.lotItem.applys, 'type', window.meebidConstant.applyType.Absent);
           this.isTelBidRegistered = telBidObj != null;
           this.isAbsentBidRegistered = absentBidObj != null;
-          if (this.isTelBidRegistered && this.isAbsentBidRegistered) {
+          if ((this.isTelBidRegistered && this.isAbsentBidRegistered) || this.lotItem.state === window.meebidConstant.lotState.Expired) {
             this.showRegisterLink = false;
           } else {
             this.showRegisterLink = true;
