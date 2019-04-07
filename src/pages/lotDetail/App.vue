@@ -77,7 +77,7 @@
             <div class="meebidLotDetailDescriptionAuctionLocationContainer">
               <span class="meebidLotDetailFormLightLabel">Shipping:</span>
               <div class="meebidLink meebidLotDetailSeeOptionLink" @click="showShippingInfo">See options</div>
-            </div>
+            </div>            
             <!--<div class="meebidLotDetailDescriptionAuctionTypeContainer meebidPaddingTopSmall meebidMarginBottomMedium">
               <span>{{getAuctionType(lotItem.sceneEx)}}</span>
             </div>-->
@@ -97,6 +97,10 @@
                   </div>
                   <div>
                     <span>{{lotItem.sceneEx.houseTel}}</span>
+                  </div>
+                  <br>
+                  <div>
+                    <span>Consult :</span><a href="javascript:void(0)"  @click="show"><i class="fa fa-comments" style="color:#FF5242;vertical-align: middle;margin:0px 0px 5px 15px;"></i></a>
                   </div>
                 </div>
               </div>
@@ -140,6 +144,9 @@
         </el-collapse>
 
       </div>
+      <transition name="fold">
+        <meebidim ref="meebidIM" class="meebidIMPophover" :socketRoomId="socketRoomId" :chatUserId="houseUserId" :lotId="lotId" :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow"  :ws="ws" @hidewindow="hide" @showImage="showImage"></meebidim>
+      </transition>
     </div>
     
     <el-dialog
@@ -160,7 +167,8 @@ import i18n from './../../i18n/i18n'
 import $ from 'jquery'
 export default {
   props: {
-    profileData: Object
+    profileData: Object,
+    
   },
   data () {
     return {
@@ -186,26 +194,61 @@ export default {
         label: "Home"
       }],
       isTermsLoaded: false,
-      expandUrl: ""
+      expandUrl: "",
+      userId:-1,
+      socketRoomId:"",
+      headPortrait:"",
+      wsUrl:"",
+      ws:null,
+      lotId:"",
+      houseUserId:-1,
+      panelShow:false
     }
   },
   beforeMount() {
     console.log("app ready");
     if (this.$parent.$data && this.$parent.$data.user){
-      this.userProfile = this.$parent.$data.user;
+      this.userProfile = this.$parent.$data.user;      
+      this.userId = this.userProfile.id;
       if (this.userProfile.type === window.meebidConstant.userType.member){
         if (this.userProfile.firstName){
           this.firstName = this.userProfile.firstName;
         }
-
+        this.userProfileForm = this.userProfile;  
+        if (this.userProfile.avatar){
+          this.headPortrait = this.userProfile.avatar;
+        }else{
+          this.headPortrait = "/src/assets/user9.png"
+        }  
+        var categoryItems = this.$parent.$data.categories;
+        this.categoryItems = categoryItems;
       } else if (this.userProfile.type === window.meebidConstant.userType.house){
         if (this.userProfile.name){
           this.firstName = this.userProfile.name;
         }
+        if(this.userProfile.bLogoUrl){
+          this.headPortrait = this.userProfile.bLogoUrl;
+        }else{
+          this.headPortrait = "/src/assets/user9.png"
+        } 
       }
     }
     var categoryItems = this.$parent.$data.categories;
     this.categoryItems = categoryItems;
+
+
+    var paramsString = window.location.search;
+    paramsString = paramsString.substring(1);
+    var decodeData = window.atob(paramsString);
+    var keyword = meebidUtils.getQueryString(decodeData, "keyword");
+    if (keyword){
+      this.initializedKeyword = keyword;
+    }
+    var defaultSelectedCategory = meebidUtils.getQueryString(decodeData, "category");
+    if (defaultSelectedCategory){
+      this.defaultSelectedCategory = defaultSelectedCategory;
+    }
+    // console.log(this.headPortrait);
   },
   mounted(){
     var paramsString = window.location.search;
@@ -213,6 +256,7 @@ export default {
     var decodeData = window.atob(paramsString);
     var lotId = meebidUtils.getQueryString(decodeData, "lotId");
     console.log("Lot Id: " + lotId);
+    this.lotId = lotId;
     this.windowMinHeight = window.innerHeight - 85 + "px";
     this.$refs.busyIndicator.show();
     this.$refs.temrsBusyIndicator.show();
@@ -232,7 +276,8 @@ export default {
       success(data) {
         if (data.code === 1){
           this.$refs.busyIndicator.hide();
-          var item = data.content.lot;
+          var item = data.content.lot;          
+          this.houseUserId = item.sceneEx.creator;
           var lotItem = {
             name: item.name,
             //description: meebidUtils.escapeHTML(item.description, "<br/>"),
@@ -469,6 +514,71 @@ export default {
         default:
           return "Price not available";
       }
+    },
+    show(){
+      if(this.ws == null){
+        //获取socketID
+        $.ajax({
+            type: "POST",
+            url: "/api/socket/socket",
+            contentType : "application/json", 
+            context: this,
+            headers: {
+                token: this.loginUser.token
+            },
+            data: {},
+            success(data) {
+                if (data.code === 1){
+                    var wsUrl = '';
+                //this.$refs.busyIndicator.hide();
+                    this.socketId = data.content.ws;
+                    if(data.content.ws.startsWith("ws://")){
+                        wsUrl = data.content.ws +"/" + this.loginUser.token;  
+                    }else{
+                        wsUrl = "ws://47.100.84.71:" + data.content.ws +"/" + this.loginUser.token;  
+                    }
+                    this.wsUrl = wsUrl
+                    this.socketRoomId = data.content.roomId;
+                    
+                    if ("WebSocket" in window) {
+                      this.ws = new WebSocket(this.wsUrl);
+                    }
+                    else if ("MozWebSocket" in window) {
+                      this.ws = new MozWebSocket(this.wsUrl);
+                    } else {
+                      console.log("当前浏览器不支持WebSocket");
+
+                    }
+                    this.$refs.meebidIM.getChatRooms();
+                    this.ws.onopen = this.$refs.meebidIM.websocketonopen;
+                    this.ws.onerror = this.$refs.meebidIM.websocketonerror;
+                    this.ws.onmessage = this.$refs.meebidIM.websocketonmessage; 
+                    this.ws.onclose = this.$refs.meebidIM.websocketclose;
+                    
+                    
+                    //this.$emit('getSocketUrl',{wsurl: wsUrl, roomId: data.content.roomId,chatUserId:userId}); 
+
+                }
+
+            },
+            error(data) {
+                errorUtils.requestError(data);
+            }
+        });
+      }
+      if(!this.panelShow){
+        this.panelShow = true;
+      }else{
+        this.panelShow = false;
+      }
+      
+    },
+    hide(hidewindow){      
+      this.panelShow = hidewindow;
+    },
+    showImage(url){
+      this.expandUrl = url;
+      this.imageDialogVisible = true;
     }
   }
 }
@@ -478,4 +588,39 @@ export default {
 #app {
   font-family: "Gotham SSm A", "Gotham SSm B",  arial, sans-serif
 }
+.im{position:fixed; bottom:20px;right:0; }
+    .fold-enter-active{
+        animation-name: slideInUp;
+        animation-duration: .5s;
+        animation-fill-mode: both
+    }
+    .fold-leave-active {
+        animation-name: slideOutDown;
+        animation-duration: .7s;
+        animation-fill-mode: both
+    }
+    @keyframes slideInUp {
+        0% {
+            transform: translate3d(100%,0,0);
+            visibility: visible
+        }
+
+        to {
+            transform: translate3d(0%,0,0);
+        }
+    }
+    @keyframes slideOutDown {
+        0% {
+            transform: translate3d(0%,0,0);
+        }
+
+        to {
+            visibility: hidden;
+            transform: translate3d(110%,0,0)
+        }
+    }
+
+    .fold-enter, .fold-leave-active {
+      transform: translate3d(0, 0, 0);
+    }
 </style>
