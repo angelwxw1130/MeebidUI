@@ -15,7 +15,7 @@
             <span class="fa fa-arrow-circle-o-right" style="display:inline-block;font-size:25px;color:#FF5242; position: absolute;  left: 390px;  top: 15px;cursor:pointer;" ></span>
           </a>
         </div>
-        <meebidmessage style="height:310px" :messages="messages" :headPortrait="headPortrait" :chatUser="chatUser" @showImage="showImage" ></meebidmessage>
+        <meebidmessage style="height:310px" :allmessage="allmessage" :messages="messages" :headPortrait="headPortrait" :chatUser="chatUser" @showImage="showImage" @srcollToHistory="srcollToHistory" ></meebidmessage>
         <meebidtext ref="textarea"  @sendMessage='sendMessage' @sendMessageCtx='sendMessageCtx'></meebidtext>
     </div>
   </div>
@@ -113,7 +113,8 @@ export default {
       showChatTime:true,
       reqs: {},
       finishReqs: {},
-      lot:{}
+      lot:{},
+      allmessage:true,
     }
   },
   beforeMount() {    
@@ -603,7 +604,7 @@ export default {
             //获取当前聊天lot
             this.getLottery();
             //获取近期某个聊天室下的聊天记录
-            this.websockethistory(this.chatUser.userId);
+            this.websockethistory(this.chatUser.userId,0);
 
             //标记已读
             this.websocketread(this.roomId);
@@ -658,7 +659,7 @@ export default {
       });
     },
     
-    websockethistory(userId){
+    websockethistory(userId,offset){
       $.ajax({
         type: "Get",
         url: "/api/socket/chat/history",
@@ -669,7 +670,7 @@ export default {
         },
         data: {
           roomId:base64Utils.encode("Message@"+this.userId+","+userId+"[2]"),
-          offset:0,
+          offset:offset,
           count:20,
           lotId:this.lotId
         },
@@ -730,8 +731,17 @@ export default {
                   contentType:contentType,
                   fileName : fileName,
                 }
-                this.messages.push(message);
+                if(offset == 0){
+                  this.messages.push(message);
+                }else {
+                  this.messages.unshift(message);                  
+                }                
               }
+            }
+            if(offset+20 > this.messages.length){
+              this.allmessage = true;
+            }else{
+              this.allmessage = false;
             }
             this.newChatUser = false;
           }
@@ -929,7 +939,7 @@ export default {
         this.lotId = this.chatUser.lotId;
         this.lot = this.getLottery();
       }
-      this.websockethistory(this.chatUser.userId);
+      this.websockethistory(this.chatUser.userId,0);
       this.websocketread(this.roomId);
     },
     
@@ -938,6 +948,9 @@ export default {
     },
     showImage(url){
       this.$emit('showImage',url); 
+    },
+    srcollToHistory(messageSize){
+      this.websockethistory(this.chatUser.userId,messageSize);
     }
   }
 }

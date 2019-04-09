@@ -1,5 +1,8 @@
 <template>
     <div id="messagebox" class="message" >
+        <p class="time" v-if="!allmessage"><a style="cursor:pointer;" @click="showMoreMessages">Show more messages</a></p>
+        <p class="time" v-else-if="allmessage && messages.length > 0">All messages here</p>
+        <p class="time" v-else-if="allmessage && messages.length == 0"></p>
         <ul v-if="messages" style="padding:0;">
             <li v-for="item in messages">
                 <p class="time" v-if="item.ifshowtime">
@@ -58,6 +61,10 @@ export default {
         type: Object,
         default: {}
       },
+      allmessage:{
+        type: Boolean,
+        default: true,
+      }
     },
     data(){
         return{
@@ -97,6 +104,10 @@ export default {
         div.scrollTop = div.scrollHeight;
       })
     },
+    mounted(){
+        var div = document.getElementById('messagebox');
+        div.addEventListener('scroll', this.onWindwoScroll);
+    },
     methods:{
         getDate(date, sceneEx){
             if (date){
@@ -115,7 +126,7 @@ export default {
             }
         },
         getqqemojiEmoji: function(value) {
-            console.log("qqemoji:"+value);
+            //console.log("qqemoji:"+value);
             if (value == undefined) {
                 return;
             }
@@ -171,7 +182,24 @@ export default {
         imgViewDialog_show: function(url) {
             this.$emit('showImage',url);
         },
-
+        onWindwoScroll() {
+            var me = this;
+            var scrollTop = window.pageYOffset
+                  || document.documentElement.scrollTop
+                  || document.body.scrollTop
+                  || 0;
+            if(scrollTop == 0 && this.allmessage == false){
+                //加载新的记录
+                var messageSize = this.messages.length;
+                this.$emit("srcollToHistory",messageSize);
+                //console.log("scroll");
+            }
+            
+        },
+        showMoreMessages(){
+            var messageSize = this.messages.length;
+            this.$emit("srcollToHistory",messageSize);
+        },
     }
 };
 </script>
