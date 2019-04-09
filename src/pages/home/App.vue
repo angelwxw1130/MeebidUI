@@ -11,8 +11,6 @@
     </div>
     <meebid-category-dialog :items="categoryItems" ref="categoryDialog">
     </meebid-category-dialog>
-    <meebid-login-dialog>
-    </meebid-login-dialog>
   </div>
 </template>
 

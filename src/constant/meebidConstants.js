@@ -116,6 +116,15 @@ meebidConstant.lotBidResult = {
     3: "Sold"
 }
 
+meebidConstant.auctionPolicyType = {
+    "Normal": 0,
+    "HiddenAll": 1,
+    "HiddenUnSold": 2,
+    0: "Normal",
+    1: "Hidden All Lots",
+    2: "Hidden Unsold Lots"
+}
+
 
 meebidConstant.currencyCode = [
     {"name":"Australian Dollar","alias":"AUD","id":2},

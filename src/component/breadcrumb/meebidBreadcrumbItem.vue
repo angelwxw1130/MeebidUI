@@ -18,8 +18,7 @@
     name: 'meebid-breadcrumb-item',
     props: {
       redirectUrl: {
-        type: String,
-        default: null
+        type: Object
       }
     },
     mounted() {

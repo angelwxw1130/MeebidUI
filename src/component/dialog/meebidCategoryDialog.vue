@@ -41,12 +41,10 @@
         'default': false
       },
       items: {
-        type: Array,
-        'default': []
+        type: Array
       },
       favorCategories: {
-        type: Array,
-        'default': []
+        type: Array
       }
     },
     data () {
@@ -65,7 +63,9 @@
     //  }
     //},
     mounted () {
+
       var categoryFirstLevelItems = [];
+      
       for (var i = 0; i < this.items.length; i++){
         var item = this.items[i];
         var childrenItems = [];

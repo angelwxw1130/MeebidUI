@@ -65,7 +65,8 @@ const cn = {
             MSG_LOT_DETAIL_CANCEL_SUCCESS: "Registration cancelled",
             MSG_LOT_REGISTRATION_APPLY_SUCCESS: "Registration Approved",
             MSG_LOT_REGISTRATION_DENY_SUCCESS: "Registration Rejected",
-            MSG_ADMIN_SEND_INVOICE_SUCCESS: "Send Invoice Successful"
+            MSG_ADMIN_SEND_INVOICE_SUCCESS: "Send Invoice Successful",
+            MSG_ADMIN_USER_UPDATE_AUCTION_LOT_POLICY_SUCCESS: "Update Auction Lot Policy Successful"
         },
         forgetPassword: {
             MSG_FORGET_PASSWORD_HEADER_TEXT: "Send an email to reset your password"
