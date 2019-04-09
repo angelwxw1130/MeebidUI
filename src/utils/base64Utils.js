@@ -83,7 +83,9 @@ export default {
     _utf8_decode(utftext) {
         var string = "";
         var i = 0;
-        var c = c1 = c2 = 0;
+        var c = 0;
+        var c1 = 0;
+        var c2 = 0;
         while ( i < utftext.length ) {
             c = utftext.charCodeAt(i);
             if (c < 128) {

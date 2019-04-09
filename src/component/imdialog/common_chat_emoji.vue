@@ -3,7 +3,7 @@
     <div class="common_chat_emoji-wrapper common_chat_emoji-wrapper-global">
         <a href="javascript:void(0)" @click="toggleFaceHidden">
             <!--<i class="iconfont fa fa-smile-o float-left"></i>-->
-            <i class="fa fa-smile-o  float-left" style="font-size:20px;color:#FF5242;vertical-align: middle;"></i>
+            <i class="fa fa-smile-o  float-left" style="font-size:15px;color:#FF5242;vertical-align: middle;"></i>
             
         </a>
         <div class="list-wrapper" v-show="!faceHidden">
@@ -16,6 +16,7 @@
 </template>
 
 <script>
+import bridgeUtils from './../../utils/BridgeUtils'
 export default {
     data() {
         return {

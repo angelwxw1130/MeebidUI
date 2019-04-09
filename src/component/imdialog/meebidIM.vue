@@ -3,13 +3,14 @@
     <div class="sidebar" style=" float: left;height: 100%;
       width: 160px;
       color: #f4f4f4;
-      background-color: #FF5242;">
+      background-color: #DDDDDD;"><!-- #FF5242-->
       <!--<meebidcard :headPortrait="headPortrait" :firstName="firstName"></meebidcard>-->
       <meebidroomlist :chatUsers="chatUsers" @getChatRoom='getChatRoom'></meebidroomlist>
     </div>
     <div class="main" style="position: relative;height: 100%;overflow: hidden;background-color: #eee;">
         <div style="height:50px;border-bottom:1px solid #d4dde4;">
-          <p style="font-size:20px;padding:10px 0px 0px 40px;">{{chatUser.firstName}}</p>
+          <p style="font-size:20px;padding:5px 0px 0px 30px;height:15px;color:#FF5242;weight:10;">{{chatUser.firstName}}</p>
+          <p style="font-size:13px;padding:5px 0px 0px 32px;color:#FF5242;">Lottery：{{lot.name}}</p>
           <a href="javascript:void(0)" @click='hideWindow'>
             <span class="fa fa-arrow-circle-o-right" style="display:inline-block;font-size:25px;color:#FF5242; position: absolute;  left: 390px;  top: 15px;cursor:pointer;" ></span>
           </a>
@@ -38,7 +39,7 @@ export default {
       type:Number,
       default:-1
     },
-    lotId:"",
+    lotId:'',
     chatUserId:{
       type:Number,
       default:-1
@@ -66,6 +67,7 @@ export default {
       type: String,
       default: ""
     },
+    userProfile:Object,
     accept: String,
     onStart: Function,
     onProgress: Function,
@@ -110,7 +112,8 @@ export default {
       lastChatTime:"",
       showChatTime:true,
       reqs: {},
-      finishReqs: {}
+      finishReqs: {},
+      lot:{}
     }
   },
   beforeMount() {    
@@ -198,27 +201,27 @@ export default {
       }));
       
     },
-    connection(){
-      console.log("test connection");
-      if ("WebSocket" in window) {
-        this.ws = new WebSocket(this.wsUrl);
-      }
-      else if ("MozWebSocket" in window) {
-        this.ws = new MozWebSocket(this.wsUrl);
-      } else {
-        console.log("当前浏览器不支持WebSocket");
+    // connection(){
+    //   console.log("test connection");
+    //   if ("WebSocket" in window) {
+    //     this.ws = new WebSocket(this.wsUrl);
+    //   }
+    //   else if ("MozWebSocket" in window) {
+    //     this.ws = new MozWebSocket(this.wsUrl);
+    //   } else {
+    //     console.log("当前浏览器不支持WebSocket");
 
-      }
+    //   }
 
-        //注册各类回调
-        this.ws.onopen = this.websocketonopen;
-        this.ws.onerror = this.websocketonerror;
-        this.ws.onmessage = this.websocketonmessage; 
-        this.ws.onclose = this.websocketclose;
+    //     //注册各类回调
+    //     this.ws.onopen = this.websocketonopen;
+    //     this.ws.onerror = this.websocketonerror;
+    //     this.ws.onmessage = this.websocketonmessage; 
+    //     this.ws.onclose = this.websocketclose;
             
             
             
-    },
+    // },
     websocketonopen() {
 　　　　console.log("WebSocket连接成功");       
 　　},
@@ -342,21 +345,7 @@ export default {
               this.onRemove(null, rawFile);
           }
     },
-    // abort(file) {
-    //     const { reqs } = this;
-    //     if (file) {
-    //         let uid = file;
-    //         if (file.uid) uid = file.uid;
-    //         if (reqs[uid]) {
-    //         reqs[uid].abort();
-    //         }
-    //     } else {
-    //         Object.keys(reqs).forEach((uid) => {
-    //         if (reqs[uid]) reqs[uid].abort();
-    //         delete reqs[uid];
-    //         });
-    //     }
-    // },
+    
     post(rawFile, redata) {
         this.doPost(rawFile, redata);      
     },
@@ -434,6 +423,13 @@ export default {
     websocketclose(e){ //关闭       
 　　　console.log("connection closed (" + e.code + ")"); 
 　　},
+
+
+    getChatRooms(){
+      this.websocketunread();
+      
+      
+    },
     websocketunread(){
       $.ajax({
         type: "GET",
@@ -443,12 +439,174 @@ export default {
         headers: {
           token: this.loginUser.token
         },
-        //data: JSON.stringify({
-          
-        //}),
+        data: {},
         success(data) {
           if (data.code === 1){
-            //console.log(data.content.count);
+            //console.log(this.userId);
+            //console.log(this.chatUserId);
+            var hasChated = false; 
+            let biggerUserId;
+            let smallerUserId;   
+            // 获取最近未读信息
+            //当前用户为普通用户
+            if(this.userProfile.type === window.meebidConstant.userType.member){
+              // console.log("memeber");
+              //解析content
+              //解析content
+              if(data.content.count.length > 0){
+                for (var i = 0; i < data.content.count.length; i++){
+                  let key = data.content.count[i].key;
+                  let value = data.content.count[i].value;
+                  if(data.content.count[i].value > 99){
+                    value = '99+';
+                  }
+                  let roomId = key.substring(0,key.indexOf(":"));
+                  let lotId = key.substring(key.indexOf(":")+1,key.length); 
+                    
+                  
+                  //判断lotId 为当前页面的lotId
+                  if(this.lotId == lotId){
+                    var roomPlaint = base64Utils.decode(roomId)                    
+                    var userIds = roomPlaint.substring(roomPlaint.indexOf("@")+1,roomPlaint.indexOf("[")).split(",");
+                    for(var j=0; j<userIds.length;j++){
+                      //当前用户，不操作
+                      if(userIds[j] == this.userId){
+                        continue;
+                      }
+                      //非当前用户，是指定聊天用户
+                      if(userIds[j] == this.chatUserId){
+                        if(this.chatUserId > this.userId){
+                          smallerUserId = this.userId;
+                          biggerUserId = this.chatUserId;
+                        }else{
+                          smallerUserId = this.chatUserId;
+                          biggerUserId = this.userId;
+                        }
+                        $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),lotId,value));
+                        //chatItems.unshift(chatItem);
+                        hasChated = true;
+                      }                      
+                    }
+                  }
+                  else{//非当前页面lotId
+                    var roomPlaint = base64Utils.decode(roomId)                    
+                    var userIds = roomPlaint.substring(roomPlaint.indexOf("@")+1,roomPlaint.indexOf("[")).split(",");
+                    for(var j=0; j<userIds.length;j++){
+                      //当前用户，不操作
+                      if(userIds[j] == this.userId){
+                        continue;
+                      }
+                      if(userIds[j] > this.userId){
+                        smallerUserId = this.userId;
+                        biggerUserId = userIds[j];
+                      }else{
+                        smallerUserId = userIds[j];
+                        biggerUserId = this.userId;
+                      }
+                      $.ajax(this.buildGetUserProfileReq(userIds[j],base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),lotId,value));
+                                           
+                    }
+                  }
+                  
+                }
+                
+              }
+              //未读信息中无指定聊天用户
+              if(hasChated == false){
+                //获取用户信息
+                if(this.chatUserId > this.userId){
+                  smallerUserId = this.userId;
+                  biggerUserId = this.chatUserId;
+                }else{
+                  smallerUserId = this.chatUserId;
+                  biggerUserId = this.userId;
+                }
+                $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),this.lotId,0));
+                
+              }
+              
+              
+            }
+            else if(this.userProfile.type === window.meebidConstant.userType.house){
+              //解析content
+              if(data.content.count.length > 0){
+                for (var i = 0; i < data.content.count.length; i++){
+                  let key = data.content.count[i].key;
+                  let value = data.content.count[i].value;
+                  let roomId = key.substring(0,key.indexOf(":"));
+                  let lotId = key.substring(key.indexOf(":")+1,key.length); 
+                                 
+                  //判断lotId 为当前页面的lotId
+                  if(this.lotId == lotId){
+                    var roomPlaint = base64Utils.decode(roomId)                    
+                    var userIds = roomPlaint.substring(roomPlaint.indexOf("@")+1,roomPlaint.indexOf("[")).split(",");
+                    for(var j=0; j<userIds.length;j++){console.log(userIds[j]);
+                      //当前用户，不操作
+                      if(userIds[j] == this.userId){
+                        continue;
+                      }
+                      //非当前用户，是指定聊天用户
+                      if(userIds[j] == this.chatUserId){
+                        if(this.chatUserId > this.userId){
+                          smallerUserId = this.userId;
+                          biggerUserId = this.chatUserId;
+                        }else{
+                          smallerUserId = this.chatUserId;
+                          biggerUserId = this.userId;
+                        }
+                        $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),lotId,value));
+                        //chatItems.unshift(chatItem);
+                        hasChated = true;
+                      }
+                      //非当前用户，非指定聊天用户
+                      if(userIds[j] != this.chatUserId){
+                        if(userIds[j]  > this.userId){
+                          smallerUserId = this.userId;
+                          biggerUserId = userIds[j] ;
+                        }else{
+                          smallerUserId = this.userId;
+                          biggerUserId = userIds[j] ;
+                        }
+                        $.ajax(this.buildGetUserProfileReq(userIds[j],base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),lotId,value));
+                        //chatItems.push(chatItem);
+                      }
+                    }
+                  }
+                  
+                }
+                
+              }
+              //未读信息中无指定聊天用户
+              if(hasChated == false){
+                //获取用户信息
+                if(this.chatUserId > this.userId){
+                  smallerUserId = this.userId;
+                  biggerUserId = this.chatUserId;
+                }else{
+                  smallerUserId = this.chatUserId;
+                  biggerUserId = this.userId;
+                }
+                //console.log("Message@"+smallerUserId+","+biggerUserId+"[2]");
+                $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),this.lotId,0));
+                
+              }
+              
+            }
+            this.chatUser = this.chatUsers[0];
+            this.roomId = this.chatUser.roomId;
+            //console.log(this.chatUsers[0].userId+","+this.chatUsers[0].firstName+",");
+            
+            //获取最近chats
+            var request = this.buildGetLastChatsReq(20);
+            $.ajax(request);              
+            
+            //获取当前聊天lot
+            this.getLottery();
+            //获取近期某个聊天室下的聊天记录
+            this.websockethistory(this.chatUser.userId);
+
+            //标记已读
+            this.websocketread(this.roomId);
           }
           
         },
@@ -457,7 +615,26 @@ export default {
         }
       });
     },
-    websocketread(){
+
+    getLottery(){
+       $.ajax({
+        type: "GET",
+        url: "/api/lot/simple",
+        contentType : "application/json", 
+        context: this,
+        headers: {
+          token: this.loginUser.token
+        },
+        data: {lotId:this.lotId},
+        success(data) {
+          if (data.code === 1){
+            this.lot = data.content;
+          }
+        }
+       });
+    },
+
+    websocketread(roomId){
       $.ajax({
         type: "POST",
         url: "/api/socket/chat/read",
@@ -466,12 +643,12 @@ export default {
         headers: {
           token: this.loginUser.token
         },
-        //data: JSON.stringify({
-          
-        //}),
+        data: {
+          roomId : roomId
+        },
         success(data) {
           if (data.code === 1){
-            //console.log(data.msg);
+            this.chatUser.unread = 0;
           }
           
         },
@@ -481,7 +658,7 @@ export default {
       });
     },
     
-    websockethistory(){
+    websockethistory(userId){
       $.ajax({
         type: "Get",
         url: "/api/socket/chat/history",
@@ -491,7 +668,7 @@ export default {
           token: this.loginUser.token
         },
         data: {
-          roomId:this.roomId,
+          roomId:base64Utils.encode("Message@"+this.userId+","+userId+"[2]"),
           offset:0,
           count:20,
           lotId:this.lotId
@@ -565,14 +742,89 @@ export default {
         }
       });
     },
-    buildGetLastChatsReq(){
+
+    buildGetUserProfileReq(userid,roomId,lotId,unreadcount){
+      var req = {
+        type: "Get",
+        url: "/api/user/profile",
+        contentType : "application/json", 
+        async:false,
+        context: this,
+        headers: {
+          token: this.loginUser.token
+        },
+        data: {
+          userId:userid
+        },
+        success: function(data)  {
+          var chatItem = {};
+          if (data.code == '1'){
+            var firstName = "";
+            var headPortrait = "";   
+            //var userId = "";  
+            if (data.content.user.type === window.meebidConstant.userType.member){   
+              if (data.content.user.firstName){
+                    firstName = data.content.user.firstName;
+                }
+                
+                if (data.content.user.avatar != null){
+                    headPortrait = data.content.user.avatar;                    
+                }
+                else{
+                  headPortrait = "http://tinygraphs.com/squares/"+firstName+"?theme=heatwave&numcolors=4"
+                }      
+              
+            }else if(data.content.user.type === window.meebidConstant.userType.house){  
+              if (data.content.user.name){
+                    firstName = data.content.user.name;
+                }
+                
+                if (data.content.user.bLogoUrl != null){
+                    headPortrait = data.content.user.bLogoUrl;
+                    
+                }else{
+                  headPortrait = "http://tinygraphs.com/squares/"+firstName+"?theme=heatwave&numcolors=4"
+                } 
+                
+            }
+            chatItem = {
+                  roomId : roomId,
+                  firstName: firstName,
+                  headPortrait : headPortrait,
+                  userId : userid,   
+                  lotId:lotId,             
+                  sendMessageRoomId:this.userid+","+this.chatUserId,
+                  unread:unreadcount
+                  }
+            if(userid == this.chatUserId){
+              //console.log("a");
+              this.chatUsers.unshift(chatItem) ;
+            }else{
+              //console.log("b");
+              this.chatUsers.push(chatItem) ;
+            }
+             //console.log("1:"+ this.chatUsers.length);
+          }
+        },
+        error: function(data)  {
+          errorUtils.requestError(data);
+        }
+        
+      }
+      return req;
+    },
+
+
+    buildGetLastChatsReq(offset){
       var request = {   
           type : 'GET', 
           context: this, 
           url : "/api/socket/chats",
           dataType : 'json' ,
+          async:false,
           data : {
-              nearN: 10
+              nearN: 20,
+              offset:offset,
           },
           headers: {
               token: this.loginUser.token
@@ -599,9 +851,7 @@ export default {
       
       return request;
     },
-    buildChatItems(items){
-      var chatItems = [];
-      var hasChated = false;       
+    buildChatItems(items){    
       // console.log("chatUserId:"+this.chatUserId);
       if(items.length > 0){
         for (var i = 0; i < items.length; i++){
@@ -625,100 +875,46 @@ export default {
                     headPortrait = item.group[j].avatar;                    
                 }
                 else{
-                  headPortrait = "/src/assets/user9.png"
+                  headPortrait = "http://tinygraphs.com/squares/"+firstName+"?theme=heatwave&numcolors=4"
                 }
 
                
               }else if (item.group[j].type === window.meebidConstant.userType.house){
-                if (item.group[j].firstName){
-                    firstName = item.group[j].firstName;
+                if (item.group[j].name){
+                    firstName = item.group[j].name;
                 }
                 
-                if (item.group[j].avatar != null){
-                    headPortrait = item.group[j].avatar;
+                if (item.group[j].bLogoUrl != null){
+                    headPortrait = item.group[j].bLogoUrl;
                     
                 }else{
-                  headPortrait = "/src/assets/user9.png"
+                  headPortrait = "http://tinygraphs.com/squares/"+firstName+"?theme=heatwave&numcolors=4"
                 } 
                 
               }
                 
-                var chatItem = {
+              var chatItem = {
                   roomId : roomId,
                   firstName: firstName,
                   headPortrait : headPortrait,
                   userId : userId,                
-                  sendMessageRoomId:this.userId+","+this.chatUserId
+                  sendMessageRoomId:this.userId+","+this.chatUserId,
+                  unread:0
                   }
-                if(this.chatUserId == item.group[j].id){
-                  chatItems.unshift(chatItem);
-                  hasChated = true;
-                }else if(this.chatUserId != item.group[j].id){
-                  chatItems.push(chatItem);
-                }
+              if(this.chatUserId == item.group[j].id){
+                  // chatItems.unshift(chatItem);
+                  //hasChated = true;
+              }else if(this.chatUserId != item.group[j].id){
+                  let c = chatItems.filter(v => v.userId == item.group[j].id);
+                  if(c.length <= 0 ){
+                    this.chatUsers.push(chatItem);
+                  }
+                  
+              }
                 
-              }
             }
+        }
       }
-      
-      if(hasChated == false){   
-        // TODO:roomId有问题     
-        // 无最近聊天室记录 创建本chatuserid为对象的聊天室
-        // 调用接口，获取chatUserId 对应用户信息
-        $.ajax({
-          type: "Get",
-          url: "/api/user/profile",
-          contentType : "application/json", 
-          context: this,
-          headers: {
-            token: this.loginUser.token
-          },
-          data: {
-            userId:this.chatUserId
-          },
-          success(data) {
-            var chatItem = {};
-            if (data.code == '1'){
-              if (data.content.user.type === window.meebidConstant.userType.member){                
-                chatItem = {
-                      roomId : this.roomId,
-                      firstName: data.content.user.firstName,
-                      headPortrait : data.content.user.avatar,
-                      userId : data.content.user.id,                
-                      sendMessageRoomId:this.userId+","+this.chatUserId
-                  }
-              }else if(data.content.user.type === window.meebidConstant.userType.house){
-                  chatItem = {
-                      roomId : this.roomId,
-                      firstName: data.content.user.name,
-                      headPortrait : data.content.user.bLogoUrl,
-                      userId : data.content.user.id,                
-                      sendMessageRoomId:this.userId+","+this.chatUserId
-                  }
-              }
-              
-              chatItems.unshift(chatItem);
-            }
-          },
-          error(data) {
-            errorUtils.requestError(data);
-          }
-        });
-      }
-          
-      this.chatUsers = chatItems;
-      //默认激活第一个对象聊天
-      this.chatUser = this.chatUsers[0];
-      this.roomId = this.chatUsers[0].roomId;
-
-      //获取未读信息数
-      this.websocketunread();
-       
-       //获取近期的聊天室信息
-       //this.websocketchats();
-       //获取近期某个聊天室下的聊天记录
-       this.websockethistory();
-      // console.log("chats-roomid:"+this.roomId);
     },
     getChatRoom(wsConnection){
       for(var i =0;i<this.chatUsers.length;i++){
@@ -729,21 +925,14 @@ export default {
       this.$refs.textarea.getFocus();
       this.roomId = wsConnection.chatRoomId;
       this.newChatUser = true;
-      this.websockethistory();
-      this.websocketread();
+      if(this.chatUser.lotId != null && this.chatUser.lotId !='' ){
+        this.lotId = this.chatUser.lotId;
+        this.lot = this.getLottery();
+      }
+      this.websockethistory(this.chatUser.userId);
+      this.websocketread(this.roomId);
     },
-    getChatRooms(){
-      var request = this.buildGetLastChatsReq();
-      $.ajax(request);
-
-      //注册各类回调
-      // if(this.ws != null){
-      //   this.ws.onopen = this.websocketonopen;
-      //   this.ws.onerror = this.websocketonerror;
-      //   this.ws.onmessage = this.websocketonmessage; 
-      //   this.ws.onclose = this.websocketclose;
-      // }
-    },
+    
     hideWindow(){
       this.$emit('hidewindow',false); 
     },

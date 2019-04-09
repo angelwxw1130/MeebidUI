@@ -145,7 +145,7 @@
 
       </div>
       <transition name="fold">
-        <meebidim ref="meebidIM" class="meebidIMPophover" :socketRoomId="socketRoomId" :chatUserId="houseUserId" :lotId="lotId" :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow"  :ws="ws" @hidewindow="hide" @showImage="showImage"></meebidim>
+        <meebidim ref="meebidIM" class="meebidIMPophover" :userProfile="userProfile" :socketRoomId="socketRoomId" :chatUserId="houseUserId" :lotId="lotId" :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow"  :ws="ws" @hidewindow="hide" @showImage="showImage"></meebidim>
       </transition>
     </div>
     
@@ -218,7 +218,7 @@ export default {
         if (this.userProfile.avatar){
           this.headPortrait = this.userProfile.avatar;
         }else{
-          this.headPortrait = "/src/assets/user9.png"
+          this.headPortrait = "http://tinygraphs.com/squares/"+this.firstName+"?theme=heatwave&numcolors=4"
         }  
         var categoryItems = this.$parent.$data.categories;
         this.categoryItems = categoryItems;
@@ -229,7 +229,7 @@ export default {
         if(this.userProfile.bLogoUrl){
           this.headPortrait = this.userProfile.bLogoUrl;
         }else{
-          this.headPortrait = "/src/assets/user9.png"
+          this.headPortrait ="http://tinygraphs.com/squares/"+this.firstName+"?theme=heatwave&numcolors=4"
         } 
       }
     }

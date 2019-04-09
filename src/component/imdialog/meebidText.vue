@@ -1,24 +1,29 @@
 <template>
     <div class="text" style="height: 120px;border-top: solid 1px #ddd;">
         <!-- 表情、文件选择等操作 -->
-                    <div class="opr-wrapper">
-                        <common-chat-emoji class="item" ref="qqemoji" @select="qqemoji_selectFace"></common-chat-emoji>
-                        <a class="item" href="javascript:void(0)" @click="fileUpload_click('file')">
-                            <!--<i class="iconfont glyphicon glyphicon-folder-open"></i>-->
-                            <i class='fa fa-folder-open' style="font-size:20px;color:#FF5242;vertical-align: middle;"></i>
-                        </a>
-                        <form method="post" enctype="multipart/form-data" id="cp_upload">
-                            <input type="file" name="uploadFile" id="common_chat_opr_fileUpload" style="display:none;position:absolute;left:0;top:0;width:0%;height:0%;opacity:0;">
-                        </form>
-                    </div>
-     
-        <textarea placeholder="按 Enter 发送" id="common_chat_input" v-model="content" @keyup="onKeyup" style="padding: 10px;
+        <div class="opr-wrapper">
+            <common-chat-emoji class="item" ref="qqemoji" @select="qqemoji_selectFace"></common-chat-emoji>
+            <a class="item" href="javascript:void(0)" @click="fileUpload_click('file')">
+                <!--<i class="iconfont glyphicon glyphicon-folder-open"></i>-->
+                <i class='fa fa-folder-open' style="font-size:15px;color:#FF5242;vertical-align: middle;"></i>
+            </a>
+            <form method="post" enctype="multipart/form-data" id="cp_upload">
+                <input type="file" name="uploadFile" id="common_chat_opr_fileUpload" style="display:none;position:absolute;left:0;top:0;width:0%;height:0%;opacity:0;">
+            </form>
+        </div>
+        <!-- 聊天输入框 -->
+        <div class="input-wrapper">
+            <div style="padding: 10px;height: 100%;width: 100%;border: none;outline: none;font-family: 'Micrsofot Yahei';resize: none;" 
+            class="inputContent common_chat_emoji-wrapper-global" id="common_chat_input"  placeholder="按 Enter 发送" contenteditable="true" @keydown="inputContent_keydown"   @mouseup="inputContent_mouseup" @mouseleave="inputContent_mouseup"></div>
+        </div>
+        <!-- <textarea placeholder="按 Enter 发送" id="common_chat_input" v-model="content" @keyup="onKeyup" @drop="inputContent_drop" @keydown="inputContent_keydown" @mouseup="inputContent_mouseup" @mouseleave="inputContent_mouseup"
+        style="padding: 10px;
         height: 100%;
         width: 100%;
         border: none;
         outline: none;
         font-family: 'Micrsofot Yahei';
-        resize: none;"></textarea>
+        resize: none;"></textarea> -->
     </div>
 </template>
 
@@ -104,6 +109,20 @@ export default {
             this.$data.inputContent_setTimeout = setTimeout(function() {
                 self.setInputContentByDiv();
             }, 200);
+        },
+
+        /**
+         * 发送文本
+         */
+        sendText: function() {
+            var self = this;
+            if (this.content.length == '') {
+                return;
+            }
+            this.$emit('sendMessage',this.content);
+            document.getElementById('common_chat_input').innerHTML = '';
+            self.setInputContentByDiv();            
+            this.content = '';
         },
 
         /**
@@ -222,7 +241,7 @@ export default {
          * qqemoji选中表情
          */
         qqemoji_selectFace: function(rs) {
-            //console.log(rs.imgStr);
+            // console.log("qqemoji选中表情："+rs.imgStr);
             var imgStr = rs.imgStr;
             this.setInputDiv(imgStr);
             
@@ -251,7 +270,7 @@ export default {
         setInputContentByDiv: function() {
             var self = this;
             var htmlStr = document.getElementById('common_chat_input').innerHTML;
-            console.log(htmlStr);
+            //console.log("htmlstr:"+htmlStr);
             // 1.转换表情为纯文本：<img textanme="[笑]"/> => [笑]
             var tmpInputContent = htmlStr.replace(/<img.+text=\"(.+?)\".+>/g, '[$1]').replace(/<.+?>/g, '');
 
@@ -263,9 +282,9 @@ export default {
                 });
                 this.setInputDiv(value);
             }
-
+            
             // 3.修改store
-            //this.chatInfoEn.inputContent = tmpInputContent;
+            this.content = tmpInputContent;
         },
 
         /**
@@ -277,10 +296,11 @@ export default {
             if (this.$data.selectionRange == null) {
                 console.log("if1");
                 document.getElementById('common_chat_input').focus();
-                return;
+                // return;
             }
             // 1.设置selectionRange
             if (window.getSelection) {
+                console.log(window.getSeletion);
                 window.getSelection().removeAllRanges();
                 window.getSelection().addRange(this.$data.selectionRange);
                 console.log("if2");
@@ -375,8 +395,8 @@ export default {
 }
 
 .opr-wrapper {
-                height: 0px;
-                padding: 0px 0px 0px 10px;
+                height: 30px;
+                padding: 6px 0px 0px 10px;
                 text-align: left;
 }
                .opr-wrapper > .item {

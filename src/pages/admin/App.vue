@@ -760,10 +760,19 @@
               </el-table-column>
               <el-table-column
                 label="Actions"
-                width="70">
+                width="75">
                 <template slot-scope="scope">
                   <el-button v-if="scope.row.state === 1 || scope.row.state === 2 || scope.row.state === 4" type="primary" size="medium" class="meebidSquareButton" icon="el-icon-circle-check" @click="handleApproveRegistration(scope.row)"></el-button>
                   <el-button v-if="scope.row.state === 3" size="medium" type="primary" class="meebidSquareButton" icon="el-icon-circle-close" @click="handleRejectRegistration(scope.row)"></el-button>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="Chats"
+                width="75">
+                <template slot-scope="scope">
+                  <el-button size="medium" type="primary" class="meebidSquareButton" @click="show(scope.row)">
+                    <a href="javascript:void(0)"><i class="fa fa-comments" style="color:#FFFFFF;vertical-align: middle;"></i></a>
+                  </el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -1624,7 +1633,18 @@
 
       <meebid-category-dialog :items="categoryItems" :favorCategories="userProfileForm && userProfileForm.favorCategories ? userProfileForm.favorCategories : []" :isProfilePage="isProfilePage" @update="onCategoryDialogUpdate" ref="categoryDialog">
       </meebid-category-dialog>
+
+      
+      <transition name="fold">
+        <meebidim ref="meebidIM"  class="meebidIMPophover" :lotId="lotId" :userProfile="userProfile" :chatUserId="chatUserId" :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow" :panelShow="panelShow" :ws="ws" @hidewindow="hide" @showImage="showImage"></meebidim>
+      </transition>
+      
     </div>
+    <el-dialog
+      :visible.sync="imageDialogVisible"
+      class="meebidLotDetailImageDialog">
+      <img :src="expandUrl"></img>
+    </el-dialog>
   </div>
 </template>
 
@@ -2003,6 +2023,7 @@ export default {
       }
     };
     return {
+      imageDialogVisible: false,
       invoiceUserSelectedIdx: -1,
       invoiceUserList: [],
       sendInvoiceDialogVisible: false,
@@ -2320,6 +2341,15 @@ export default {
       },
       exhibitionDialogLastClickTime: 0,
       contactUserDialogLastClickTime: 0,
+      expandUrl: "",
+      userId:-1,
+      socketRoomId:"",
+      headPortrait:"",
+      wsUrl:"",
+      ws:null,
+      lotId:"",
+      chatUserId:-1,
+      panelShow:false,
     }
   },
   computed: {
@@ -2350,19 +2380,25 @@ export default {
     if (this.$parent.$data && this.$parent.$data.user){
       this._buildUserProfile(this.$parent.$data)
     }
-  },
+  },  
   mounted() {
     //this.$refs.meebidAddressHeader.$el.style = "display: none;";
   },
 
   methods: {
     _buildUserProfile(data){
-      this.userProfile = data.user;
+      this.userProfile = data.user;   
+      this.userId = this.userProfile.id;
       
       if (this.userProfile.type === window.meebidConstant.userType.member){
         if (this.userProfile.firstName){
           this.firstName = this.userProfile.firstName;
         }
+        if (this.userProfile.avatar){
+          this.headPortrait = this.userProfile.avatar;
+        }else{
+          this.headPortrait = "http://tinygraphs.com/squares/"+this.firstName+"?theme=heatwave&numcolors=4"
+        }  
         this.userProfileForm = this.userProfile;
         var categoryItems = this.$parent.$data.categories;
         /*var selectedItems = this.userProfileForm && this.userProfileForm.favorCategories ? this.userProfileForm.favorCategories.split(";") : [];
@@ -2403,10 +2439,12 @@ export default {
         }
         if (!this.userProfile.bLogoUrl) {
           this.userProfile.bLogoUpload = [];
+          this.headPortrait = this.userProfile.bLogoUrl;
         } else {
           this.userProfile.bLogoUpload = [{
               url: this.userProfile.bLogoUrl
           }];
+          this.headPortrait = "http://tinygraphs.com/squares/"+this.firstName+"?theme=heatwave&numcolors=4"
         }
         if (!this.userProfile.blicenseUrl) {
           this.userProfile.bLicenseUpload = [];
@@ -5234,7 +5272,80 @@ export default {
       }).done(function(){
         me.$refs.sendInvoiceDialogBusyIndicator.hide();
       });
-    }
+    },
+    show(row){
+      if(this.ws == null){
+        this.lotId = row.lotId;
+        this.chatUserId = row.userId;
+        
+        // console.log("chatuserid:"+this.chatUserId);
+        //获取socketID
+        $.ajax({
+            type: "POST",
+            url: "/api/socket/socket",
+            contentType : "application/json", 
+            context: this,
+            headers: {
+                token: this.loginUser.token
+            },
+            data: {},
+            success(data) {
+                if (data.code === 1){
+                    var wsUrl = '';
+                //this.$refs.busyIndicator.hide();
+                    this.socketId = data.content.ws;
+                    if(data.content.ws.startsWith("ws://")){
+                        wsUrl = data.content.ws +"/" + this.loginUser.token;  
+                    }else{
+                        wsUrl = "ws://47.100.84.71:" + data.content.ws +"/" + this.loginUser.token;  
+                    }
+                    this.wsUrl = wsUrl
+                    this.socketRoomId = data.content.roomId;
+                    
+                    if ("WebSocket" in window) {
+                      this.ws = new WebSocket(this.wsUrl);
+                    }
+                    else if ("MozWebSocket" in window) {
+                      this.ws = new MozWebSocket(this.wsUrl);
+                    } else {
+                      console.log("当前浏览器不支持WebSocket");
+
+                    }
+                    this.$refs.meebidIM.getChatRooms();
+                    this.ws.onopen = this.$refs.meebidIM.websocketonopen;
+                    this.ws.onerror = this.$refs.meebidIM.websocketonerror;
+                    this.ws.onmessage = this.$refs.meebidIM.websocketonmessage; 
+                    this.ws.onclose = this.$refs.meebidIM.websocketclose;
+                    
+                    
+                    //this.$emit('getSocketUrl',{wsurl: wsUrl, roomId: data.content.roomId,chatUserId:userId}); 
+
+                }
+
+            },
+            error(data) {
+                errorUtils.requestError(data);
+            }
+        });
+      }
+      if(!this.panelShow){
+        this.panelShow = true;
+      }else{
+        this.panelShow = false;
+      }
+      
+    },
+    hide(hidewindow){      
+      this.panelShow = hidewindow;
+    },
+    showImage(url){
+      this.expandUrl = url;
+      this.imageDialogVisible = true;
+    },
+    onShowPhoto(url){
+      this.expandUrl = url;
+      this.imageDialogVisible = true;
+    },
   }
 }
 
@@ -5255,4 +5366,39 @@ body
 #app {
   height: 100%;
 }
+.im{position:fixed; bottom:20px;right:0; }
+    .fold-enter-active{
+        animation-name: slideInUp;
+        animation-duration: .5s;
+        animation-fill-mode: both
+    }
+    .fold-leave-active {
+        animation-name: slideOutDown;
+        animation-duration: .7s;
+        animation-fill-mode: both
+    }
+    @keyframes slideInUp {
+        0% {
+            transform: translate3d(100%,0,0);
+            visibility: visible
+        }
+
+        to {
+            transform: translate3d(0%,0,0);
+        }
+    }
+    @keyframes slideOutDown {
+        0% {
+            transform: translate3d(0%,0,0);
+        }
+
+        to {
+            visibility: hidden;
+            transform: translate3d(110%,0,0)
+        }
+    }
+
+    .fold-enter, .fold-leave-active {
+      transform: translate3d(0, 0, 0);
+    }
 </style>
