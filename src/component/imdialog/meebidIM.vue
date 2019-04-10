@@ -484,7 +484,7 @@ export default {
                           biggerUserId = this.userId;
                         }
                         $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),lotId,value));
-                        //chatItems.unshift(chatItem);
+                        // console.log("Message@"+smallerUserId+","+biggerUserId+"[2]");
                         hasChated = true;
                       }                      
                     }
@@ -505,7 +505,7 @@ export default {
                         biggerUserId = this.userId;
                       }
                       $.ajax(this.buildGetUserProfileReq(userIds[j],base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),lotId,value));
-                                           
+                        // console.log("Message@"+smallerUserId+","+biggerUserId+"[2]");                   
                     }
                   }
                   
@@ -523,7 +523,7 @@ export default {
                   biggerUserId = this.userId;
                 }
                 $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),this.lotId,0));
-                
+                // console.log("Message@"+smallerUserId+","+biggerUserId+"[2]");
               }
               
               
@@ -541,7 +541,7 @@ export default {
                   if(this.lotId == lotId){
                     var roomPlaint = base64Utils.decode(roomId)                    
                     var userIds = roomPlaint.substring(roomPlaint.indexOf("@")+1,roomPlaint.indexOf("[")).split(",");
-                    for(var j=0; j<userIds.length;j++){console.log(userIds[j]);
+                    for(var j=0; j<userIds.length;j++){
                       //当前用户，不操作
                       if(userIds[j] == this.userId){
                         continue;
@@ -556,7 +556,7 @@ export default {
                           biggerUserId = this.userId;
                         }
                         $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),lotId,value));
-                        //chatItems.unshift(chatItem);
+                        // console.log("Message@"+smallerUserId+","+biggerUserId+"[2]");
                         hasChated = true;
                       }
                       //非当前用户，非指定聊天用户
@@ -565,11 +565,11 @@ export default {
                           smallerUserId = this.userId;
                           biggerUserId = userIds[j] ;
                         }else{
-                          smallerUserId = this.userId;
-                          biggerUserId = userIds[j] ;
+                          smallerUserId = userIds[j];
+                          biggerUserId =  this.userId;
                         }
                         $.ajax(this.buildGetUserProfileReq(userIds[j],base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),lotId,value));
-                        //chatItems.push(chatItem);
+                        // console.log("Message@"+smallerUserId+","+biggerUserId+"[2]");
                       }
                     }
                   }
@@ -587,7 +587,7 @@ export default {
                   smallerUserId = this.chatUserId;
                   biggerUserId = this.userId;
                 }
-                //console.log("Message@"+smallerUserId+","+biggerUserId+"[2]");
+                // console.log("Message@"+smallerUserId+","+biggerUserId+"[2]");
                 $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),this.lotId,0));
                 
               }
@@ -660,6 +660,15 @@ export default {
     },
     
     websockethistory(userId,offset){
+      let biggerUserId;
+      let smallerUserId;
+      if(this.userId > userId){
+        biggerUserId = this.userId;
+        smallerUserId = userId;
+      }else{
+        biggerUserId = userId;
+        smallerUserId = this.useId;
+      }
       $.ajax({
         type: "Get",
         url: "/api/socket/chat/history",
@@ -669,7 +678,7 @@ export default {
           token: this.loginUser.token
         },
         data: {
-          roomId:base64Utils.encode("Message@"+this.userId+","+userId+"[2]"),
+          roomId:base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),
           offset:offset,
           count:20,
           lotId:this.lotId

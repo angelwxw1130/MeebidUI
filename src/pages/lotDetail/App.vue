@@ -145,7 +145,7 @@
 
       </div>
       <transition name="fold">
-        <meebidim ref="meebidIM" class="meebidIMPophover" :userProfile="userProfile" :socketRoomId="socketRoomId" :chatUserId="houseUserId" :lotId="lotId" :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow"  :ws="ws" @hidewindow="hide" @showImage="showImage"></meebidim>
+        <meebidim ref="meebidIM" class="meebidIMPophover" style="z-index: 10" :userProfile="userProfile" :socketRoomId="socketRoomId" :chatUserId="houseUserId" :lotId="lotId" :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow"  :ws="ws" @hidewindow="hide" @showImage="showImage"></meebidim>
       </transition>
     </div>
     

@@ -1636,7 +1636,7 @@
 
       
       <transition name="fold">
-        <meebidim ref="meebidIM"  class="meebidIMPophover" :lotId="lotId" :userProfile="userProfile" :chatUserId="chatUserId" :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow" :panelShow="panelShow" :ws="ws" @hidewindow="hide" @showImage="showImage"></meebidim>
+        <meebidim ref="meebidIM"  class="meebidIMPophover" style="z-index: 10" :lotId="lotId" :userProfile="userProfile" :chatUserId="chatUserId" :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow" :panelShow="panelShow" :ws="ws" @hidewindow="hide" @showImage="showImage"></meebidim>
       </transition>
       
     </div>
