@@ -598,7 +598,7 @@ export default {
             //console.log(this.chatUsers[0].userId+","+this.chatUsers[0].firstName+",");
             
             //获取最近chats
-            var request = this.buildGetLastChatsReq(20);
+            var request = this.buildGetLastChatsReq(0);
             $.ajax(request);              
             
             //获取当前聊天lot

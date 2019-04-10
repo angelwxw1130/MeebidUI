@@ -45,7 +45,7 @@ export default {
             if(this.currentId == userId){
                 return;
             }
-            console.log("roomId:"+roomId);
+            //console.log("roomId:"+roomId);
             this.currentId = userId;
             this.$emit('getChatRoom',{chatUserId:userId,chatRoomId:roomId}); 
            
@@ -64,12 +64,12 @@ ul > li.active {
 }
 .showIf {
         display: inline-block;
-        float: right;
+        float: left;
         height: 17px;
         width: 25px;
         background-color: #F64D32;
-        margin-right: size(5);
-        margin-top: size(13);
+        margin-left: 5px;
+        margin-top: -40px;
         border-radius: 10px;
 }
         
