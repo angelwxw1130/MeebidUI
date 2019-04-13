@@ -64,6 +64,10 @@ export default {
       allmessage:{
         type: Boolean,
         default: true,
+      },
+      moreMessage:{
+        type: Boolean,
+        default: false,
       }
     },
     data(){
@@ -100,9 +104,12 @@ export default {
     },
     updated:function(){
       this.$nextTick(function(){
-      var div = document.getElementById('messagebox');
-        div.scrollTop = div.scrollHeight;
-      })
+          if(this.moreMessage == false){
+            var div = document.getElementById('messagebox');
+                div.scrollTop = div.scrollHeight;
+          }
+        })
+        
     },
     mounted(){
         var div = document.getElementById('messagebox');

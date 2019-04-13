@@ -15,7 +15,7 @@
             <span class="fa fa-arrow-circle-o-right" style="display:inline-block;font-size:25px;color:#FF5242; position: absolute;  left: 390px;  top: 15px;cursor:pointer;" ></span>
           </a>
         </div>
-        <meebidmessage style="height:310px" :allmessage="allmessage" :messages="messages" :headPortrait="headPortrait" :chatUser="chatUser" @showImage="showImage" @srcollToHistory="srcollToHistory" ></meebidmessage>
+        <meebidmessage ref="message" style="height:310px" :allmessage="allmessage" :messages="messages" :headPortrait="headPortrait" :chatUser="chatUser" @showImage="showImage" @srcollToHistory="srcollToHistory" ></meebidmessage>
         <meebidtext ref="textarea"  @sendMessage='sendMessage' @sendMessageCtx='sendMessageCtx'></meebidtext>
     </div>
   </div>
@@ -136,6 +136,7 @@ export default {
     sendMessage(message) {
       //尝试向服务端发送消息
       //console.log(message);
+      this.$refs.message.moreMessage = true;
       var date = new Date();
       if(this.lastChatTime == ""){
         this.showChatTime=true;
@@ -309,7 +310,7 @@ export default {
         if(this.userId == redata.sender){
           self = true;
         }
-                
+        this.$refs.message.moreMessage = true;        
         this.messages.push({
           date:redata.sendAt ,
           sender:redata.sender,
@@ -604,10 +605,10 @@ export default {
             //获取当前聊天lot
             this.getLottery();
             //获取近期某个聊天室下的聊天记录
-            this.websockethistory(this.chatUser.userId,0);
+            this.websockethistory(this.chatUser,0);
 
             //标记已读
-            this.websocketread(this.roomId);
+            this.websocketread(this.chatUser.roomId);
           }
           
         },
@@ -659,16 +660,16 @@ export default {
       });
     },
     
-    websockethistory(userId,offset){
-      let biggerUserId;
-      let smallerUserId;
-      if(this.userId > userId){
-        biggerUserId = this.userId;
-        smallerUserId = userId;
-      }else{
-        biggerUserId = userId;
-        smallerUserId = this.useId;
-      }
+    websockethistory(chatuser,offset){
+      // let biggerUserId;
+      // let smallerUserId;
+      // if(this.userId > userId){
+      //   biggerUserId = this.userId;
+      //   smallerUserId = userId;
+      // }else{
+      //   biggerUserId = userId;
+      //   smallerUserId = this.useId;
+      // }
       $.ajax({
         type: "Get",
         url: "/api/socket/chat/history",
@@ -678,10 +679,10 @@ export default {
           token: this.loginUser.token
         },
         data: {
-          roomId:base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),
+          roomId:chatuser.roomId,//base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),
           offset:offset,
           count:20,
-          lotId:this.lotId
+          lotId:chatuser.lotId//this.lotId
         },
         success(data) {
           if (data.code === 1){
@@ -690,7 +691,9 @@ export default {
               this.lastChatTime = "";
               this.showChatTime=true;
             }
-            
+            if(offset >= 20){
+              this.$refs.message.moreMessage = true;
+            }
             if(data.content.msgs.length > 0){
               for(var i = data.content.msgs.length - 1;i>=0; i--){
                 //如果上一个message时间为空 则记录时间
@@ -917,14 +920,14 @@ export default {
                   firstName: firstName,
                   headPortrait : headPortrait,
                   userId : userId,                
-                  sendMessageRoomId:this.userId+","+this.chatUserId,
+                  sendMessageRoomId:this.userId+","+userId,
                   unread:0
                   }
               if(this.chatUserId == item.group[j].id){
                   // chatItems.unshift(chatItem);
                   //hasChated = true;
               }else if(this.chatUserId != item.group[j].id){
-                  let c = chatItems.filter(v => v.userId == item.group[j].id);
+                  let c = this.chatUsers.filter(v => v.userId == item.group[j].id);
                   if(c.length <= 0 ){
                     this.chatUsers.push(chatItem);
                   }
@@ -948,7 +951,7 @@ export default {
         this.lotId = this.chatUser.lotId;
         this.lot = this.getLottery();
       }
-      this.websockethistory(this.chatUser.userId,0);
+      this.websockethistory(this.chatUser,0);
       this.websocketread(this.roomId);
     },
     
@@ -959,7 +962,7 @@ export default {
       this.$emit('showImage',url); 
     },
     srcollToHistory(messageSize){
-      this.websockethistory(this.chatUser.userId,messageSize);
+      this.websockethistory(this.chatUser,messageSize);
     }
   }
 }
