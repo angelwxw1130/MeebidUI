@@ -51,7 +51,7 @@
       <div ref="lotItemListContainer" class="meebidHomePageItemListContainer">
         <meebid-homepage-list-item v-for="item in visibleItems" :viewType="selectedView" :item="item" :key="item.id" :height="item.height" :image-url="item.imageUrl" :description="item.description" :favourite-count="item.favouriteCount" :meebid-list-item-class="item.meebidListItemClass" :naturalHeight="item.naturalHeight" :naturalWidth="item.naturalWidth" :avatar-url="item.avatarUrl" :image-name="item.imageName" :image-provider="item.imageProvider" @houseClick="onHouseClick" @lotClick="onLotClick"></meebid-homepage-list-item>
       </div>
-      <div v-if="noResult">No Lots</div>
+      <div class="meebidNoResultText" v-if="noResult">No available lots, please adjust your filter</div>
       <div style="position: relative; width: 100%; height: 80px;" :style="{transform: busyIndicatorPosition}">
         <meebid-busy-indicator ref="lotListItemsBusyIndicator" :transparency="true" size="Medium"></meebid-busy-indicator>
       </div>
@@ -103,6 +103,7 @@
         items: [],
         pendingItems: [],
         loginUser: loginUtils.getLoginUser(),
+        currentPendingItem: {},
         visibleItems: [],
         lotPage: 1,
         lotPerPage: 20,
@@ -114,10 +115,12 @@
         isAdding: false,
         busyIndicatorPosition: "",
         inLoadingLotItems: false,
+        dataLoadingNeeded: true,
         searchKeyword: "",
         lastRequest: {},
         noResult: false,
         filterForm: {},
+        skippedPendingItem: [],
         filterFormRules: {},
         categoryOptions: [],
         sortOptions: [{
@@ -429,7 +432,8 @@
           return;
         } else if (this.pendingItems.length <= 0){
           if (this.currentTotal <= (this.lotPage - 1) * this.lotPerPage){
-            window.removeEventListener('scroll', this.onWindwoScroll);
+            //window.removeEventListener('scroll', this.onWindwoScroll);
+            this.dataLoadingNeeded = false;
             this.$refs.lotListItemsBusyIndicator.hide();
           }
           return;
@@ -458,16 +462,35 @@
             me.onItemImageLoaded();
           })
         } else {
-          img.onload = (image)=>{
-            var imgEl = image.srcElement ? image.srcElement : image.target;;
-            this.pendingItems.splice(0, 1);
-            currentItem.naturalHeight = imgEl.naturalHeight;
-            currentItem.naturalWidth = imgEl.naturalWidth;
-            this.visibleItems.push(currentItem);
-            this.$nextTick(function() {
-              me.onItemImageLoaded();
-            })
+          var checkCurrentLoading = function(){
+            if (me.currentPendingItem){
+              console.log("Skip lot item: " + me.currentPendingItem.name + ". Id is " + me.currentPendingItem.id);
+              me.skippedPendingItem.push(me.currentPendingItem);
+              me.pendingItems.splice(0, 1);
+              me.isAdding = false;
+              me.checkPendingItems();
+            }
           };
+          me.currentPendingItem = currentItem;
+          img.onload = (image)=>{
+            if (meebidUtils.findIndex(me.skippedPendingItem, "id", me.currentPendingItem.id) !== null){
+              this.currentPendingItem = null;
+              return;
+            } else {
+              clearTimeout(checkCurrentLoading);
+              this.currentPendingItem = null;
+              var imgEl = image.srcElement ? image.srcElement : image.target;
+              this.pendingItems.splice(0, 1);
+              currentItem.naturalHeight = imgEl.naturalHeight;
+              currentItem.naturalWidth = imgEl.naturalWidth;
+              this.visibleItems.push(currentItem);
+              this.$nextTick(function() {
+                me.onItemImageLoaded();
+              })
+            }
+            
+          };
+          setTimeout(checkCurrentLoading, 10000);
         }        
       },
       onItemImageLoaded() {
@@ -507,7 +530,7 @@
       },
       onWindwoScroll() {
         var me = this;
-        if (!me.inLoadingLotItems){
+        if (!me.inLoadingLotItems && me.dataLoadingNeeded){
           var viewH = document.body.clientHeight,
               contentH = document.body.scrollHeight, 
               //to get the correct scrollTop in different browser
@@ -535,7 +558,8 @@
         this.resetColumnNum();
         this.lotPage = 1;
         var request = this.buildOnlineItemRequest();
-        window.addEventListener('scroll', this.onWindwoScroll);
+        //window.addEventListener('scroll', this.onWindwoScroll);
+        this.dataLoadingNeeded = true;
         this.$refs.lotListItemsBusyIndicator.show();
         $.ajax(request);
         this.currentRequest = request;
@@ -586,6 +610,7 @@
         this.resetColumnNum();
         this.lotPage = 1;
         var request = this.buildOnlineItemRequest();
+        this.dataLoadingNeeded = true;
         this.inLoadingLotItems = true;
         if (!this.hideBusyIndicator){
           this.$refs.lotListItemsBusyIndicator.show();
