@@ -51,7 +51,7 @@
       <div ref="lotItemListContainer" class="meebidHomePageItemListContainer">
         <meebid-homepage-list-item v-for="item in visibleItems" :viewType="selectedView" :item="item" :key="item.id" :height="item.height" :image-url="item.imageUrl" :description="item.description" :favourite-count="item.favouriteCount" :meebid-list-item-class="item.meebidListItemClass" :naturalHeight="item.naturalHeight" :naturalWidth="item.naturalWidth" :avatar-url="item.avatarUrl" :image-name="item.imageName" :image-provider="item.imageProvider" @houseClick="onHouseClick" @lotClick="onLotClick"></meebid-homepage-list-item>
       </div>
-      <div class="meebidNoResultText" v-if="noResult">No available lots, please adjust your filter</div>
+      <div class="meebidNoResultText meebidPaddingTopMedium" v-if="noResult">No available lots, please adjust your filter</div>
       <div style="position: relative; width: 100%; height: 80px;" :style="{transform: busyIndicatorPosition}">
         <meebid-busy-indicator ref="lotListItemsBusyIndicator" :transparency="true" size="Medium"></meebid-busy-indicator>
       </div>
