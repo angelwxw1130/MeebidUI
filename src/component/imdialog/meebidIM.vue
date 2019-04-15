@@ -1,7 +1,7 @@
 <template>
-  <div style="width: 600px;height: 500px; overflow: hidden; border-radius: 3px; box-shadow: 3px 3px 3px #888888;"> 
-    <div class="sidebar" style=" float: left;height: 100%;
-      width: 160px;
+  <div style="width: 620px;height: 500px; overflow: hidden; border-radius: 3px; box-shadow: 3px 3px 3px #888888;"> 
+    <div class="sidebar" style=" float: left;height: 500px;
+      width: 180px;
       color: #f4f4f4;
       background-color: #DDDDDD;"><!-- #FF5242-->
       <!--<meebidcard :headPortrait="headPortrait" :firstName="firstName"></meebidcard>-->
@@ -136,7 +136,7 @@ export default {
     sendMessage(message) {
       //尝试向服务端发送消息
       //console.log(message);
-      this.$refs.message.moreMessage = true;
+      this.$refs.message.moreMessage = false;
       var date = new Date();
       if(this.lastChatTime == ""){
         this.showChatTime=true;
@@ -246,10 +246,10 @@ export default {
             if(item.id == redata.id){
               fileNameObject = item;
               if(fileNameObject.File){
-                //console.log(fileNameObject.File.name);
+                
               }
               
-                //console.log("file:"+fileNameObject.File.name);
+               
             }
           });
         }else{
@@ -299,18 +299,18 @@ export default {
           if(redata.type === 1){
             contentType = "image";
             content = jsoncontent.rUid;
-            fileName = fileNameObject.FileName;
+            fileName = jsoncontent.name;
           }else if(redata.type === 2){
             contentType = "file";
             content = jsoncontent.rUid;
-            fileName = fileNameObject.FileName;
+            fileName = jsoncontent.name;
           }
           
         }
         if(this.userId == redata.sender){
           self = true;
         }
-        this.$refs.message.moreMessage = true;        
+        this.$refs.message.moreMessage = false;        
         this.messages.push({
           date:redata.sendAt ,
           sender:redata.sender,
@@ -320,6 +320,7 @@ export default {
           contentType:contentType,
           fileName:fileName,
         });
+        
       }
 　　}, 
     
@@ -670,6 +671,8 @@ export default {
       //   biggerUserId = userId;
       //   smallerUserId = this.useId;
       // }
+      //console.log("history:"+chatuser.lotId);
+      //console.log("history:"+chatuser.roomId);
       $.ajax({
         type: "Get",
         url: "/api/socket/chat/history",
@@ -693,6 +696,8 @@ export default {
             }
             if(offset >= 20){
               this.$refs.message.moreMessage = true;
+            }else{
+              this.$refs.message.moreMessage = false;
             }
             if(data.content.msgs.length > 0){
               for(var i = data.content.msgs.length - 1;i>=0; i--){
@@ -877,80 +882,90 @@ export default {
       // console.log("chatUserId:"+this.chatUserId);
       if(items.length > 0){
         for (var i = 0; i < items.length; i++){
-            var item = items[i];
-            var roomId = item.roomId;
-            for(var j = 0; j < item.group.length; j++){
-              var firstName = "";
-              var headPortrait = "";   
-              var userId = "";           
-              if(item.group[j].id == this.userId){
-                continue;
+          var item = items[i];
+          var roomId = item.roomId;
+          if(item.lotId <= 0){
+            //console.log("item.lotId :"+item.lotId );
+            continue;
+          }
+            
+          for(var j = 0; j < item.group.length; j++){
+            var firstName = "";
+            var headPortrait = "";   
+            var userId = "";         
+            // 当前用户  
+            if(item.group[j].id == this.userId){
+              continue;
+            }
+            
+            userId = item.group[j].id;
+            if (item.group[j].type === window.meebidConstant.userType.member){
+              if (item.group[j].firstName){
+                  firstName = item.group[j].firstName;
               }
               
-              userId = item.group[j].id;
-              if (item.group[j].type === window.meebidConstant.userType.member){
-                if (item.group[j].firstName){
-                    firstName = item.group[j].firstName;
-                }
-                
-                if (item.group[j].avatar != null){
-                    headPortrait = item.group[j].avatar;                    
-                }
-                else{
-                  headPortrait = "http://tinygraphs.com/squares/"+firstName+"?theme=heatwave&numcolors=4"
-                }
+              if (item.group[j].avatar != null){
+                  headPortrait = item.group[j].avatar;                    
+              }
+              else{
+                headPortrait = "http://tinygraphs.com/squares/"+firstName+"?theme=heatwave&numcolors=4"
+              }
 
-               
-              }else if (item.group[j].type === window.meebidConstant.userType.house){
-                if (item.group[j].name){
-                    firstName = item.group[j].name;
-                }
-                
-                if (item.group[j].bLogoUrl != null){
-                    headPortrait = item.group[j].bLogoUrl;
-                    
-                }else{
-                  headPortrait = "http://tinygraphs.com/squares/"+firstName+"?theme=heatwave&numcolors=4"
-                } 
-                
+             
+            }else if (item.group[j].type === window.meebidConstant.userType.house){
+              if (item.group[j].name){
+                  firstName = item.group[j].name;
               }
-                
-              var chatItem = {
-                  roomId : roomId,
-                  firstName: firstName,
-                  headPortrait : headPortrait,
-                  userId : userId,                
-                  sendMessageRoomId:this.userId+","+userId,
-                  unread:0
-                  }
-              if(this.chatUserId == item.group[j].id){
-                  // chatItems.unshift(chatItem);
-                  //hasChated = true;
-              }else if(this.chatUserId != item.group[j].id){
-                  let c = this.chatUsers.filter(v => v.userId == item.group[j].id);
-                  if(c.length <= 0 ){
-                    this.chatUsers.push(chatItem);
-                  }
+              
+              if (item.group[j].bLogoUrl != null){
+                  headPortrait = item.group[j].bLogoUrl;
                   
-              }
+              }else{
+                headPortrait = "http://tinygraphs.com/squares/"+firstName+"?theme=heatwave&numcolors=4"
+              } 
+              
+            }
+              //console.log("lotids:"+item.lotId+",roomid:"+item.roomId);
+            var chatItem = {
+                roomId : roomId,
+                firstName: firstName,
+                headPortrait : headPortrait,
+                userId : userId,                
+                sendMessageRoomId:this.userId+","+userId,
+                unread:0,
+                lotId:item.lotId
+                }
+            if(this.chatUserId == item.group[j].id && this.lotId == item.group[j].lotId){
+                // chatItems.unshift(chatItem);
+                //hasChated = true;
+            }else if(this.chatUserId != item.group[j].id || (this.chatUserId == item.group[j].id && this.lotId != item.group[j].lotId)){
+                let c = this.chatUsers.filter(v => v.userId == item.group[j].id && v.lotId == item.group[j].lotId);
+                if(c.length <= 0 ){
+                  this.chatUsers.push(chatItem);
+                }
                 
             }
+                
+          }
         }
       }
     },
     getChatRoom(wsConnection){
       for(var i =0;i<this.chatUsers.length;i++){
-        if(this.chatUsers[i].userId == wsConnection.chatUserId){
+        if(this.chatUsers[i].userId == wsConnection.chatUserId && this.chatUsers[i].lotId == wsConnection.lotId){
           this.chatUser = this.chatUsers[i];
         }
       }
-      this.$refs.textarea.getFocus();
+      //this.$refs.textarea.getFocus();
       this.roomId = wsConnection.chatRoomId;
       this.newChatUser = true;
       if(this.chatUser.lotId != null && this.chatUser.lotId !='' ){
         this.lotId = this.chatUser.lotId;
         this.lot = this.getLottery();
+        this.chatUserId = this.chatUser.userId
       }
+      //console.log(this.lotId);
+      //console.log(wsConnection.lotId)
       this.websockethistory(this.chatUser,0);
       this.websocketread(this.roomId);
     },

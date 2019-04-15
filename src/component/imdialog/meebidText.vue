@@ -1,5 +1,5 @@
 <template>
-    <div class="text" style="height: 120px;border-top: solid 1px #ddd;">
+    <div class="text" style="height: 140px;border-top: solid 1px #ddd;">
         <!-- 表情、文件选择等操作 -->
         <div class="opr-wrapper">
             <common-chat-emoji class="item" ref="qqemoji" @select="qqemoji_selectFace"></common-chat-emoji>
@@ -13,7 +13,7 @@
         </div>
         <!-- 聊天输入框 -->
         <div class="input-wrapper">
-            <div style="padding: 10px;height: 100%;width: 100%;border: none;outline: none;font-family: 'Micrsofot Yahei';resize: none;" 
+            <div style="padding: 10px;height: 110px;width: 100%;border: none;outline: none;font-family: 'Micrsofot Yahei';resize: none;" 
             class="inputContent common_chat_emoji-wrapper-global" id="common_chat_input"  placeholder="按 Enter 发送" contenteditable="true" @keydown="inputContent_keydown"   @mouseup="inputContent_mouseup" @mouseleave="inputContent_mouseup"></div>
         </div>
         <!-- <textarea placeholder="按 Enter 发送" id="common_chat_input" v-model="content" @keyup="onKeyup" @drop="inputContent_drop" @keydown="inputContent_keydown" @mouseup="inputContent_mouseup" @mouseleave="inputContent_mouseup"

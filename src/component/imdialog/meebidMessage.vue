@@ -104,6 +104,7 @@ export default {
     },
     updated:function(){
       this.$nextTick(function(){
+          //console.log("moreMessage:"+this.moreMessage);
           if(this.moreMessage == false){
             var div = document.getElementById('messagebox');
                 div.scrollTop = div.scrollHeight;
@@ -323,6 +324,17 @@ export default {
     position: relative;
 }        
 
+.message .imgmsg .img {
+    padding: 10px 0;
+    max-width: 100px;
+    max-height: 75px;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-all;
+    padding: 5px;
+    cursor: pointer;
+    position: relative;
+}   
 
 .file {
         max-width: 220px;

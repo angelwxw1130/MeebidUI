@@ -99,7 +99,7 @@
                     <span>{{lotItem.sceneEx.houseTel}}</span>
                   </div>
                   <br>
-                  <div>
+                  <div v-if="userProfile.type == 1">
                     <span>Consult :</span><a href="javascript:void(0)"  @click="show"><i class="fa fa-comments" style="color:#FF5242;vertical-align: middle;margin:0px 0px 5px 15px;"></i></a>
                   </div>
                 </div>
