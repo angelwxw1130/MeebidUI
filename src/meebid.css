@@ -1012,9 +1012,13 @@ body {
   height: 30px;
 }
 
+.meebid .meebidFilterCategorySelect {
+  height: auto;
+}
+
 .meebidFilterCategorySelect .el-select__tags {
   max-height: 56px;
-  overflow: scroll;
+  overflow: auto;
   align-items: baseline;
 }
 
