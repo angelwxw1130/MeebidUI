@@ -196,12 +196,13 @@ export default {
                   || document.documentElement.scrollTop
                   || document.body.scrollTop
                   || 0;
-            if(scrollTop == 0 && this.allmessage == false){
-                //加载新的记录
-                var messageSize = this.messages.length;
-                this.$emit("srcollToHistory",messageSize);
-                //console.log("scroll");
-            }
+            // console.log(scrollTop);      
+            // if(scrollTop == 0 && this.allmessage == false){
+            //     //加载新的记录
+            //     var messageSize = this.messages.length;
+            //     this.$emit("srcollToHistory",messageSize);
+            //     //console.log("scroll");
+            // }
             
         },
         showMoreMessages(){

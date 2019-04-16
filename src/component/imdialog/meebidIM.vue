@@ -10,7 +10,7 @@
     <div class="main" style="position: relative;height: 100%;overflow: hidden;background-color: #eee;">
         <div style="height:50px;border-bottom:1px solid #d4dde4;">
           <p style="font-size:20px;padding:5px 0px 0px 30px;height:15px;color:#FF5242;weight:10;">{{chatUser.firstName}}</p>
-          <p style="font-size:13px;padding:5px 0px 0px 32px;color:#FF5242;">Lottery：{{lot.name}}</p>
+          <p style="font-size:13px;padding:5px 0px 0px 32px;color:#FF5242;">Lottery：{{lotname}}</p>
           <a href="javascript:void(0)" @click='hideWindow'>
             <span class="fa fa-arrow-circle-o-right" style="display:inline-block;font-size:25px;color:#FF5242; position: absolute;  left: 390px;  top: 15px;cursor:pointer;" ></span>
           </a>
@@ -115,6 +115,7 @@ export default {
       finishReqs: {},
       lot:{},
       allmessage:true,
+      lotname:"",
     }
   },
   beforeMount() {    
@@ -429,6 +430,7 @@ export default {
 
 
     getChatRooms(){
+      this.chatUsers = [];
       this.websocketunread();
       
       
@@ -632,6 +634,7 @@ export default {
         success(data) {
           if (data.code === 1){
             this.lot = data.content;
+            this.lotname = this.lot.name;
           }
         }
        });
@@ -662,17 +665,9 @@ export default {
     },
     
     websockethistory(chatuser,offset){
-      // let biggerUserId;
-      // let smallerUserId;
-      // if(this.userId > userId){
-      //   biggerUserId = this.userId;
-      //   smallerUserId = userId;
-      // }else{
-      //   biggerUserId = userId;
-      //   smallerUserId = this.useId;
-      // }
-      //console.log("history:"+chatuser.lotId);
-      //console.log("history:"+chatuser.roomId);
+      if(offset == 0){
+        this.messages = [];
+      }
       $.ajax({
         type: "Get",
         url: "/api/socket/chat/history",
@@ -823,7 +818,7 @@ export default {
                   sendMessageRoomId:this.userid+","+this.chatUserId,
                   unread:unreadcount
                   }
-            if(userid == this.chatUserId){
+            if(userid == this.chatUserId && lotId == this.lotId){
               //console.log("a");
               this.chatUsers.unshift(chatItem) ;
             }else{
@@ -938,7 +933,7 @@ export default {
             if(this.chatUserId == item.group[j].id && this.lotId == item.group[j].lotId){
                 // chatItems.unshift(chatItem);
                 //hasChated = true;
-            }else if(this.chatUserId != item.group[j].id || (this.chatUserId == item.group[j].id && this.lotId != item.group[j].lotId)){
+            }else if(this.chatUserId != item.group[j].id || (this.chatUserId == item.group[j].id && this.lotId != item.lotId)){
                 let c = this.chatUsers.filter(v => v.userId == item.group[j].id && v.lotId == item.group[j].lotId);
                 if(c.length <= 0 ){
                   this.chatUsers.push(chatItem);
@@ -954,6 +949,7 @@ export default {
       for(var i =0;i<this.chatUsers.length;i++){
         if(this.chatUsers[i].userId == wsConnection.chatUserId && this.chatUsers[i].lotId == wsConnection.lotId){
           this.chatUser = this.chatUsers[i];
+          this.chatUser.unread = 0;
         }
       }
       //this.$refs.textarea.getFocus();

@@ -549,7 +549,7 @@ export default {
                       console.log("当前浏览器不支持WebSocket");
 
                     }
-                    this.$refs.meebidIM.getChatRooms();
+                    //this.$refs.meebidIM.getChatRooms();
                     this.ws.onopen = this.$refs.meebidIM.websocketonopen;
                     this.ws.onerror = this.$refs.meebidIM.websocketonerror;
                     this.ws.onmessage = this.$refs.meebidIM.websocketonmessage; 
@@ -566,6 +566,7 @@ export default {
             }
         });
       }
+      this.$refs.meebidIM.getChatRooms();
       if(!this.panelShow){
         this.panelShow = true;
       }else{
