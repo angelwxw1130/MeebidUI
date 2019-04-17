@@ -99,7 +99,7 @@
                     <span>{{lotItem.sceneEx.houseTel}}</span>
                   </div>
                   <br>
-                  <div>
+                  <div v-if="userProfile.type == 1">
                     <span>Consult :</span><a href="javascript:void(0)"  @click="show"><i class="fa fa-comments" style="color:#FF5242;vertical-align: middle;margin:0px 0px 5px 15px;"></i></a>
                   </div>
                 </div>
@@ -549,7 +549,7 @@ export default {
                       console.log("当前浏览器不支持WebSocket");
 
                     }
-                    this.$refs.meebidIM.getChatRooms();
+                    //this.$refs.meebidIM.getChatRooms();
                     this.ws.onopen = this.$refs.meebidIM.websocketonopen;
                     this.ws.onerror = this.$refs.meebidIM.websocketonerror;
                     this.ws.onmessage = this.$refs.meebidIM.websocketonmessage; 
@@ -566,6 +566,7 @@ export default {
             }
         });
       }
+      this.$refs.meebidIM.getChatRooms();
       if(!this.panelShow){
         this.panelShow = true;
       }else{

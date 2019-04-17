@@ -2438,13 +2438,14 @@ export default {
           this.firstName = this.userProfile.name;
         }
         if (!this.userProfile.bLogoUrl) {
-          this.userProfile.bLogoUpload = [];
-          this.headPortrait = this.userProfile.bLogoUrl;
+          this.userProfile.bLogoUpload = [];  
+          this.headPortrait = "http://tinygraphs.com/squares/"+this.firstName+"?theme=heatwave&numcolors=4"
+                
         } else {
+          this.headPortrait = this.userProfile.bLogoUrl;
           this.userProfile.bLogoUpload = [{
               url: this.userProfile.bLogoUrl
           }];
-          this.headPortrait = "http://tinygraphs.com/squares/"+this.firstName+"?theme=heatwave&numcolors=4"
         }
         if (!this.userProfile.blicenseUrl) {
           this.userProfile.bLicenseUpload = [];
@@ -5274,9 +5275,9 @@ export default {
       });
     },
     show(row){
+      this.lotId = row.lotId;
+      this.chatUserId = row.userId;
       if(this.ws == null){
-        this.lotId = row.lotId;
-        this.chatUserId = row.userId;
         
         // console.log("chatuserid:"+this.chatUserId);
         //获取socketID
@@ -5311,7 +5312,7 @@ export default {
                       console.log("当前浏览器不支持WebSocket");
 
                     }
-                    this.$refs.meebidIM.getChatRooms();
+                    //this.$refs.meebidIM.getChatRooms();
                     this.ws.onopen = this.$refs.meebidIM.websocketonopen;
                     this.ws.onerror = this.$refs.meebidIM.websocketonerror;
                     this.ws.onmessage = this.$refs.meebidIM.websocketonmessage; 
@@ -5328,6 +5329,7 @@ export default {
             }
         });
       }
+      this.$refs.meebidIM.getChatRooms();
       if(!this.panelShow){
         this.panelShow = true;
       }else{
@@ -5335,7 +5337,7 @@ export default {
       }
       
     },
-    hide(hidewindow){      
+    hide(hidewindow){  
       this.panelShow = hidewindow;
     },
     showImage(url){
