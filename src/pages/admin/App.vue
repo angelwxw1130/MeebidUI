@@ -451,14 +451,14 @@
               <div class="">You can manage your lots here.</div>
               <div style="position: absolute; right: 0px; top: 0px;"> 
                 <el-button class="meebidMarginTopMedium meebidSquareButton" icon="el-icon-back" @click="onBackToAuctionList">BACK</el-button>
-                <el-button v-if="currentSceneState !== 64" class="meebidMarginTopMedium" type="primary" @click="onCreateAuctionLot">CREATE LOT</el-button>
-                <el-dropdown class="meebidMarginLeftSmall" @command="handleBatchCommand">
+                <el-button v-if="currentSceneState !== 64 && (currentSceneState & 2) == 0" class="meebidMarginTopMedium" type="primary" @click="onCreateAuctionLot">CREATE LOT</el-button>
+                <el-dropdown class="meebidMarginLeftSmall" @command="handleBatchCommand" v-if="(currentSceneState & 2) == 0">
                   <el-button type="primary">
                     BATCH ACTIONS<i class="el-icon-arrow-down el-icon--right"></i>
                   </el-button>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item v-if="currentSceneState !== 64" command="batchUploadAuctionLot">Batch Upload Lots</el-dropdown-item>
-                    <el-dropdown-item v-if="currentSceneState !== 64" command="batchUploadAuctionLotImages">Batch Upload Images</el-dropdown-item>
+                    <el-dropdown-item v-if="currentSceneState !== 64 && (currentSceneState & 2) == 0" command="batchUploadAuctionLot">Batch Upload Lots</el-dropdown-item>
+                    <el-dropdown-item v-if="currentSceneState !== 64 && (currentSceneState & 2) == 0" command="batchUploadAuctionLotImages">Batch Upload Images</el-dropdown-item>
                     <el-dropdown-item v-if="currentSceneState === 64" command="batchUploadAuctionResult">Batch Upload Auction Result</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
@@ -486,8 +486,8 @@
                             <i class="el-icon-setting"></i>
                           </el-button>
                           <el-dropdown-menu slot="dropdown">
-                            <el-dropdown-item command="edit">Edit</el-dropdown-item>
-                            <el-dropdown-item v-if="currentSceneState !== 64" command="delete">Delete</el-dropdown-item>
+                            <el-dropdown-item v-if="(currentSceneState & 2) == 0" command="edit">Edit</el-dropdown-item>
+                            <el-dropdown-item v-if="currentSceneState !== 64 && (currentSceneState & 2) == 0" command="delete">Delete</el-dropdown-item>
                             <el-dropdown-item v-if="(item.state & 1) == 1 && currentSceneState == 32" command="review">Review</el-dropdown-item>
                             <el-dropdown-item v-if="(item.state & 4) != 0 && currentSceneState == 32" command="online">Online</el-dropdown-item>
                             <el-dropdown-item v-if="(item.state & 8) != 0 && currentSceneState !== 64" command="offline">Offline</el-dropdown-item>
@@ -5254,7 +5254,7 @@ export default {
           if (data.code === 1){
             me.$message({
               type: 'success',
-              message: i18n.t('meebid.alertMessage.MSG_ADMIN_BATCH_UPLOAD_IMAGES_SUCCESS')
+              message: i18n.t('meebid.alertMessage.MSG_ADMIN_SEND_INVOICE_SUCCESS')
             });
             me.sendInvoiceDialogVisible = false;
           } else {
