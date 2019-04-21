@@ -44,11 +44,15 @@ export default {
       type: Function,
       default: function(){
       }
-    }
+    },
+    hintNumber: {
+      type: Number,
+      default: 0
+    },
   },
   data () {
     return {
-      hintNumber: 0
+      
     }
   },
 

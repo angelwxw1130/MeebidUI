@@ -1634,9 +1634,10 @@
       <meebid-category-dialog :items="categoryItems" :favorCategories="userProfileForm && userProfileForm.favorCategories ? userProfileForm.favorCategories : []" :isProfilePage="isProfilePage" @update="onCategoryDialogUpdate" ref="categoryDialog">
       </meebid-category-dialog>
 
-      
+      <meebid-button button-type="round orange" :button-click="show" icon-type="comment" class="im" :hintNumber = "unread"> 
+      </meebid-button>
       <transition name="fold">
-        <meebidim ref="meebidIM"  class="meebidIMPophover" style="z-index: 10" :lotId="lotId" :userProfile="userProfile" :chatUserId="chatUserId" :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow" :panelShow="panelShow" :ws="ws" @hidewindow="hide" @showImage="showImage"></meebidim>
+        <meebidim ref="meebidIM"  class="meebidIMPophover" style="z-index: 10"  @reconnect="reconnect" :lotId="lotId" :userProfile="userProfile" :chatUserId="chatUserId" :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow" :panelShow="panelShow" :ws="ws" @hidewindow="hide" @showImage="showImage" @changeTotalUnread="changeTotalUnread"></meebidim>
       </transition>
       
     </div>
@@ -2343,13 +2344,15 @@ export default {
       contactUserDialogLastClickTime: 0,
       expandUrl: "",
       userId:-1,
-      socketRoomId:"",
+      roomId:"",
       headPortrait:"",
       wsUrl:"",
       ws:null,
       lotId:"",
       chatUserId:-1,
       panelShow:false,
+      unread:0,      
+      lockReconnect:false,
     }
   },
   computed: {
@@ -2380,6 +2383,76 @@ export default {
     if (this.$parent.$data && this.$parent.$data.user){
       this._buildUserProfile(this.$parent.$data)
     }
+
+    if(this.ws == null){
+        
+        
+        //获取socketID
+        $.ajax({
+            type: "POST",
+            url: "/api/socket/socket",
+            contentType : "application/json", 
+            context: this,
+            headers: {
+                token: this.loginUser.token
+            },
+            data: {},
+            success(data) {
+                if (data.code === 1){
+                    var wsUrl = '';
+                
+                    this.socketId = data.content.ws;
+                    if(data.content.ws.startsWith("ws://")){
+                        wsUrl = data.content.ws +"/" + this.loginUser.token;  
+                    }else{
+                        wsUrl = "ws://47.100.84.71:" + data.content.ws +"/" + this.loginUser.token;  
+                    }
+                    this.wsUrl = wsUrl
+                    this.socketRoomId = data.content.roomId;
+                    
+                    if ("WebSocket" in window) {
+                      this.ws = new WebSocket(this.wsUrl);
+                    }
+                    else if ("MozWebSocket" in window) {
+                      this.ws = new MozWebSocket(this.wsUrl);
+                    } else {
+                      console.log("当前浏览器不支持WebSocket");
+
+                    }
+                    
+                    this.ws.onopen = this.$refs.meebidIM.websocketonopen;
+                    this.ws.onerror = this.$refs.meebidIM.websocketonerror;
+                    this.ws.onmessage = this.$refs.meebidIM.websocketonmessage; 
+                    this.ws.onclose = this.$refs.meebidIM.websocketclose;
+                    
+
+                }
+
+            },
+            error(data) {
+                errorUtils.requestError(data);
+            }
+        });
+
+        $.ajax({
+          type: "GET",
+          url: "/api/socket/chat/unread/count",
+          contentType : "application/json", 
+          context: this,
+          headers: {
+            token: this.loginUser.token
+          },
+          data: {},
+          success(data) {
+            if (data.code === 1){
+              data.content.count.forEach(item =>{
+                this.unread += item.value;
+              });
+              
+            }
+          }
+        });
+      }
   },  
   mounted() {
     //this.$refs.meebidAddressHeader.$el.style = "display: none;";
@@ -5277,59 +5350,17 @@ export default {
     show(row){
       this.lotId = row.lotId;
       this.chatUserId = row.userId;
-      if(this.ws == null){
-        
-        // console.log("chatuserid:"+this.chatUserId);
-        //获取socketID
-        $.ajax({
-            type: "POST",
-            url: "/api/socket/socket",
-            contentType : "application/json", 
-            context: this,
-            headers: {
-                token: this.loginUser.token
-            },
-            data: {},
-            success(data) {
-                if (data.code === 1){
-                    var wsUrl = '';
-                //this.$refs.busyIndicator.hide();
-                    this.socketId = data.content.ws;
-                    if(data.content.ws.startsWith("ws://")){
-                        wsUrl = data.content.ws +"/" + this.loginUser.token;  
-                    }else{
-                        wsUrl = "ws://47.100.84.71:" + data.content.ws +"/" + this.loginUser.token;  
-                    }
-                    this.wsUrl = wsUrl
-                    this.socketRoomId = data.content.roomId;
-                    
-                    if ("WebSocket" in window) {
-                      this.ws = new WebSocket(this.wsUrl);
-                    }
-                    else if ("MozWebSocket" in window) {
-                      this.ws = new MozWebSocket(this.wsUrl);
-                    } else {
-                      console.log("当前浏览器不支持WebSocket");
-
-                    }
-                    //this.$refs.meebidIM.getChatRooms();
-                    this.ws.onopen = this.$refs.meebidIM.websocketonopen;
-                    this.ws.onerror = this.$refs.meebidIM.websocketonerror;
-                    this.ws.onmessage = this.$refs.meebidIM.websocketonmessage; 
-                    this.ws.onclose = this.$refs.meebidIM.websocketclose;
-                    
-                    
-                    //this.$emit('getSocketUrl',{wsurl: wsUrl, roomId: data.content.roomId,chatUserId:userId}); 
-
-                }
-
-            },
-            error(data) {
-                errorUtils.requestError(data);
-            }
-        });
+      
+      this.$refs.meebidIM.getChatRooms(true,true);
+      if(!this.panelShow){
+        this.panelShow = true;
+      }else{
+        this.panelShow = false;
       }
-      this.$refs.meebidIM.getChatRooms();
+      
+    },
+    show(){      
+      this.$refs.meebidIM.getChatRooms(true,false);
       if(!this.panelShow){
         this.panelShow = true;
       }else{
@@ -5348,6 +5379,46 @@ export default {
       this.expandUrl = url;
       this.imageDialogVisible = true;
     },
+    changeTotalUnread(number){
+      this.unread = this.unread + number;
+      console.log("changeTotalUnread:"+this.unread);
+      
+    },
+    reconnect() {
+      var tt;
+      if(this.lockReconnect) {
+        return;
+      };
+      this.lockReconnect = true;
+      //没连接上会一直重连，设置延迟避免请求过多
+      tt && clearTimeout(tt);
+      tt = setTimeout( function() {
+        this.createWebSocket();
+        this.lockReconnect = false;
+      }, 4000);
+    },
+    createWebSocket() {
+      try {
+        //ws = new WebSocket(this.wsUrl);
+        if ("WebSocket" in window) {
+                      this.ws = new WebSocket(this.wsUrl);
+                    }
+                    else if ("MozWebSocket" in window) {
+                      this.ws = new MozWebSocket(this.wsUrl);
+                    } else {
+                      console.log("当前浏览器不支持WebSocket");
+
+                    }
+                    
+                    this.ws.onopen = this.$refs.meebidIM.websocketonopen;
+                    this.ws.onerror = this.$refs.meebidIM.websocketonerror;
+                    this.ws.onmessage = this.$refs.meebidIM.websocketonmessage; 
+                    this.ws.onclose = this.$refs.meebidIM.websocketclose;
+      } catch(e) {
+        //console.log('catch');
+        this.reconnect();
+      }
+    }
   }
 }
 
@@ -5368,7 +5439,7 @@ body
 #app {
   height: 100%;
 }
-.im{position:fixed; bottom:20px;right:0; }
+.im{position:fixed; bottom:20px;right:20px; }
     .fold-enter-active{
         animation-name: slideInUp;
         animation-duration: .5s;
