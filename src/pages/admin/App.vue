@@ -5350,7 +5350,7 @@ export default {
     showthislotdialog(row){
       this.lotId = row.lotId;
       this.chatUserId = row.userId;
-      
+      this.$refs.meebidIM.setRooms(row.userId,row.lotId);
       this.$refs.meebidIM.getChatRooms(true,true);
       if(!this.panelShow){
         this.panelShow = true;
@@ -5359,7 +5359,7 @@ export default {
       }
       
     },
-    show(){      
+    show(){
       this.$refs.meebidIM.getChatRooms(true,false);
       if(!this.panelShow){
         this.panelShow = true;
@@ -5381,7 +5381,7 @@ export default {
     },
     changeTotalUnread(number){
       this.unread = this.unread + number;
-      console.log("changeTotalUnread:"+this.unread);
+      //console.log("changeTotalUnread:"+this.unread);
       
     },
     reconnect() {
@@ -5392,7 +5392,7 @@ export default {
       this.lockReconnect = true;
       //没连接上会一直重连，设置延迟避免请求过多
       tt && clearTimeout(tt);
-      tt = setTimeout( function() {
+      tt = setTimeout( () => {
         this.createWebSocket();
         this.lockReconnect = false;
       }, 4000);

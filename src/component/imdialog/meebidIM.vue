@@ -5,7 +5,7 @@
       color: #f4f4f4;
       background-color: #DDDDDD;"><!-- #FF5242-->
       <!--<meebidcard :headPortrait="headPortrait" :firstName="firstName"></meebidcard>-->
-      <meebidroomlist :chatUsers="chatUsers" @getChatRoom='getChatRoom'></meebidroomlist>
+      <meebidroomlist ref="roomlist" :chatUsers="chatUsers" @getChatRoom='getChatRoom'></meebidroomlist>
     </div>
     <div class="main" style="position: relative;height: 100%;overflow: hidden;background-color: #eee;">
         <div style="height:50px;border-bottom:1px solid #d4dde4;">
@@ -211,8 +211,7 @@ export default {
     },
     
     websocketonopen() {
-　　　　console.log("WebSocket连接成功");  
-      this.$emit("reconnect");     
+　　　　console.log("WebSocket连接成功"); 
 　　},
 　　websocketonerror(e) { //错误
  　　　console.log("WebSocket连接发生错误");
@@ -248,7 +247,7 @@ export default {
           //当前用户roomlist长度为0，获取roomlist
           this.getChatRooms(false,false);
         }
-        //console.log("thischatuserid:"+this.chatUserId+",lotid:"+this.lotId);
+        console.log("thischatuserid:"+this.chatUserId+",lotid:"+this.lotId+","+redata.lotId+","+redata.sender);
         if(redata.lotId == this.lotId && (redata.sender == this.chatUserId || redata.sender == this.userId)){
           //如果返回消息是当前对话框，则在当前对话框显示消息
           if(this.lastChatTime == ""){
@@ -351,17 +350,20 @@ export default {
 　　}, 
     websocketclose(e){ //关闭       
 　　　console.log("connection closed (" + e.code + ")"); 
+ 
+      this.$emit("reconnect");     
 　　},
 
     
 
     getChatRooms(targetCharUser,haschatuser){//获取聊天室,targetCharUser是否选中用户，是否有指定聊天用户
+      //console.log("im:"+this.chatUserId+","+this.lotId);
       if(this.chatUsers.length <= 0){//初始化chatusers
-        this.chatUsers = [];      
+        this.chatUsers = [];
         this.websocketunread(targetCharUser,haschatuser);
         return;
       }
-      console.log("getChatRooms:"+haschatuser);
+      //console.log("getChatRooms:"+haschatuser);
       if(targetCharUser == true && this.chatUsers.length >0){  
         if(haschatuser){//指定当前用户
         
@@ -369,6 +371,7 @@ export default {
           this.chatUsers.forEach((item,index) => {
             if(item.userId == this.chatUserId && item.lotId == this.lotId){
               this.chatUser = item;
+              this.$refs.roomlist.setChatUser(this.chatUser);
               this.roomId = this.chatUser.roomId;
               this.lotId = this.chatUser.lotId;
               this.chatUserId = this.chatUser.userId;
@@ -378,7 +381,7 @@ export default {
               ifInchatusers = true;
             }
           });
-          if(!ifInchatusers){console.log("a");
+          if(!ifInchatusers){//console.log("a");
             if(this.chatUserId > this.userId){
               $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+this.userId+","+this.chatUserId+"[2]"),this.lotId,0));
                         
@@ -389,19 +392,24 @@ export default {
               //roomId = base64Utils.encode("Message@"+userId+","+this.userId+"[2]")
             }
             this.chatUser = this.chatUsers[0];
+            this.$refs.roomlist.setChatUser(this.chatUser);
             this.roomId = this.chatUser.roomId;
             this.lotId = this.chatUser.lotId;
             this.chatUserId = this.chatUser.userId;
           }
           
           //this.chatUsers.unshift(item);
-        }else{console.log("b");
+        }else{
           this.chatUser = this.chatUsers[0];
+          this.$refs.roomlist.setChatUser(this.chatUser);
           this.roomId = this.chatUser.roomId;
           this.lotId = this.chatUser.lotId;
           this.chatUserId = this.chatUser.userId;
+          this.lot = this.getLottery();
+          console.log(this.chatUserId);
+          //this.lotName = this.chatUser.lotName;
         }
-        
+        // console.log(this.roomId+","+this.lotId+","+this.chatUserId+"");
         
       
         if(this.chatUser != null && this.chatUser.userId != null){
@@ -413,8 +421,8 @@ export default {
           this.websocketread(this.chatUser.roomId,this.chatUser.lotId);              
             
             this.$emit("changeTotalUnread",(0-this.chatUser.unread));
-            console.log("removeUnread:"+(0-this.chatUser.unread));
-            console.log("unread:"+this.chatUser.unread);
+            // console.log("removeUnread:"+(0-this.chatUser.unread));
+            // console.log("unread:"+this.chatUser.unread);
             this.chatUser.unread = 0;
           
         }
@@ -432,8 +440,9 @@ export default {
         data: {},
         success(data) {
           if (data.code === 1){
-            //console.log(this.userId);
-            //console.log(this.chatUserId);
+            // console.log(this.userId);
+            // console.log(this.lotId);
+            // console.log(this.chatUserId);
             var hasChated = false; 
             let biggerUserId;
             let smallerUserId;   
@@ -494,14 +503,15 @@ export default {
             //获取最近chats
             var request = this.buildGetLastChatsReq(this.chatRoomOffset);
             $.ajax(request); 
-
+            
             if(targetCharUser == true && this.chatUsers.length >0){  
               if(haschatuser){//指定聊天用户
                 var ifInchatusers = false;
                 //console.log("chatUserid:"+this.chatUserId+",lotid:"+this.lotId+",roomid:"+this.roomId);
                 this.chatUsers.forEach((a,index) => {
-                  if(a.userId == this.chatUserId && a.lotId == this.lotId){console.log(a);
+                  if(a.userId == this.chatUserId && a.lotId == this.lotId){//console.log(a);
                     this.chatUser = a;
+                    this.$refs.roomlist.setChatUser(this.chatUser);
                     this.roomId = this.chatUser.roomId;
                     this.lotId = this.chatUser.lotId;
                     this.chatUserId = this.chatUser.userId;
@@ -524,12 +534,14 @@ export default {
                   }
                 
                   this.chatUser = this.chatUsers[0];
+                  this.$refs.roomlist.setChatUser(this.chatUser);
                   this.roomId = this.chatUser.roomId;
                   this.lotId = this.chatUser.lotId;
                   this.chatUserId = this.chatUser.userId;
                 }
               }else{//非指定聊天用户
                 this.chatUser = this.chatUsers[0];
+                this.$refs.roomlist.setChatUser(this.chatUser);
                 this.roomId = this.chatUser.roomId;
                 this.lotId = this.chatUser.lotId;
                 this.chatUserId = this.chatUser.userId;
@@ -544,8 +556,8 @@ export default {
                 this.websocketread(this.chatUser.roomId,this.chatUser.lotId);              
                   
                   this.$emit("changeTotalUnread",(0-this.chatUser.unread));
-                  console.log("removeUnread:"+(0-this.chatUser.unread));
-                  console.log("unread:"+this.chatUser.unread);
+                  // console.log("removeUnread:"+(0-this.chatUser.unread));
+                  // console.log("unread:"+this.chatUser.unread);
                   this.chatUser.unread = 0;
                 
               }
@@ -974,7 +986,7 @@ export default {
               //headPortrait = tmp.headPortrait;
               //lotName = tmp.lotName;
             }
-             //console.log(headPortrait);
+            //console.log(this.chatUserId+","+item.group[j].id +","+this.lotId+","+item.group[j].lotId);
             var chatItem = {
                 roomId : roomId,
                 firstName: firstName,
@@ -985,11 +997,11 @@ export default {
                 lotId:item.lotId,
                 lotName:lotName,
             }
-            if(this.chatUserId == item.group[j].id && this.lotId == item.group[j].lotId){
-                // chatItems.unshift(chatItem);
+            if(this.chatUserId == item.group[j].id && this.lotId == item.lotId){
+                this.chatUsers.unshift(chatItem);
                 //hasChated = true;
             }else if(this.chatUserId != item.group[j].id || (this.chatUserId == item.group[j].id && this.lotId != item.lotId)){
-                let c = this.chatUsers.filter(v => v.userId == item.group[j].id && v.lotId == item.group[j].lotId);
+                let c = this.chatUsers.filter(v => v.userId == item.group[j].id && v.lotId == item.lotId);
                 if(c.length <= 0 ){
                   this.chatUsers.push(chatItem);
                 }
@@ -1004,6 +1016,7 @@ export default {
       for(var i =0;i<this.chatUsers.length;i++){
         if(this.chatUsers[i].userId == wsConnection.chatUserId && this.chatUsers[i].lotId == wsConnection.lotId){
           this.chatUser = this.chatUsers[i];
+          this.$refs.roomlist.setChatUser(this.chatUser);
           this.$emit("changeTotalUnread",(0-this.chatUser.unread));
           this.chatUser.unread = 0;          
         }
@@ -1129,6 +1142,10 @@ export default {
     },
     srcollToHistory(messageSize){
       this.websockethistory(this.chatUser,messageSize);
+    },
+    setRooms(userid,lotid){
+      this.chatUserId = userid;
+      this.lotId = lotid;
     }
   }
 }

@@ -315,7 +315,7 @@ export default {
       this.lockReconnect = true;
       //没连接上会一直重连，设置延迟避免请求过多
       tt && clearTimeout(tt);
-      tt = setTimeout(function () {
+      tt = setTimeout(() => {
         this.createWebSocket();
         this.lockReconnect = false;
       }, 4000);

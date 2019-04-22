@@ -1,7 +1,7 @@
 <template>
     <div class="meebidroomlist" id="roomlist">
         <ul style="padding:0px;">
-            <li v-for="item in chatUsers" :class="{ active: item.userId === currentId && item.lotId == currentLotId}" @click="getChatConn(item.userId,item.roomId,item.lotId)"  
+            <li v-for="item in chatUsers" :class="{ active: item.userId === currentId && item.lotId == currentLotId}" @click="getChatConn(item.userId,item.roomId,item.lotId)"
             style="white-space:nowrap;list-style-type:none; padding: 10px 10px; border-bottom: 1px solid rgba(205, 205, 205); cursor: pointer; transition: background-color .1s;" >
                 <img class="avatar" style="vertical-align: middle; border-radius: 2px; width:30px; height:30px;"  :src="item.headPortrait">
                 <div style="vertical-align: middle; display: inline-block; margin: 0 0 0 5px;"> 
@@ -52,6 +52,7 @@ export default {
             }
             //console.log("roomId:"+roomId);
             this.currentId = userId;
+            this.currentLotId = lotId;
             this.$emit('getChatRoom',{chatUserId:userId,chatRoomId:roomId,lotId:lotId}); 
            
         },
@@ -63,6 +64,11 @@ export default {
                   || 0;
             
         },
+        setChatUser(chatUser){
+            this.chatUser = chatUser;
+            this.currentId = chatUser.userId;
+            this.currentLotId = chatUser.lotId;
+        }
     }
 };
 </script>
