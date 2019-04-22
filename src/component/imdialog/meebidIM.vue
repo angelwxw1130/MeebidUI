@@ -246,7 +246,7 @@ export default {
       else {//正常消息
         if(this.chatUsers.length == 0){
           //当前用户roomlist长度为0，获取roomlist
-          this.getChatRooms(false);
+          this.getChatRooms(false,false);
         }
         //console.log("thischatuserid:"+this.chatUserId+",lotid:"+this.lotId);
         if(redata.lotId == this.lotId && (redata.sender == this.chatUserId || redata.sender == this.userId)){
@@ -355,20 +355,19 @@ export default {
 
     
 
-    getChatRooms(targetCharUser,haschatuser){//获取聊天室
+    getChatRooms(targetCharUser,haschatuser){//获取聊天室,targetCharUser是否选中用户，是否有指定聊天用户
       if(this.chatUsers.length <= 0){//初始化chatusers
         this.chatUsers = [];      
         this.websocketunread(targetCharUser,haschatuser);
         return;
       }
-      
+      console.log("getChatRooms:"+haschatuser);
       if(targetCharUser == true && this.chatUsers.length >0){  
         if(haschatuser){//指定当前用户
-        console.log(this.chatUsers)
-          console.log("chatUserid:"+this.chatUserId+",lotid:"+this.lotId+",roomid:"+this.roomId);
+        
           var ifInchatusers = false;
           this.chatUsers.forEach((item,index) => {
-            if(item.userId == this.chatUserId && item.lotId == this.lotId){console.log(index);
+            if(item.userId == this.chatUserId && item.lotId == this.lotId){
               this.chatUser = item;
               this.roomId = this.chatUser.roomId;
               this.lotId = this.chatUser.lotId;
@@ -379,7 +378,7 @@ export default {
               ifInchatusers = true;
             }
           });
-          if(!ifInchatusers){
+          if(!ifInchatusers){console.log("a");
             if(this.chatUserId > this.userId){
               $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+this.userId+","+this.chatUserId+"[2]"),this.lotId,0));
                         
@@ -389,10 +388,14 @@ export default {
                         
               //roomId = base64Utils.encode("Message@"+userId+","+this.userId+"[2]")
             }
+            this.chatUser = this.chatUsers[0];
+            this.roomId = this.chatUser.roomId;
+            this.lotId = this.chatUser.lotId;
+            this.chatUserId = this.chatUser.userId;
           }
           
           //this.chatUsers.unshift(item);
-        }else{
+        }else{console.log("b");
           this.chatUser = this.chatUsers[0];
           this.roomId = this.chatUser.roomId;
           this.lotId = this.chatUser.lotId;
@@ -492,23 +495,23 @@ export default {
             var request = this.buildGetLastChatsReq(this.chatRoomOffset);
             $.ajax(request); 
 
-            
             if(targetCharUser == true && this.chatUsers.length >0){  
               if(haschatuser){//指定聊天用户
                 var ifInchatusers = false;
                 //console.log("chatUserid:"+this.chatUserId+",lotid:"+this.lotId+",roomid:"+this.roomId);
-                this.chatUsers.forEach((item,index) => {
-                  if(item.userId == this.chatUserId && item.lotId == this.lotId){
-                    this.chatUser = item;
+                this.chatUsers.forEach((a,index) => {
+                  if(a.userId == this.chatUserId && a.lotId == this.lotId){console.log(a);
+                    this.chatUser = a;
                     this.roomId = this.chatUser.roomId;
                     this.lotId = this.chatUser.lotId;
                     this.chatUserId = this.chatUser.userId;
 
                     this.chatUsers.splice(index,1);
-                    this.chatUsers.unshift(item);
+                    this.chatUsers.unshift(a);
                     ifInchatusers = true;
                   }
                 });
+
                 if(!ifInchatusers){
                   if(this.chatUserId > this.userId){
                     $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+this.userId+","+this.chatUserId+"[2]"),this.lotId,0));
@@ -519,9 +522,12 @@ export default {
                               
                     //roomId = base64Utils.encode("Message@"+userId+","+this.userId+"[2]")
                   }
+                
+                  this.chatUser = this.chatUsers[0];
+                  this.roomId = this.chatUser.roomId;
+                  this.lotId = this.chatUser.lotId;
+                  this.chatUserId = this.chatUser.userId;
                 }
-                
-                
               }else{//非指定聊天用户
                 this.chatUser = this.chatUsers[0];
                 this.roomId = this.chatUser.roomId;
@@ -780,7 +786,7 @@ export default {
                   headPortrait : headPortrait,
                   userId : userid,   
                   lotId:lotId,             
-                  sendMessageRoomId:this.userid+","+this.chatUserId,
+                  sendMessageRoomId:this.userId+","+this.chatUserId,
                   unread:unreadcount,
                   lotName : lotName,
                   }

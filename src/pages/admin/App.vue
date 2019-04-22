@@ -770,7 +770,7 @@
                 label="Chats"
                 width="75">
                 <template slot-scope="scope">
-                  <el-button size="medium" type="primary" class="meebidSquareButton" @click="show(scope.row)">
+                  <el-button size="medium" type="primary" class="meebidSquareButton" @click="showthislotdialog(scope.row)">
                     <a href="javascript:void(0)"><i class="fa fa-comments" style="color:#FFFFFF;vertical-align: middle;"></i></a>
                   </el-button>
                 </template>
@@ -5347,7 +5347,7 @@ export default {
         me.$refs.sendInvoiceDialogBusyIndicator.hide();
       });
     },
-    show(row){
+    showthislotdialog(row){
       this.lotId = row.lotId;
       this.chatUserId = row.userId;
       
