@@ -73,8 +73,6 @@ export default {
       houseUserId:-1,
       panelShow:false,
       lockReconnect:false,
-      currentChatUserId:0,
-      currentChatLotId:"",
     }
   },
   beforeMount() {
@@ -269,10 +267,7 @@ export default {
         this.reconnect();
       }
     },
-    saveChatUser(currentChatUser){
-      this.currentChatUserId = currentChatUser.chatUserId;
-      this.currentChatLotId = currentChatUser.lotId;
-    }
+    
   }
 }
 /**

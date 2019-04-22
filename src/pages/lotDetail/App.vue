@@ -589,7 +589,7 @@ export default {
       }
     },
     showChat(){
-      
+       this.$refs.meebidIM.setRooms(this.houseUserId,this.lotId);
       if(!this.panelShow){
         this.$refs.meebidIM.getChatRooms(true,true);
       
