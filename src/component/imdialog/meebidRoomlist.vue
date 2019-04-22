@@ -50,7 +50,7 @@ export default {
             if(this.currentId == userId && this.currentLotId == lotId){
                 return;
             }
-            //console.log("roomId:"+roomId);
+            
             this.currentId = userId;
             this.currentLotId = lotId;
             this.$emit('getChatRoom',{chatUserId:userId,chatRoomId:roomId,lotId:lotId}); 
@@ -68,6 +68,7 @@ export default {
             this.chatUser = chatUser;
             this.currentId = chatUser.userId;
             this.currentLotId = chatUser.lotId;
+            this.roomId = chatUser.roomId;
         }
     }
 };

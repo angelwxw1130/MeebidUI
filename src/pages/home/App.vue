@@ -10,8 +10,8 @@
       <meebid-button v-if="userId != -1" button-type="round orange" :button-click="show" icon-type="comment" class="im" :hintNumber ="unread"> 
       </meebid-button>
       <transition name="fold">
-        <meebidim ref="meebidIM" class="meebidIMPophover" style="z-index: 10" @reconnect="reconnect" :userProfile="userProfile" :socketRoomId="socketRoomId" :chatUserId="houseUserId" :lotId="lotId" :headPortrait="headPortrait" :firstName="firstName" 
-        :userId="userId" v-show="panelShow"  :ws="ws" @hidewindow="hide" @showImage="showImage" @changeTotalUnread="changeTotalUnread"></meebidim>
+        <meebidim ref="meebidIM" class="meebidIMPophover" style="z-index: 10" @reconnect="reconnect" :userProfile="userProfile" :socketRoomId="socketRoomId" :imchatUserId="houseUserId" :imlotId="lotId" :headPortrait="headPortrait" :firstName="firstName" 
+        @saveChatUser="saveChatUser" :userId="userId" v-show="panelShow"  :ws="ws" @hidewindow="hide" @showImage="showImage" @changeTotalUnread="changeTotalUnread" :panelShow="panelShow"></meebidim>
         
       </transition>
       
@@ -73,6 +73,8 @@ export default {
       houseUserId:-1,
       panelShow:false,
       lockReconnect:false,
+      currentChatUserId:0,
+      currentChatLotId:"",
     }
   },
   beforeMount() {
@@ -212,8 +214,8 @@ export default {
       this.$refs.homePageListContainer.setFilterCategory(categoryId);
     },
     show(){      
-      this.$refs.meebidIM.getChatRooms(true,false);
       if(!this.panelShow){
+        this.$refs.meebidIM.getChatRooms(true,false);      
         this.panelShow = true;
       }else{
         this.panelShow = false;
@@ -266,6 +268,10 @@ export default {
         //console.log('catch');
         this.reconnect();
       }
+    },
+    saveChatUser(currentChatUser){
+      this.currentChatUserId = currentChatUser.chatUserId;
+      this.currentChatLotId = currentChatUser.lotId;
     }
   }
 }

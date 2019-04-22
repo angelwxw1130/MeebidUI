@@ -39,8 +39,8 @@ export default {
       type:Number,
       default:-1
     },
-    lotId:'',
-    chatUserId:{
+    imlotId:'',
+    imchatUserId:{
       type:Number,
       default:-1
     },
@@ -93,7 +93,11 @@ export default {
     },
     disabled: Boolean,
     limit: Number,
-    onExceed: Function
+    onExceed: Function,
+    panelShow: {
+      type:Boolean,
+      default :false
+    },
   },
   data () {
     return {
@@ -116,19 +120,19 @@ export default {
       lot:{},
       allmessage:true,
       lotname:"",
-      //chatRoomLotId:'',
-      //chatRoomRoomId:'',      
-      chatRoomOffset:0,
+      chatRoomLotId:'',
+      chatUserId:'',      
+      lotId:0,
       lotUrl:"",
     }
   },
   beforeMount() {    
     this.windowMinHeight = window.innerHeight - 85 + "px";
-    
+    this.chatUserId = this.imchatUserId;
+    this.lotId = this.imlotId
   },
   mounted(){
-    //this.chatRoomLotId = this.roomId;
-    //this.chatRoomLotId = this.lotId
+    
     
   },
 
@@ -247,8 +251,9 @@ export default {
           //当前用户roomlist长度为0，获取roomlist
           this.getChatRooms(false,false);
         }
-        console.log("thischatuserid:"+this.chatUserId+",lotid:"+this.lotId+","+redata.lotId+","+redata.sender);
-        if(redata.lotId == this.lotId && (redata.sender == this.chatUserId || redata.sender == this.userId)){
+        //console.log("thischatuserid:"+this.chatUserId+",lotid:"+this.lotId+","+redata.lotId+","+redata.sender);
+        if(redata.lotId == this.lotId && (redata.sender == this.chatUserId || redata.sender == this.userId) && this.panelShow == true){
+          console.log(panelShow);
           //如果返回消息是当前对话框，则在当前对话框显示消息
           if(this.lastChatTime == ""){
             this.showChatTime=true;
@@ -341,7 +346,7 @@ export default {
             }
             
 
-        }
+          }
       }
 
         
@@ -357,10 +362,11 @@ export default {
     
 
     getChatRooms(targetCharUser,haschatuser){//获取聊天室,targetCharUser是否选中用户，是否有指定聊天用户
-      //console.log("im:"+this.chatUserId+","+this.lotId);
+      console.log("im:"+this.chatUserId+","+this.lotId);
       if(this.chatUsers.length <= 0){//初始化chatusers
         this.chatUsers = [];
         this.websocketunread(targetCharUser,haschatuser);
+        console.log("0:"+this.chatUserId+","+this.lotId);
         return;
       }
       //console.log("getChatRooms:"+haschatuser);
@@ -405,8 +411,10 @@ export default {
           this.roomId = this.chatUser.roomId;
           this.lotId = this.chatUser.lotId;
           this.chatUserId = this.chatUser.userId;
-          this.lot = this.getLottery();
+          this.lotName = this.chatUser.lotName;
           console.log(this.chatUserId);
+          this.setRooms(this.chatUserId,this.lotId);
+          //this.$emit("saveChatUser",{chatUserId:this.chatUserId,lotId:this.lotId});
           //this.lotName = this.chatUser.lotName;
         }
         // console.log(this.roomId+","+this.lotId+","+this.chatUserId+"");
@@ -417,13 +425,14 @@ export default {
           this.getLottery();
           //获取近期某个聊天室下的聊天记录
           this.websockethistory(this.chatUser,0);
+          this.$emit("changeTotalUnread",(0-this.chatUser.unread));
           //标记已读
           this.websocketread(this.chatUser.roomId,this.chatUser.lotId);              
             
-            this.$emit("changeTotalUnread",(0-this.chatUser.unread));
+            
             // console.log("removeUnread:"+(0-this.chatUser.unread));
             // console.log("unread:"+this.chatUser.unread);
-            this.chatUser.unread = 0;
+            //this.chatUser.unread = 0;
           
         }
       }
@@ -545,6 +554,7 @@ export default {
                 this.roomId = this.chatUser.roomId;
                 this.lotId = this.chatUser.lotId;
                 this.chatUserId = this.chatUser.userId;
+                console.log("unread haschatuser=true:"+this.chatUserId);
               }
             
               if(this.chatUser != null && this.chatUser.userId != null){
@@ -552,17 +562,18 @@ export default {
                 this.getLottery();
                 //获取近期某个聊天室下的聊天记录
                 this.websockethistory(this.chatUser,0);
+                this.$emit("changeTotalUnread",(0-this.chatUser.unread));
                 //标记已读
                 this.websocketread(this.chatUser.roomId,this.chatUser.lotId);              
                   
-                  this.$emit("changeTotalUnread",(0-this.chatUser.unread));
+                  
                   // console.log("removeUnread:"+(0-this.chatUser.unread));
                   // console.log("unread:"+this.chatUser.unread);
-                  this.chatUser.unread = 0;
+                  
                 
               }
             }
-          }
+          }console.log("unread:"+this.chatUserId);
         },
         error(data) {
           errorUtils.requestError(data);

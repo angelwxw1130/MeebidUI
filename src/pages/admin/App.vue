@@ -1637,7 +1637,7 @@
       <meebid-button button-type="round orange" :button-click="show" icon-type="comment" class="im" :hintNumber = "unread"> 
       </meebid-button>
       <transition name="fold">
-        <meebidim ref="meebidIM"  class="meebidIMPophover" style="z-index: 10"  @reconnect="reconnect" :lotId="lotId" :userProfile="userProfile" :chatUserId="chatUserId" :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow" :panelShow="panelShow" :ws="ws" @hidewindow="hide" @showImage="showImage" @changeTotalUnread="changeTotalUnread"></meebidim>
+        <meebidim ref="meebidIM"  class="meebidIMPophover" style="z-index: 10"  @reconnect="reconnect" :imlotId="lotId" :userProfile="userProfile" :imchatUserId="chatUserId" :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow" :panelShow="panelShow" :ws="ws" @hidewindow="hide" @showImage="showImage" @changeTotalUnread="changeTotalUnread"></meebidim>
       </transition>
       
     </div>
@@ -5351,8 +5351,10 @@ export default {
       this.lotId = row.lotId;
       this.chatUserId = row.userId;
       this.$refs.meebidIM.setRooms(row.userId,row.lotId);
-      this.$refs.meebidIM.getChatRooms(true,true);
+        
       if(!this.panelShow){
+        this.$refs.meebidIM.getChatRooms(true,true);
+      
         this.panelShow = true;
       }else{
         this.panelShow = false;
@@ -5360,8 +5362,8 @@ export default {
       
     },
     show(){
-      this.$refs.meebidIM.getChatRooms(true,false);
       if(!this.panelShow){
+        this.$refs.meebidIM.getChatRooms(true,false);
         this.panelShow = true;
       }else{
         this.panelShow = false;
