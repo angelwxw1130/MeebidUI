@@ -16,6 +16,11 @@ import MeebidBreadcrumbItem from './../../component/breadcrumb/meebidBreadcrumbI
 import MeebidPageList from './../../component/housepage/meebidHousePageList.vue'
 import MeebidHousePageListItem from './../../component/housepage/meebidHousePageListItem.vue'
 import MeebidSwitch from './../../component/switch/meebidSwitch.vue'
+import MeebidCard from './../../component/imdialog/meebidCard.vue'
+import MeebidRoomlist from './../../component/imdialog/meebidRoomlist.vue'
+import MeebidText from './../../component/imdialog/meebidText.vue'
+import MeebidMessage from './../../component/imdialog/MeebidMessage.vue'
+import MeebidIM from './../../component/imdialog/MeebidIM.vue'
 import App from './App.vue'
 import loginUtils from './../../utils/loginUtils'
 import errorUtils from './../../utils/errorUtils'
@@ -34,7 +39,11 @@ Vue.component(MeebidHousePageListItem.name, MeebidHousePageListItem);
 Vue.component(MeebidPageList.name, MeebidPageList);
 Vue.component(MeebidBreadcrumbItem.name, MeebidBreadcrumbItem);
 Vue.component(MeebidSwitch.name, MeebidSwitch);
-
+Vue.component(MeebidCard.name, MeebidCard);
+Vue.component(MeebidRoomlist.name, MeebidRoomlist);
+Vue.component(MeebidText.name, MeebidText);
+Vue.component(MeebidMessage.name, MeebidMessage);
+Vue.component(MeebidIM.name, MeebidIM);
 
 var loginUser = loginUtils.getLoginUser();
 if (loginUser.token){
