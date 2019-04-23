@@ -253,7 +253,7 @@ export default {
         }
         //console.log("thischatuserid:"+this.chatUserId+",lotid:"+this.lotId+","+redata.lotId+","+redata.sender);
         if(redata.lotId == this.lotId && (redata.sender == this.chatUserId || redata.sender == this.userId) && this.panelShow == true){
-          console.log(panelShow);
+          //console.log(panelShow);
           //如果返回消息是当前对话框，则在当前对话框显示消息
           if(this.lastChatTime == ""){
             this.showChatTime=true;
