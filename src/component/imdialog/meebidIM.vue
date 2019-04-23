@@ -5,12 +5,12 @@
       color: #f4f4f4;
       background-color: #DDDDDD;"><!-- #FF5242-->
       <!--<meebidcard :headPortrait="headPortrait" :firstName="firstName"></meebidcard>-->
-      <meebidroomlist :chatUsers="chatUsers" @getChatRoom='getChatRoom'></meebidroomlist>
+      <meebidroomlist ref="roomlist" :chatUsers="chatUsers" @getChatRoom='getChatRoom'></meebidroomlist>
     </div>
     <div class="main" style="position: relative;height: 100%;overflow: hidden;background-color: #eee;">
         <div style="height:50px;border-bottom:1px solid #d4dde4;">
           <p style="font-size:20px;padding:5px 0px 0px 30px;height:15px;color:#FF5242;weight:10;">{{chatUser.firstName}}</p>
-          <p style="font-size:13px;padding:5px 0px 0px 32px;color:#FF5242;">Lottery：{{lotname}}</p>
+          <p style="font-size:13px;padding:5px 0px 0px 32px;color:#FF5242;" v-if="lotId > 0"><a :href="lotUrl">Lottery：{{lotname}}</a></p>
           <a href="javascript:void(0)" @click='hideWindow'>
             <span class="fa fa-arrow-circle-o-right" style="display:inline-block;font-size:25px;color:#FF5242; position: absolute;  left: 390px;  top: 15px;cursor:pointer;" ></span>
           </a>
@@ -39,8 +39,8 @@ export default {
       type:Number,
       default:-1
     },
-    lotId:'',
-    chatUserId:{
+    imlotId:'',
+    imchatUserId:{
       type:Number,
       default:-1
     },
@@ -93,7 +93,11 @@ export default {
     },
     disabled: Boolean,
     limit: Number,
-    onExceed: Function
+    onExceed: Function,
+    panelShow: {
+      type:Boolean,
+      default :false
+    },
   },
   data () {
     return {
@@ -116,14 +120,19 @@ export default {
       lot:{},
       allmessage:true,
       lotname:"",
+      chatRoomLotId:'',
+      chatUserId:'',      
+      lotId:0,
+      lotUrl:"",
     }
   },
   beforeMount() {    
     this.windowMinHeight = window.innerHeight - 85 + "px";
-    
+    this.chatUserId = this.imchatUserId;
+    this.lotId = this.imlotId
   },
   mounted(){
-
+    
     
   },
 
@@ -204,41 +213,19 @@ export default {
       }));
       
     },
-    // connection(){
-    //   console.log("test connection");
-    //   if ("WebSocket" in window) {
-    //     this.ws = new WebSocket(this.wsUrl);
-    //   }
-    //   else if ("MozWebSocket" in window) {
-    //     this.ws = new MozWebSocket(this.wsUrl);
-    //   } else {
-    //     console.log("当前浏览器不支持WebSocket");
-
-    //   }
-
-    //     //注册各类回调
-    //     this.ws.onopen = this.websocketonopen;
-    //     this.ws.onerror = this.websocketonerror;
-    //     this.ws.onmessage = this.websocketonmessage; 
-    //     this.ws.onclose = this.websocketclose;
-            
-            
-            
-    // },
+    
     websocketonopen() {
-　　　　console.log("WebSocket连接成功");       
+　　　　console.log("WebSocket连接成功"); 
 　　},
 　　websocketonerror(e) { //错误
  　　　console.log("WebSocket连接发生错误");
+      this.$emit("reconnect");  
 　　},
 　　websocketonmessage(e){       
-      //数据接收 
-      
+      //数据接收       
       const redata = JSON.parse(e.data);
-      let fileNameObject = null;
-      // type=3 控制信息返回
-      if(redata.type == 3)
-      {
+      let fileNameObject = null;     
+      if(redata.type == 3){ // type=3 控制信息返回
         const content = JSON.parse(redata.content);
         
         if(this.$refs.textarea.Files){
@@ -250,7 +237,6 @@ export default {
                 
               }
               
-               
             }
           });
         }else{
@@ -260,182 +246,198 @@ export default {
         this.upload(fileNameObject.File, redata);
 
       }
-      else {
-        if(this.lastChatTime == ""){
-          this.showChatTime=true;
-        }else{
-          var num = (new Date(redata.sendAt).getTime()-new Date(this.lastChatTime).getTime())/(1000*60);
-          if(num <= 5){
-            this.showChatTime=false;
-          }else{
+      else {//正常消息
+        if(this.chatUsers.length == 0){
+          //当前用户roomlist长度为0，获取roomlist
+          this.getChatRooms(false,false);
+        }
+        //console.log("thischatuserid:"+this.chatUserId+",lotid:"+this.lotId+","+redata.lotId+","+redata.sender);
+        if(redata.lotId == this.lotId && (redata.sender == this.chatUserId || redata.sender == this.userId) && this.panelShow == true){
+          console.log(panelShow);
+          //如果返回消息是当前对话框，则在当前对话框显示消息
+          if(this.lastChatTime == ""){
             this.showChatTime=true;
-          }
-        }
-        this.lastChatTime = redata.sendAt;
-
-        let contentType = '';
-        let content = '';
-        let self = false;
-        let jsoncontent
-        let fileName;
-        if(redata.type === 0){
-          contentType = "text";
-          content = redata.content;
-          fileName = '';
-        }else {
-          const jsoncontent = JSON.parse(redata.content);
-        
-          if(this.$refs.textarea.Files){
-            let fileNameObjects = this.$refs.textarea.Files;
-            // console.log("length:"+fileNameObjects.length);
-            fileNameObjects.forEach(item => {
-              if(item.id == jsoncontent.id){
-                fileNameObject = item;
-                //console.log("file:"+fileNameObject.FileName);
-              }
-            });
           }else{
-              return;
+            var num = (new Date(redata.sendAt).getTime()-new Date(this.lastChatTime).getTime())/(1000*60);
+            if(num <= 5){
+              this.showChatTime=false;
+            }else{
+              this.showChatTime=true;
+            }
           }
-          if(redata.type === 1){
-            contentType = "image";
-            content = jsoncontent.rUid;
-            fileName = jsoncontent.name;
-          }else if(redata.type === 2){
-            contentType = "file";
-            content = jsoncontent.rUid;
-            fileName = jsoncontent.name;
-          }
+          this.lastChatTime = redata.sendAt;
+          let contentType = '';
+          let content = '';
+          let self = false;
+          let jsoncontent
+          let fileName;
+          if(redata.type === 0){//消息类型为文本
+            contentType = "text";
+            content = redata.content;
+            fileName = '';
+          }else {//消息类型为图片或者文件，获取文件信息
+            const jsoncontent = JSON.parse(redata.content);
           
+            if(this.$refs.textarea.Files){
+              let fileNameObjects = this.$refs.textarea.Files;
+              fileNameObjects.forEach(item => {
+                if(item.id == jsoncontent.id){
+                  fileNameObject = item;
+                }
+              });
+            }else{
+                return;
+            }
+            if(redata.type === 1){//消息类型为图片
+              contentType = "image";
+              content = jsoncontent.rUid;
+              fileName = jsoncontent.name;
+            }else if(redata.type === 2){//消息类型为文件
+              contentType = "file";
+              content = jsoncontent.rUid;
+              fileName = jsoncontent.name;
+            }
+            
+          }
+          if(this.userId == redata.sender){
+            self = true;
+          }
+          this.$refs.message.moreMessage = false;              
+          this.messages.push({
+            date:redata.sendAt ,
+            sender:redata.sender,
+            content : content,
+            self : self,
+            ifshowtime :this.showChatTime,
+            contentType:contentType,
+            fileName:fileName,
+          });
         }
-        if(this.userId == redata.sender){
-          self = true;
-        }
-        this.$refs.message.moreMessage = false;        
-        this.messages.push({
-          date:redata.sendAt ,
-          sender:redata.sender,
-          content : content,
-          self : self,
-          ifshowtime :this.showChatTime,
-          contentType:contentType,
-          fileName:fileName,
-        });
+        else{//如果消息不是当前对话框，则给相应chatUser添加未读信息
+          var hasChatRoom = false;
+          this.$emit("changeTotalUnread",1);
+          this.chatUsers.forEach((item,index) => {
+            if(item.userId == redata.sender && item.lotId == redata.lotId){//获取发送者
+              item.unread ++;
+              if(index > 0){
+                this.chatUsers.splice(index,1);
+                this.chatUsers.splice(1,0,item);
+              }
+              
+              hasChatRoom = true;  
+              //console.log(item.unread);
+            }
+            return; 
+          });
+          //this.chatUsers.splice(1, 0, chatUser);
+
+          if(!hasChatRoom){//之前未有联系，新建chatUser
+            //在指定位置添加元素,第一个参数指定位置,第二个参数指定要删除的元素,如果为0,则追加
+            let roomId = "";//console.log("test");
+            let userId = redata.sender;            
+            if(userId > this.userId){
+              $.ajax(this.buildGetUserProfileReq(userId,base64Utils.encode("Message@"+this.userId+","+userId+"[2]"),redata.lotId,1));
+                        
+              //roomId = base64Utils.encode("Message@"+this.userId+","+userId+"[2]")
+            }else{
+              $.ajax(this.buildGetUserProfileReq(userId,base64Utils.encode("Message@"+userId+","+this.userId+"[2]"),redata.lotId,1));
+                        
+              //roomId = base64Utils.encode("Message@"+userId+","+this.userId+"[2]")
+            }
+            
+
+          }
+      }
+
+        
         
       }
 　　}, 
-    
-    //上传文件
-    upload(rawFile, redata) {
-       const content = JSON.parse(redata.content);
-          if (!this.beforeUpload) {
-              return this.post(rawFile, redata);
-          }
-          const before = this.beforeUpload(rawFile);
-          if (before && before.then) {
-              before.then(processedFile => {
-              const fileType = Object.prototype.toString.call(processedFile);
-              if (fileType === '[object File]' || fileType === '[object Blob]') {
-                  this.post(processedFile, redata);
-              } else {
-                  this.post(rawFile, redata);
-              }
-              }, () => {
-              this.onRemove(null, rawFile);
-              });
-          } else if (before !== false) {
-              this.post(rawFile, redata);
-          } else {
-              this.onRemove(null, rawFile);
-          }
-    },
-    
-    post(rawFile, redata) {
-        this.doPost(rawFile, redata);      
-    },
-    doPost(rawFile, redata){
-      const content = JSON.parse(redata.content);
-        var me = this;
-        const { uid } = rawFile;
-        const options = {
-            headers: this.headers,
-            withCredentials: this.withCredentials,
-            file: rawFile,
-            //contentData: content,
-            data: {
-              OSSAccessKeyId: content.accessid,
-              policy: content.policy,
-              Signature: content.signature,
-              key: this.multiple ? content.fileKey + rawFile.name : content.fileKey,
-              success_action_status: 200
-            },
-            filename: "file",
-            action: content.ossUrl,
-            // onProgress: e => {
-            // this.onProgress(e, rawFile);
-            // },
-            onSuccess: res => {
-              
-              me.finishReqs[uid] = rawFile;
-              delete me.reqs[uid];              
-              if (Object.keys(me.reqs).length === 0){
-                  me.confirmPost(res, redata);
-              }
-            },
-            onError: err => {
-            this.onError(err, rawFile);
-            delete me.reqs[uid];
-            }
-        };
-        const req = this.httpRequest(options);
-        this.reqs[uid] = req;
-        if (req && req.then) {
-            req.then(options.onSuccess, options.onError);
-        }
-    },
-    confirmPost(res, redata) {
-      const content = JSON.parse(redata.content);
-        var fileKeys = [];
-        if (this.multiple){
-            for (var key in this.finishReqs){
-            fileKeys.push(content.fileKey + this.finishReqs[key].name);
-            }
-        } else {
-            fileKeys.push(content.fileKey);
-        }
-        let fileNameObject = null;        
-        if(this.$refs.textarea.Files){
-          let fileNameObjects = this.$refs.textarea.Files;
-          fileNameObjects.forEach(item => {
-            if(item.id == redata.id){
-              fileNameObject = item;
-              
-            }
-          });
-        }else{
-          return;
-        }
-        
-        var MessageCtx = {id:fileNameObject.id,suffix:fileNameObject.Extend,name:fileNameObject.FileName,rUid:content.rUid};        
-        
-        
-        this.sendFileMessage(JSON.stringify(MessageCtx),fileNameObject.type);//File 2
-        
-    },
-
-
     websocketclose(e){ //关闭       
 　　　console.log("connection closed (" + e.code + ")"); 
+ 
+      this.$emit("reconnect");     
 　　},
 
+    
 
-    getChatRooms(){
-      this.chatUsers = [];
-      this.websocketunread();
+    getChatRooms(targetCharUser,haschatuser){//获取聊天室,targetCharUser是否选中用户，是否有指定聊天用户
+      console.log("im:"+this.chatUserId+","+this.lotId);
+      if(this.chatUsers.length <= 0){//初始化chatusers
+        this.chatUsers = [];
+        this.websocketunread(targetCharUser,haschatuser);
+        console.log("0:"+this.chatUserId+","+this.lotId);
+        return;
+      }
+      //console.log("getChatRooms:"+haschatuser);
+      if(targetCharUser == true && this.chatUsers.length >0){  
+        if(haschatuser){//指定当前用户
+        
+          var ifInchatusers = false;
+          this.chatUsers.forEach((item,index) => {
+            if(item.userId == this.chatUserId && item.lotId == this.lotId){
+              this.chatUser = item;
+              this.$refs.roomlist.setChatUser(this.chatUser);
+              this.roomId = this.chatUser.roomId;
+              this.lotId = this.chatUser.lotId;
+              this.chatUserId = this.chatUser.userId;
+
+              this.chatUsers.splice(index,1);
+              this.chatUsers.unshift(item);
+              ifInchatusers = true;
+            }
+          });
+          if(!ifInchatusers){//console.log("a");
+            if(this.chatUserId > this.userId){
+              $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+this.userId+","+this.chatUserId+"[2]"),this.lotId,0));
+                        
+              //roomId = base64Utils.encode("Message@"+this.userId+","+userId+"[2]")
+            }else{
+              $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+this.chatUserId+","+this.userId+"[2]"),this.lotId,0));
+                        
+              //roomId = base64Utils.encode("Message@"+userId+","+this.userId+"[2]")
+            }
+            this.chatUser = this.chatUsers[0];
+            this.$refs.roomlist.setChatUser(this.chatUser);
+            this.roomId = this.chatUser.roomId;
+            this.lotId = this.chatUser.lotId;
+            this.chatUserId = this.chatUser.userId;
+          }
+          
+          //this.chatUsers.unshift(item);
+        }else{
+          this.chatUser = this.chatUsers[0];
+          this.$refs.roomlist.setChatUser(this.chatUser);
+          this.roomId = this.chatUser.roomId;
+          this.lotId = this.chatUser.lotId;
+          this.chatUserId = this.chatUser.userId;
+          this.lotName = this.chatUser.lotName;
+          console.log(this.chatUserId);
+          this.setRooms(this.chatUserId,this.lotId);
+          //this.$emit("saveChatUser",{chatUserId:this.chatUserId,lotId:this.lotId});
+          //this.lotName = this.chatUser.lotName;
+        }
+        // console.log(this.roomId+","+this.lotId+","+this.chatUserId+"");
+        
       
-      
+        if(this.chatUser != null && this.chatUser.userId != null){
+          //获取当前聊天lot
+          this.getLottery();
+          //获取近期某个聊天室下的聊天记录
+          this.websockethistory(this.chatUser,0);
+          this.$emit("changeTotalUnread",(0-this.chatUser.unread));
+          //标记已读
+          this.websocketread(this.chatUser.roomId,this.chatUser.lotId);              
+            
+            
+            // console.log("removeUnread:"+(0-this.chatUser.unread));
+            // console.log("unread:"+this.chatUser.unread);
+            //this.chatUser.unread = 0;
+          
+        }
+      }
     },
-    websocketunread(){
+    websocketunread(targetCharUser,haschatuser){      
       $.ajax({
         type: "GET",
         url: "/api/socket/chat/unread/count",
@@ -447,173 +449,131 @@ export default {
         data: {},
         success(data) {
           if (data.code === 1){
-            //console.log(this.userId);
-            //console.log(this.chatUserId);
+            // console.log(this.userId);
+            // console.log(this.lotId);
+            // console.log(this.chatUserId);
             var hasChated = false; 
             let biggerUserId;
             let smallerUserId;   
             // 获取最近未读信息
-            //当前用户为普通用户
-            if(this.userProfile.type === window.meebidConstant.userType.member){
-              // console.log("memeber");
-              //解析content
-              //解析content
-              if(data.content.count.length > 0){
-                for (var i = 0; i < data.content.count.length; i++){
-                  let key = data.content.count[i].key;
-                  let value = data.content.count[i].value;
-                  if(data.content.count[i].value > 99){
-                    value = '99+';
-                  }
-                  let roomId = key.substring(0,key.indexOf(":"));
-                  let lotId = key.substring(key.indexOf(":")+1,key.length); 
-                    
-                  
-                  //判断lotId 为当前页面的lotId
-                  if(this.lotId == lotId){
-                    var roomPlaint = base64Utils.decode(roomId)                    
-                    var userIds = roomPlaint.substring(roomPlaint.indexOf("@")+1,roomPlaint.indexOf("[")).split(",");
-                    for(var j=0; j<userIds.length;j++){
-                      //当前用户，不操作
-                      if(userIds[j] == this.userId){
-                        continue;
-                      }
-                      //非当前用户，是指定聊天用户
-                      if(userIds[j] == this.chatUserId){
-                        if(this.chatUserId > this.userId){
-                          smallerUserId = this.userId;
-                          biggerUserId = this.chatUserId;
-                        }else{
-                          smallerUserId = this.chatUserId;
-                          biggerUserId = this.userId;
-                        }
-                        $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),lotId,value));
-                        // console.log("Message@"+smallerUserId+","+biggerUserId+"[2]");
-                        hasChated = true;
-                      }                      
-                    }
-                  }
-                  else{//非当前页面lotId
-                    var roomPlaint = base64Utils.decode(roomId)                    
-                    var userIds = roomPlaint.substring(roomPlaint.indexOf("@")+1,roomPlaint.indexOf("[")).split(",");
-                    for(var j=0; j<userIds.length;j++){
-                      //当前用户，不操作
-                      if(userIds[j] == this.userId){
-                        continue;
-                      }
-                      if(userIds[j] > this.userId){
-                        smallerUserId = this.userId;
-                        biggerUserId = userIds[j];
-                      }else{
-                        smallerUserId = userIds[j];
-                        biggerUserId = this.userId;
-                      }
-                      $.ajax(this.buildGetUserProfileReq(userIds[j],base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),lotId,value));
-                        // console.log("Message@"+smallerUserId+","+biggerUserId+"[2]");                   
-                    }
-                  }
-                  
+            //解析content
+            if(data.content.count.length > 0){
+              for (var i = 0; i < data.content.count.length; i++){
+                let key = data.content.count[i].key;
+                let value = data.content.count[i].value;
+                if(data.content.count[i].value > 99){
+                  value = '99+';
                 }
+                let roomId = key.substring(0,key.indexOf(":"));
+                let lotId = key.substring(key.indexOf(":")+1,key.length);                     
                 
-              }
-              //未读信息中无指定聊天用户
-              if(hasChated == false){
-                //获取用户信息
-                if(this.chatUserId > this.userId){
-                  smallerUserId = this.userId;
-                  biggerUserId = this.chatUserId;
-                }else{
-                  smallerUserId = this.chatUserId;
-                  biggerUserId = this.userId;
-                }
-                $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),this.lotId,0));
-                // console.log("Message@"+smallerUserId+","+biggerUserId+"[2]");
-              }
-              
+                var roomPlaint = base64Utils.decode(roomId)                    
+                  var userIds = roomPlaint.substring(roomPlaint.indexOf("@")+1,roomPlaint.indexOf("[")).split(",");
+                  for(var j=0; j<userIds.length;j++){
+                    //当前用户，不操作
+                    if(userIds[j] == this.userId || userIds[j]<=0){
+                      continue;
+                    }
+                    if(userIds[j] > this.userId){
+                      smallerUserId = this.userId;
+                      biggerUserId = userIds[j];
+                    }else{
+                      smallerUserId = userIds[j];
+                      biggerUserId = this.userId;
+                    }
+                    //非当前用户，是指定聊天用户
+                    if(userIds[j] == this.chatUserId && this.lotId == lotId){                        
+                      // console.log("Message@"+smallerUserId+","+biggerUserId+"[2]");
+                      hasChated = true;
+                    }
+                    $.ajax(this.buildGetUserProfileReq(userIds[j],base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),lotId,value));
+                                          
+                  }
+                
+                
+              }//end of for loop
               
             }
-            else if(this.userProfile.type === window.meebidConstant.userType.house){
-              //解析content
-              if(data.content.count.length > 0){
-                for (var i = 0; i < data.content.count.length; i++){
-                  let key = data.content.count[i].key;
-                  let value = data.content.count[i].value;
-                  let roomId = key.substring(0,key.indexOf(":"));
-                  let lotId = key.substring(key.indexOf(":")+1,key.length); 
-                                 
-                  //判断lotId 为当前页面的lotId
-                  if(this.lotId == lotId){
-                    var roomPlaint = base64Utils.decode(roomId)                    
-                    var userIds = roomPlaint.substring(roomPlaint.indexOf("@")+1,roomPlaint.indexOf("[")).split(",");
-                    for(var j=0; j<userIds.length;j++){
-                      //当前用户，不操作
-                      if(userIds[j] == this.userId){
-                        continue;
-                      }
-                      //非当前用户，是指定聊天用户
-                      if(userIds[j] == this.chatUserId){
-                        if(this.chatUserId > this.userId){
-                          smallerUserId = this.userId;
-                          biggerUserId = this.chatUserId;
-                        }else{
-                          smallerUserId = this.chatUserId;
-                          biggerUserId = this.userId;
-                        }
-                        $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),lotId,value));
-                        // console.log("Message@"+smallerUserId+","+biggerUserId+"[2]");
-                        hasChated = true;
-                      }
-                      //非当前用户，非指定聊天用户
-                      if(userIds[j] != this.chatUserId){
-                        if(userIds[j]  > this.userId){
-                          smallerUserId = this.userId;
-                          biggerUserId = userIds[j] ;
-                        }else{
-                          smallerUserId = userIds[j];
-                          biggerUserId =  this.userId;
-                        }
-                        $.ajax(this.buildGetUserProfileReq(userIds[j],base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),lotId,value));
-                        // console.log("Message@"+smallerUserId+","+biggerUserId+"[2]");
-                      }
-                    }
-                  }
-                  
-                }
-                
-              }
-              //未读信息中无指定聊天用户
-              if(hasChated == false){
-                //获取用户信息
-                if(this.chatUserId > this.userId){
-                  smallerUserId = this.userId;
-                  biggerUserId = this.chatUserId;
-                }else{
-                  smallerUserId = this.chatUserId;
-                  biggerUserId = this.userId;
-                }
-                // console.log("Message@"+smallerUserId+","+biggerUserId+"[2]");
-                $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),this.lotId,0));
-                
-              }
+            
+            //未读信息中无指定聊天用户,创建指定用户
+            if(hasChated == false && this.lotId != '' && this.chatuserId > 0 ){
               
+              if(this.chatUserId > this.userId){
+                smallerUserId = this.userId;
+                biggerUserId = this.chatUserId;
+              }else{
+                smallerUserId = this.chatUserId;
+                biggerUserId = this.userId;
+              }
+              $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+smallerUserId+","+biggerUserId+"[2]"),this.lotId,0));
+              // console.log("Message@"+smallerUserId+","+biggerUserId+"[2]");
             }
-            this.chatUser = this.chatUsers[0];
-            this.roomId = this.chatUser.roomId;
-            //console.log(this.chatUsers[0].userId+","+this.chatUsers[0].firstName+",");
             
             //获取最近chats
-            var request = this.buildGetLastChatsReq(0);
-            $.ajax(request);              
+            var request = this.buildGetLastChatsReq(this.chatRoomOffset);
+            $.ajax(request); 
             
-            //获取当前聊天lot
-            this.getLottery();
-            //获取近期某个聊天室下的聊天记录
-            this.websockethistory(this.chatUser,0);
+            if(targetCharUser == true && this.chatUsers.length >0){  
+              if(haschatuser){//指定聊天用户
+                var ifInchatusers = false;
+                //console.log("chatUserid:"+this.chatUserId+",lotid:"+this.lotId+",roomid:"+this.roomId);
+                this.chatUsers.forEach((a,index) => {
+                  if(a.userId == this.chatUserId && a.lotId == this.lotId){//console.log(a);
+                    this.chatUser = a;
+                    this.$refs.roomlist.setChatUser(this.chatUser);
+                    this.roomId = this.chatUser.roomId;
+                    this.lotId = this.chatUser.lotId;
+                    this.chatUserId = this.chatUser.userId;
 
-            //标记已读
-            this.websocketread(this.chatUser.roomId);
-          }
-          
+                    this.chatUsers.splice(index,1);
+                    this.chatUsers.unshift(a);
+                    ifInchatusers = true;
+                  }
+                });
+
+                if(!ifInchatusers){
+                  if(this.chatUserId > this.userId){
+                    $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+this.userId+","+this.chatUserId+"[2]"),this.lotId,0));
+                              
+                    //roomId = base64Utils.encode("Message@"+this.userId+","+userId+"[2]")
+                  }else{
+                    $.ajax(this.buildGetUserProfileReq(this.chatUserId,base64Utils.encode("Message@"+this.chatUserId+","+this.userId+"[2]"),this.lotId,0));
+                              
+                    //roomId = base64Utils.encode("Message@"+userId+","+this.userId+"[2]")
+                  }
+                
+                  this.chatUser = this.chatUsers[0];
+                  this.$refs.roomlist.setChatUser(this.chatUser);
+                  this.roomId = this.chatUser.roomId;
+                  this.lotId = this.chatUser.lotId;
+                  this.chatUserId = this.chatUser.userId;
+                }
+              }else{//非指定聊天用户
+                this.chatUser = this.chatUsers[0];
+                this.$refs.roomlist.setChatUser(this.chatUser);
+                this.roomId = this.chatUser.roomId;
+                this.lotId = this.chatUser.lotId;
+                this.chatUserId = this.chatUser.userId;
+                console.log("unread haschatuser=true:"+this.chatUserId);
+              }
+            
+              if(this.chatUser != null && this.chatUser.userId != null){
+                //获取当前聊天lot
+                this.getLottery();
+                //获取近期某个聊天室下的聊天记录
+                this.websockethistory(this.chatUser,0);
+                this.$emit("changeTotalUnread",(0-this.chatUser.unread));
+                //标记已读
+                this.websocketread(this.chatUser.roomId,this.chatUser.lotId);              
+                  
+                  
+                  // console.log("removeUnread:"+(0-this.chatUser.unread));
+                  // console.log("unread:"+this.chatUser.unread);
+                  
+                
+              }
+            }
+          }console.log("unread:"+this.chatUserId);
         },
         error(data) {
           errorUtils.requestError(data);
@@ -621,26 +581,8 @@ export default {
       });
     },
 
-    getLottery(){
-       $.ajax({
-        type: "GET",
-        url: "/api/lot/simple",
-        contentType : "application/json", 
-        context: this,
-        headers: {
-          token: this.loginUser.token
-        },
-        data: {lotId:this.lotId},
-        success(data) {
-          if (data.code === 1){
-            this.lot = data.content;
-            this.lotname = this.lot.name;
-          }
-        }
-       });
-    },
-
-    websocketread(roomId){
+    
+    websocketread(roomId,lotId){
       $.ajax({
         type: "POST",
         url: "/api/socket/chat/read",
@@ -650,7 +592,8 @@ export default {
           token: this.loginUser.token
         },
         data: {
-          roomId : roomId
+          roomId : roomId,
+          lotId:lotId
         },
         success(data) {
           if (data.code === 1){
@@ -783,7 +726,7 @@ export default {
           if (data.code == '1'){
             var firstName = "";
             var headPortrait = "";   
-            //var userId = "";  
+            let lotName = '';  
             if (data.content.user.type === window.meebidConstant.userType.member){   
               if (data.content.user.firstName){
                     firstName = data.content.user.firstName;
@@ -795,34 +738,86 @@ export default {
                 else{
                   headPortrait = "http://tinygraphs.com/squares/"+firstName+"?theme=heatwave&numcolors=4"
                 }      
-              
+                //获取lot信息
+                $.ajax({
+                  type: "GET",
+                  url: "/api/lot/simple",
+                  contentType : "application/json", 
+                  context: this,
+                  headers: {
+                    token: this.loginUser.token
+                  },
+                  async : false,
+                  data: {lotId:lotId},
+                  success(result) {
+                    if (result.code === 1){
+                      if(result.content == null){
+                        lotName = "";    
+                                          
+                      }else{
+                        lotName = result.content.name;               
+                        
+                      }
+                      
+                    }
+                  },
+                });
             }else if(data.content.user.type === window.meebidConstant.userType.house){  
+              
               if (data.content.user.name){
                     firstName = data.content.user.name;
                 }
                 
-                if (data.content.user.bLogoUrl != null){
-                    headPortrait = data.content.user.bLogoUrl;
-                    
-                }else{
-                  headPortrait = "http://tinygraphs.com/squares/"+firstName+"?theme=heatwave&numcolors=4"
-                } 
+                //获取lot信息
+                $.ajax({
+                  type: "GET",
+                  url: "/api/lot/simple",
+                  contentType : "application/json", 
+                  context: this,
+                  headers: {
+                    token: this.loginUser.token
+                  },
+                  async : false,
+                  data: {lotId:lotId},
+                  success(result) {
+                    if (result.code === 1){
+                      if(result.content == null){
+                        lotName = "";
+                        headPortrait = "http://tinygraphs.com/squares/"+lotName+"?theme=heatwave&numcolors=4"
+                      }else{
+                        lotName = result.content.name;
+                  
+                        if (result.content.imageUrls != null){
+                            headPortrait = result.content.imageUrls;                    
+                        }
+                        else{
+                          headPortrait = "http://tinygraphs.com/squares/"+lotName+"?theme=heatwave&numcolors=4"
+                        }
+                      }
+                      
+                      
+                      
+                    }
+                  },
+                });
                 
             }
+            //console.log(headPortrait);
             chatItem = {
                   roomId : roomId,
                   firstName: firstName,
                   headPortrait : headPortrait,
                   userId : userid,   
                   lotId:lotId,             
-                  sendMessageRoomId:this.userid+","+this.chatUserId,
-                  unread:unreadcount
+                  sendMessageRoomId:this.userId+","+this.chatUserId,
+                  unread:unreadcount,
+                  lotName : lotName,
                   }
             if(userid == this.chatUserId && lotId == this.lotId){
-              //console.log("a");
+              // 是当前聊天用户
               this.chatUsers.unshift(chatItem) ;
             }else{
-              //console.log("b");
+              // 非当前用户
               this.chatUsers.push(chatItem) ;
             }
              //console.log("1:"+ this.chatUsers.length);
@@ -836,6 +831,28 @@ export default {
       return req;
     },
 
+    getLottery(){
+       $.ajax({
+        type: "GET",
+        url: "/api/lot/simple",
+        contentType : "application/json", 
+        context: this,
+        headers: {
+          token: this.loginUser.token
+        },
+        data: {lotId:this.lotId},
+        success(data) {
+          if (data.code === 1){
+            if(data.content != null){
+              this.lot = data.content;
+              this.lotname = this.lot.name;
+              this.lotUrl = "./lotDetail.html?" + window.btoa("lotId=" + this.lot.id)
+            }
+            
+          }
+        }
+       });
+    },
 
     buildGetLastChatsReq(offset){
       var request = {   
@@ -873,6 +890,7 @@ export default {
       
       return request;
     },
+
     buildChatItems(items){    
       // console.log("chatUserId:"+this.chatUserId);
       if(items.length > 0){
@@ -887,40 +905,99 @@ export default {
           for(var j = 0; j < item.group.length; j++){
             var firstName = "";
             var headPortrait = "";   
-            var userId = "";         
+            var userId = "";  
+            let lotName = "";       
             // 当前用户  
             if(item.group[j].id == this.userId){
               continue;
             }
+            userId = item.group[j].id;// console.log("item.userId :"+this.chatUsers.length+item.group[j].id );
             
-            userId = item.group[j].id;
+            var hasInChat = false;
+            if(this.chatUsers.length > 0){
+              this.chatUsers.forEach(chatItem => {
+                if(chatItem.userId == item.group[j].id && chatItem.lotId == item.lotId){
+                  hasInChat = true;
+                }
+              });
+            }
+            
+            if(hasInChat){
+              continue;
+            }
+            
             if (item.group[j].type === window.meebidConstant.userType.member){
               if (item.group[j].firstName){
                   firstName = item.group[j].firstName;
               }
-              
               if (item.group[j].avatar != null){
-                  headPortrait = item.group[j].avatar;                    
+                    headPortrait = item.group[j].avatar;                    
               }
               else{
                 headPortrait = "http://tinygraphs.com/squares/"+firstName+"?theme=heatwave&numcolors=4"
-              }
-
-             
-            }else if (item.group[j].type === window.meebidConstant.userType.house){
+              }     
+              $.ajax({
+                  type: "GET",
+                  url: "/api/lot/simple",
+                  contentType : "application/json", 
+                  context: this,
+                  headers: {
+                    token: this.loginUser.token
+                  },
+                  async : false,
+                  data: {lotId:item.lotId},
+                  success(result) {
+                    if (result.code === 1){
+                      if(result.content == null){
+                        lotName = "";                      
+                      }else{
+                        lotName = result.content.name;               
+                        
+                      }
+                      
+                    }
+                  },
+                });
+            }
+            else if (item.group[j].type === window.meebidConstant.userType.house){
               if (item.group[j].name){
                   firstName = item.group[j].name;
               }
               
-              if (item.group[j].bLogoUrl != null){
-                  headPortrait = item.group[j].bLogoUrl;
-                  
-              }else{
-                headPortrait = "http://tinygraphs.com/squares/"+firstName+"?theme=heatwave&numcolors=4"
-              } 
-              
+              //获取lot信息
+              $.ajax({
+                type: "GET",
+                url: "/api/lot/simple",
+                contentType : "application/json", 
+                context: this,
+                headers: {
+                  token: this.loginUser.token
+                },
+                async : false,
+                data: {lotId:item.lotId},
+                success(result) {
+                  if (result.code === 1){
+                    if(result.content == null){
+                      lotName = "";
+                      headPortrait = "http://tinygraphs.com/squares/"+lotName+"?theme=heatwave&numcolors=4"
+                      
+                    }else{
+                      lotName = result.content.name;
+                      if (result.content.imageUrls != null){
+                          headPortrait = result.content.imageUrls;                    
+                      }
+                      else{
+                        headPortrait = "http://tinygraphs.com/squares/"+lotName+"?theme=heatwave&numcolors=4"
+                      }
+                    }
+                  }
+                }
+              });
+             
+              //headPortrait = tmp.headPortrait;
+              //lotName = tmp.lotName;
             }
-              //console.log("lotids:"+item.lotId+",roomid:"+item.roomId);
+            //console.log(this.chatUserId+","+item.group[j].id +","+this.lotId+","+item.group[j].lotId);
             var chatItem = {
                 roomId : roomId,
                 firstName: firstName,
@@ -928,13 +1005,14 @@ export default {
                 userId : userId,                
                 sendMessageRoomId:this.userId+","+userId,
                 unread:0,
-                lotId:item.lotId
-                }
-            if(this.chatUserId == item.group[j].id && this.lotId == item.group[j].lotId){
-                // chatItems.unshift(chatItem);
+                lotId:item.lotId,
+                lotName:lotName,
+            }
+            if(this.chatUserId == item.group[j].id && this.lotId == item.lotId){
+                this.chatUsers.unshift(chatItem);
                 //hasChated = true;
             }else if(this.chatUserId != item.group[j].id || (this.chatUserId == item.group[j].id && this.lotId != item.lotId)){
-                let c = this.chatUsers.filter(v => v.userId == item.group[j].id && v.lotId == item.group[j].lotId);
+                let c = this.chatUsers.filter(v => v.userId == item.group[j].id && v.lotId == item.lotId);
                 if(c.length <= 0 ){
                   this.chatUsers.push(chatItem);
                 }
@@ -949,7 +1027,9 @@ export default {
       for(var i =0;i<this.chatUsers.length;i++){
         if(this.chatUsers[i].userId == wsConnection.chatUserId && this.chatUsers[i].lotId == wsConnection.lotId){
           this.chatUser = this.chatUsers[i];
-          this.chatUser.unread = 0;
+          this.$refs.roomlist.setChatUser(this.chatUser);
+          this.$emit("changeTotalUnread",(0-this.chatUser.unread));
+          this.chatUser.unread = 0;          
         }
       }
       //this.$refs.textarea.getFocus();
@@ -963,9 +1043,108 @@ export default {
       //console.log(this.lotId);
       //console.log(wsConnection.lotId)
       this.websockethistory(this.chatUser,0);
-      this.websocketread(this.roomId);
+      this.websocketread(this.roomId,this.lotId);
     },
     
+    //#region 上传文件
+    upload(rawFile, redata) {
+       const content = JSON.parse(redata.content);
+          if (!this.beforeUpload) {
+              return this.post(rawFile, redata);
+          }
+          const before = this.beforeUpload(rawFile);
+          if (before && before.then) {
+              before.then(processedFile => {
+              const fileType = Object.prototype.toString.call(processedFile);
+              if (fileType === '[object File]' || fileType === '[object Blob]') {
+                  this.post(processedFile, redata);
+              } else {
+                  this.post(rawFile, redata);
+              }
+              }, () => {
+              this.onRemove(null, rawFile);
+              });
+          } else if (before !== false) {
+              this.post(rawFile, redata);
+          } else {
+              this.onRemove(null, rawFile);
+          }
+    },
+    
+    post(rawFile, redata) {
+        this.doPost(rawFile, redata);      
+    },
+    doPost(rawFile, redata){
+      const content = JSON.parse(redata.content);
+        var me = this;
+        const { uid } = rawFile;
+        const options = {
+            headers: this.headers,
+            withCredentials: this.withCredentials,
+            file: rawFile,
+            //contentData: content,
+            data: {
+              OSSAccessKeyId: content.accessid,
+              policy: content.policy,
+              Signature: content.signature,
+              key: this.multiple ? content.fileKey + rawFile.name : content.fileKey,
+              success_action_status: 200
+            },
+            filename: "file",
+            action: content.ossUrl,
+            // onProgress: e => {
+            // this.onProgress(e, rawFile);
+            // },
+            onSuccess: res => {
+              
+              me.finishReqs[uid] = rawFile;
+              delete me.reqs[uid];              
+              if (Object.keys(me.reqs).length === 0){
+                  me.confirmPost(res, redata);
+              }
+            },
+            onError: err => {
+            this.onError(err, rawFile);
+            delete me.reqs[uid];
+            }
+        };
+        const req = this.httpRequest(options);
+        this.reqs[uid] = req;
+        if (req && req.then) {
+            req.then(options.onSuccess, options.onError);
+        }
+    },
+    confirmPost(res, redata) {
+      const content = JSON.parse(redata.content);
+        var fileKeys = [];
+        if (this.multiple){
+            for (var key in this.finishReqs){
+            fileKeys.push(content.fileKey + this.finishReqs[key].name);
+            }
+        } else {
+            fileKeys.push(content.fileKey);
+        }
+        let fileNameObject = null;        
+        if(this.$refs.textarea.Files){
+          let fileNameObjects = this.$refs.textarea.Files;
+          fileNameObjects.forEach(item => {
+            if(item.id == redata.id){
+              fileNameObject = item;
+              
+            }
+          });
+        }else{
+          return;
+        }
+        
+        var MessageCtx = {id:fileNameObject.id,suffix:fileNameObject.Extend,name:fileNameObject.FileName,rUid:content.rUid};        
+        
+        
+        this.sendFileMessage(JSON.stringify(MessageCtx),fileNameObject.type);//File 2
+        
+    },
+    //#endregion
+
     hideWindow(){
       this.$emit('hidewindow',false); 
     },
@@ -974,6 +1153,10 @@ export default {
     },
     srcollToHistory(messageSize){
       this.websockethistory(this.chatUser,messageSize);
+    },
+    setRooms(userid,lotid){
+      this.chatUserId = userid;
+      this.lotId = lotid;
     }
   }
 }

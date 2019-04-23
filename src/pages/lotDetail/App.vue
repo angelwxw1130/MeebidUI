@@ -100,7 +100,7 @@
                   </div>
                   <br>
                   <div v-if="userProfile.type == 1">
-                    <span>Consult :</span><a href="javascript:void(0)"  @click="show"><i class="fa fa-comments" style="color:#FF5242;vertical-align: middle;margin:0px 0px 5px 15px;"></i></a>
+                    <span>Consult :</span><a href="javascript:void(0)"  @click="showChat"><i class="fa fa-comments" style="color:#FF5242;vertical-align: middle;margin:0px 0px 5px 15px;"></i></a>
                   </div>
                 </div>
               </div>
@@ -144,8 +144,10 @@
         </el-collapse>
 
       </div>
+      <meebid-button button-type="round orange" :button-click="show" icon-type="comment" class="im" :hintNumber = "unread"> 
+      </meebid-button>
       <transition name="fold">
-        <meebidim ref="meebidIM" class="meebidIMPophover" style="z-index: 10" :userProfile="userProfile" :socketRoomId="socketRoomId" :chatUserId="houseUserId" :lotId="lotId" :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow"  :ws="ws" @hidewindow="hide" @showImage="showImage"></meebidim>
+        <meebidim ref="meebidIM" class="meebidIMPophover" style="z-index: 10" @reconnect="reconnect" :userProfile="userProfile" :socketRoomId="socketRoomId" :imchatUserId="houseUserId" :imlotId="lotId" :headPortrait="headPortrait" :firstName="firstName" :userId="userId" v-show="panelShow" :panelShow="panelShow"  :ws="ws" @hidewindow="hide" @showImage="showImage" @changeTotalUnread="changeTotalUnread"></meebidim>
       </transition>
     </div>
     
@@ -202,7 +204,9 @@ export default {
       ws:null,
       lotId:"",
       houseUserId:-1,
-      panelShow:false
+      panelShow:false,
+      unread:0,
+      lockReconnect:false,
     }
   },
   beforeMount() {
@@ -248,14 +252,83 @@ export default {
     if (defaultSelectedCategory){
       this.defaultSelectedCategory = defaultSelectedCategory;
     }
-    // console.log(this.headPortrait);
+    if(this.ws == null && this.userId != -1){//websocket为空，请登录状态，获取socketid
+        //获取socketID
+        $.ajax({
+            type: "POST",
+            url: "/api/socket/socket",
+            contentType : "application/json", 
+            context: this,
+            headers: {
+                token: this.loginUser.token
+            },
+            data: {},
+            success(data) {
+                if (data.code === 1){
+                    var wsUrl = '';
+                //this.$refs.busyIndicator.hide();
+                    this.socketId = data.content.ws;
+                    if(data.content.ws.startsWith("ws://")){
+                        wsUrl = data.content.ws +"/" + this.loginUser.token;  
+                    }else{
+                        wsUrl = "ws://47.100.84.71:" + data.content.ws +"/" + this.loginUser.token;  
+                    }
+                    this.wsUrl = wsUrl
+                    this.socketRoomId = data.content.roomId;
+                    
+                    if ("WebSocket" in window) {
+                      this.ws = new WebSocket(this.wsUrl);
+                    }
+                    else if ("MozWebSocket" in window) {
+                      this.ws = new MozWebSocket(this.wsUrl);
+                    } else {
+                      console.log("当前浏览器不支持WebSocket");
+
+                    }
+                    
+                    this.ws.onopen = this.$refs.meebidIM.websocketonopen;
+                    this.ws.onerror = this.$refs.meebidIM.websocketonerror;
+                    this.ws.onmessage = this.$refs.meebidIM.websocketonmessage; 
+                    this.ws.onclose = this.$refs.meebidIM.websocketclose;
+                    
+                    
+                    //this.$emit('getSocketUrl',{wsurl: wsUrl, roomId: data.content.roomId,chatUserId:userId}); 
+
+                }
+
+            },
+            error(data) {
+                errorUtils.requestError(data);
+            }
+        });
+
+        //获取未读条目数
+        $.ajax({
+          type: "GET",
+          url: "/api/socket/chat/unread/count",
+          contentType : "application/json", 
+          context: this,
+          headers: {
+            token: this.loginUser.token
+          },
+          data: {},
+          success(data) {
+            if (data.code === 1){
+              data.content.count.forEach(item =>{
+                this.unread += item.value;
+              });
+              
+            }
+          }
+        });
+    }
   },
   mounted(){
     var paramsString = window.location.search;
     paramsString = paramsString.substring(1);
     var decodeData = window.atob(paramsString);
     var lotId = meebidUtils.getQueryString(decodeData, "lotId");
-    console.log("Lot Id: " + lotId);
+    // console.log("Lot Id: " + lotId);
     this.lotId = lotId;
     this.windowMinHeight = window.innerHeight - 85 + "px";
     this.$refs.busyIndicator.show();
@@ -515,59 +588,22 @@ export default {
           return "Price not available";
       }
     },
-    show(){
-      if(this.ws == null){
-        //获取socketID
-        $.ajax({
-            type: "POST",
-            url: "/api/socket/socket",
-            contentType : "application/json", 
-            context: this,
-            headers: {
-                token: this.loginUser.token
-            },
-            data: {},
-            success(data) {
-                if (data.code === 1){
-                    var wsUrl = '';
-                //this.$refs.busyIndicator.hide();
-                    this.socketId = data.content.ws;
-                    if(data.content.ws.startsWith("ws://")){
-                        wsUrl = data.content.ws +"/" + this.loginUser.token;  
-                    }else{
-                        wsUrl = "ws://47.100.84.71:" + data.content.ws +"/" + this.loginUser.token;  
-                    }
-                    this.wsUrl = wsUrl
-                    this.socketRoomId = data.content.roomId;
-                    
-                    if ("WebSocket" in window) {
-                      this.ws = new WebSocket(this.wsUrl);
-                    }
-                    else if ("MozWebSocket" in window) {
-                      this.ws = new MozWebSocket(this.wsUrl);
-                    } else {
-                      console.log("当前浏览器不支持WebSocket");
-
-                    }
-                    //this.$refs.meebidIM.getChatRooms();
-                    this.ws.onopen = this.$refs.meebidIM.websocketonopen;
-                    this.ws.onerror = this.$refs.meebidIM.websocketonerror;
-                    this.ws.onmessage = this.$refs.meebidIM.websocketonmessage; 
-                    this.ws.onclose = this.$refs.meebidIM.websocketclose;
-                    
-                    
-                    //this.$emit('getSocketUrl',{wsurl: wsUrl, roomId: data.content.roomId,chatUserId:userId}); 
-
-                }
-
-            },
-            error(data) {
-                errorUtils.requestError(data);
-            }
-        });
-      }
-      this.$refs.meebidIM.getChatRooms();
+    showChat(){
+       this.$refs.meebidIM.setRooms(this.houseUserId,this.lotId);
       if(!this.panelShow){
+        this.$refs.meebidIM.getChatRooms(true,true);
+      
+        this.panelShow = true;
+      }else{
+        this.panelShow = false;
+      }
+      
+    },
+    show(){
+      
+      if(!this.panelShow){
+        this.$refs.meebidIM.getChatRooms(true,false);
+      
         this.panelShow = true;
       }else{
         this.panelShow = false;
@@ -580,6 +616,46 @@ export default {
     showImage(url){
       this.expandUrl = url;
       this.imageDialogVisible = true;
+    },
+    changeTotalUnread(number){
+      //console.log("changeTotalUnread:"+this.unread);
+      this.unread = this.unread + number;
+      //console.log(number);
+    },
+    reconnect() {
+      var tt;
+      if(this.lockReconnect) {
+        return;
+      };
+      this.lockReconnect = true;
+      //没连接上会一直重连，设置延迟避免请求过多
+      tt && clearTimeout(tt);
+      tt = setTimeout(() => {
+        this.createWebSocket();
+        this.lockReconnect = false;
+      }, 4000);
+    },
+    createWebSocket() {
+      try {
+        //ws = new WebSocket(this.wsUrl);
+        if ("WebSocket" in window) {
+                      this.ws = new WebSocket(this.wsUrl);
+                    }
+                    else if ("MozWebSocket" in window) {
+                      this.ws = new MozWebSocket(this.wsUrl);
+                    } else {
+                      console.log("当前浏览器不支持WebSocket");
+
+                    }
+                    
+                    this.ws.onopen = this.$refs.meebidIM.websocketonopen;
+                    this.ws.onerror = this.$refs.meebidIM.websocketonerror;
+                    this.ws.onmessage = this.$refs.meebidIM.websocketonmessage; 
+                    this.ws.onclose = this.$refs.meebidIM.websocketclose;
+      } catch(e) {
+        //console.log('catch');
+        this.reconnect();
+      }
     }
   }
 }
