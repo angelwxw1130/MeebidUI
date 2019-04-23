@@ -877,7 +877,7 @@
         <el-form ref="addressForm" status-icon :rules="addressFormRules" :model="addressForm" label-width="180px" class="meebidHouseProfileForm">
           
           <el-form-item label="Country" prop="topRegion">
-            <el-select @change="handleAddressChange" :options="regionOptions" style="width: 300px;" v-model="addressForm.topRegion" placeholder="Select...">
+            <el-select @change="handleAddressChange" filterable :options="regionOptions" style="width: 300px;" v-model="addressForm.topRegion" placeholder="Select...">
               <el-option
                 v-for="item in regionOptions"
                 :key="item.id"
@@ -914,7 +914,7 @@
                 :value="regionItem.id">
               </el-option>
             </el-select>
-            <el-select style="width: 300px;" v-else-if="item.controlType === 'select'" v-model="addressForm[item.name]" :placeholder="'Please input ' + $t(item.labelKey)">
+            <el-select style="width: 300px;" filterable v-else-if="item.controlType === 'select'" v-model="addressForm[item.name]" :placeholder="'Please input ' + $t(item.labelKey)">
               <el-option
                 v-for="optionItem in (item.options || [])"
                 :key="optionItem.id"
