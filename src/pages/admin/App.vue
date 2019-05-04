@@ -1164,7 +1164,7 @@
               <el-form-item v-if="lotForm.state === 32" label="Sold Price" prop="soldPrice">
                 <meebid-number-input v-model="lotForm.soldPrice" placeholder="Please input sold price"></meebid-number-input>
               </el-form-item>
-              <el-form-item v-if="lotForm.state === 32" label="Sold Price" prop="isSold">
+              <el-form-item v-if="lotForm.state === 32" label="Display Sold Price" prop="isSold">
                 <el-checkbox v-model="lotForm.isSold"></el-checkbox>
               </el-form-item>
 
