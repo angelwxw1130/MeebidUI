@@ -253,7 +253,7 @@ export default {
         }
         //console.log("thischatuserid:"+this.chatUserId+",lotid:"+this.lotId+","+redata.lotId+","+redata.sender);
         if(redata.lotId == this.lotId && (redata.sender == this.chatUserId || redata.sender == this.userId) && this.panelShow == true){
-          console.log(panelShow);
+          //console.log(panelShow);
           //如果返回消息是当前对话框，则在当前对话框显示消息
           if(this.lastChatTime == ""){
             this.showChatTime=true;
@@ -362,11 +362,11 @@ export default {
     
 
     getChatRooms(targetCharUser,haschatuser){//获取聊天室,targetCharUser是否选中用户，是否有指定聊天用户
-      console.log("im:"+this.chatUserId+","+this.lotId);
+      //console.log("im:"+this.chatUserId+","+this.lotId);
       if(this.chatUsers.length <= 0){//初始化chatusers
         this.chatUsers = [];
         this.websocketunread(targetCharUser,haschatuser);
-        console.log("0:"+this.chatUserId+","+this.lotId);
+        //console.log("0:"+this.chatUserId+","+this.lotId);
         return;
       }
       //console.log("getChatRooms:"+haschatuser);
@@ -412,7 +412,7 @@ export default {
           this.lotId = this.chatUser.lotId;
           this.chatUserId = this.chatUser.userId;
           this.lotName = this.chatUser.lotName;
-          console.log(this.chatUserId);
+          //console.log(this.chatUserId);
           this.setRooms(this.chatUserId,this.lotId);
           //this.$emit("saveChatUser",{chatUserId:this.chatUserId,lotId:this.lotId});
           //this.lotName = this.chatUser.lotName;
@@ -554,7 +554,7 @@ export default {
                 this.roomId = this.chatUser.roomId;
                 this.lotId = this.chatUser.lotId;
                 this.chatUserId = this.chatUser.userId;
-                console.log("unread haschatuser=true:"+this.chatUserId);
+                //console.log("unread haschatuser=true:"+this.chatUserId);
               }
             
               if(this.chatUser != null && this.chatUser.userId != null){
@@ -573,7 +573,7 @@ export default {
                 
               }
             }
-          }console.log("unread:"+this.chatUserId);
+          }//console.log("unread:"+this.chatUserId);
         },
         error(data) {
           errorUtils.requestError(data);
