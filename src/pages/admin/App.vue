@@ -414,18 +414,19 @@
                       <span style="font-size: 16px; display: inline-block;" v-if="(item.state & 2) != 0" :style="{background: getStateColor(2)}" class="meebidPaddingLeftSmall meebidPaddingRightSmall meebidMarginTopSmall">{{getStateLabel(2)}}</span>
                     </div>
                     <div style="width: 100px; display: inline-block; float: right;">
-                      <el-dropdown @command="handleAuctionItemCommand($event, item)" v-if="item.state != 0 && (item.state & 64) == 0">
+                      <el-dropdown @command="handleAuctionItemCommand($event, item)" v-if="item.state != 0">
                         <el-button type="primary" size="small" class="meebidAuctionListButton">
                           Actions<i class="el-icon-arrow-down el-icon--right"></i>
                         </el-button>
                         <el-dropdown-menu slot="dropdown">
-                          <el-dropdown-item command="edit">Edit</el-dropdown-item>
-                          <el-dropdown-item command="delete">Delete</el-dropdown-item>
-                          <el-dropdown-item v-if="(item.state & 1) != 0" command="announce">Announce</el-dropdown-item>
-                          <el-dropdown-item v-if="(item.state & 16) != 0" command="deList">De-List</el-dropdown-item>
-                          <el-dropdown-item v-if="(item.state & 32) == 0 && (item.state & 2) == 0" command="publish">Publish</el-dropdown-item>
-                          <el-dropdown-item v-if="(item.state & 32) != 0" command="review">Review Lots</el-dropdown-item>
-                          <el-dropdown-item v-if="(item.state & 32) != 0" command="end">End Auction</el-dropdown-item>
+                          <el-dropdown-item v-if="(item.state & 64) == 0" command="edit">Edit</el-dropdown-item>
+                          <el-dropdown-item v-if="(item.state & 64) == 0" command="delete">Delete</el-dropdown-item>
+                          <el-dropdown-item v-if="(item.state & 1) != 0 && (item.state & 64) == 0" command="announce">Announce</el-dropdown-item>
+                          <el-dropdown-item v-if="(item.state & 16) != 0 && (item.state & 64) == 0" command="deList">De-List</el-dropdown-item>
+                          <el-dropdown-item v-if="(item.state & 32) == 0 && (item.state & 2) == 0 && (item.state & 64) == 0" command="publish">Publish</el-dropdown-item>
+                          <el-dropdown-item v-if="(item.state & 32) != 0 && (item.state & 64) == 0" command="review">Review Lots</el-dropdown-item>
+                          <el-dropdown-item v-if="(item.state & 32) != 0 && (item.state & 64) == 0" command="end">End Auction</el-dropdown-item>
+                          <el-dropdown-item v-if="(item.state & 64) != 0" command="changePolicy">Edit Auction Lot Policy</el-dropdown-item>
                         </el-dropdown-menu>
                       </el-dropdown>
                       <el-button type="primary" size="small" v-if="item.state != 0" class="meebidMarginTopMedium meebidAuctionListButton meebidMarginLeftClean" @click="onManageLots(item)">Manage Lots</el-button>
@@ -475,7 +476,7 @@
                     <div class="meebidLotTextContainer meebidPaddingLeftSmall meebidPaddingRightSmall">
                       <span class="meebidAdminLotName meebidMarginTopSmall" :title="item.name">{{getLotName(item.name)}}</span>
                       <span class="meebidAdminLotNumber" >Lot {{item.no}}</span>
-                      <span v-if="item.state !== 32" class="meebidAdminLotEstimation" >{{getLotEstimationPrice(item)}}</span>
+                      <span class="meebidAdminLotEstimation" >{{getLotEstimationPrice(item)}}</span>
                       <span v-if="item.state === 32" class="meebidAdminLotEstimation" >{{getLotSoldPrice(item)}}</span>
                       <span v-if="item.state !== 32" class="meebidAdminLotStartPrice" >{{getLotStartPrice(item)}}</span>
                       <span v-if="item.state === 32" class="meebidAdminLotStartPrice" >{{getLotSoldStatus(item)}}</span>
@@ -762,8 +763,8 @@
                 label="Actions"
                 width="75">
                 <template slot-scope="scope">
-                  <el-button v-if="scope.row.state === 1 || scope.row.state === 2 || scope.row.state === 4" type="primary" size="medium" class="meebidSquareButton" icon="el-icon-circle-check" @click="handleApproveRegistration(scope.row)"></el-button>
-                  <el-button v-if="scope.row.state === 3" size="medium" type="primary" class="meebidSquareButton" icon="el-icon-circle-close" @click="handleRejectRegistration(scope.row)"></el-button>
+                  <el-button v-if="scope.row.state === 1 || scope.row.state === 2 || scope.row.state === 4" type="primary" size="medium" class="meebidSquareButton" @click="handleApproveRegistration(scope.row)">Accept</el-button>
+                  <el-button v-if="scope.row.state === 3" size="medium" type="primary" class="meebidSquareButton" @click="handleRejectRegistration(scope.row)">Reject</el-button>
                 </template>
               </el-table-column>
               <el-table-column
@@ -1117,6 +1118,27 @@
         </span>
       </el-dialog>
 
+      <el-dialog :visible.sync="auctionLotPolicyDialogVisible" class="meebidAuctionDialog" title="Auction Lot Policy" width="800px" height="600px" :close-on-click-modal="false">
+
+        <el-form ref="auctionLotPolicyForm" status-icon :rules="auctionLotPolicyFormRules" style="width: 80%;" :model="auctionLotPolicyForm" label-width="180px" class="meebidHouseProfileForm">
+          <el-form-item label="Auction Lot Policy" prop="type">
+            <el-select v-model="auctionLotPolicyForm.policy" placeholder="Select...">
+              <el-option
+                v-for="item in auctionPolicyOptions"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+
+
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="auctionLotPolicyDialogVisible = false" class="">Cancel</el-button>
+          <el-button type="primary" @click="onUpdateAuctionLotPolicy()" >Update</el-button>
+        </span>
+      </el-dialog>
       <el-dialog :visible.sync="lotDialogVisible" class="meebidLotDialog" title="Lot" width="820px" height="600px" :close-on-click-modal="false">
         <el-tabs type="border-card" v-model="lotDialogActiveTab" @tab-click="handleLotDialogTabClick">
           <el-tab-pane name="lotBasic">
@@ -1161,12 +1183,13 @@
               <el-form-item label="Reserve Price" prop="reservePrice">
                 <meebid-number-input :disabled="lotForm.state === 32" v-model="lotForm.reservePrice" placeholder="Please input reserve price"></meebid-number-input>
               </el-form-item>
-              <el-form-item v-if="lotForm.state === 32" label="Sold Price" prop="soldPrice">
-                <meebid-number-input v-model="lotForm.soldPrice" placeholder="Please input sold price"></meebid-number-input>
-              </el-form-item>
-              <el-form-item v-if="lotForm.state === 32" label="Display Sold Price" prop="isSold">
+              <el-form-item v-if="lotForm.state === 32" label="Sold" prop="isSold">
                 <el-checkbox v-model="lotForm.isSold"></el-checkbox>
               </el-form-item>
+              <el-form-item v-if="lotForm.state === 32 && lotForm.isSold === true" label="Sold Price" prop="soldPrice">
+                <meebid-number-input v-model="lotForm.soldPrice" placeholder="Please input sold price"></meebid-number-input>
+              </el-form-item>
+
 
               <el-form-item label="Images" prop="imageUrls" required>
                 <meebid-upload
@@ -1515,14 +1538,15 @@
                 </meebid-upload>
               </el-col>
               <el-col :span="11" style="text-align:right;">
-                <el-dropdown @command="handleBatchUploadAuctionResultDialogCommand">
+                <!--<el-dropdown @command="handleBatchUploadAuctionResultDialogCommand">
                   <el-button size="small" type="primary">
                     Actions<i class="el-icon-arrow-down el-icon--right"></i>
                   </el-button>
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item command="exportLots">Export All Lots</el-dropdown-item>
                   </el-dropdown-menu>
-                </el-dropdown>
+                </el-dropdown>-->
+                <el-button @click="handleBatchUploadAuctionResultDialogExportAll" class="">Export template</el-button>
               </el-col>
 
             </el-form-item>
@@ -2024,6 +2048,7 @@ export default {
       }
     };
     return {
+      auctionLotPolicyDialogVisible: false,
       imageDialogVisible: false,
       invoiceUserSelectedIdx: -1,
       invoiceUserList: [],
@@ -2102,6 +2127,16 @@ export default {
       }, {
         id: window.meebidConstant.auctionType.CategoryOnly,
         name: i18n.t('meebid.auctionManagement.MSG_AUCTION_TYPE_CATEGORY_ONLY_TEXT')
+      }],
+      auctionPolicyOptions: [{
+        id: window.meebidConstant.auctionPolicyType.Normal,
+        name: window.meebidConstant.auctionPolicyType[0]
+      }, {
+        id: window.meebidConstant.auctionPolicyType.HiddenAll,
+        name: window.meebidConstant.auctionPolicyType[1]
+      }, {
+        id: window.meebidConstant.auctionPolicyType.HiddenUnSold,
+        name: window.meebidConstant.auctionPolicyType[2]
       }],
       regionProp: {
         value: 'id',
@@ -2251,6 +2286,13 @@ export default {
         shippingInfo: [
           { validator: validateAuctionShippingInfo, trigger: 'change' }     
         ]
+      },
+      currentAuctionItem: {},
+      auctionLotPolicyForm: {},
+      auctionLotPolicyFormRules: {
+        policy: [
+          { required: true, message: 'Please select Auction Lot Policy', trigger: 'change' }          
+        ],
       },
       lotForm: {},
       lotFormRules: {
@@ -3352,7 +3394,7 @@ export default {
           if (detailOption) {
             detailLabel += detailOption.label ? detailOption.label + " " : detailOption.name + " ";
           } else {
-            detailLabel += " unknown address get";
+            console.log("Incorrect address get: " + detailList[i].field);
           }          
         } else {
           detailLabel += detailList[i].value ? detailList[i].value + " " : "";
@@ -3886,6 +3928,9 @@ export default {
       }
       return window.meebidConstant.auctionState[state];
     },
+    getAuctionLotPolicyLabel(policy){
+      return window.meebidConstant.auctionPolicyType[policy];
+    },
     onUpdateDefaultSetting() {
       var termsAndCondition = this.$refs.termsEditor.getValue();
       var paymentInfo = this.$refs.paymentEditor.getValue();
@@ -4113,6 +4158,53 @@ export default {
           me.auctionDialogActiveTab = "auctionBasic";
         }
       })
+    },
+    onUpdateAuctionLotPolicy() {
+      var me = this;
+      this.$refs.auctionLotPolicyForm.validate(function(isValid){
+        if (isValid){
+          me.saveAuctionLotPolicy();
+        } 
+      })
+    },
+    saveAuctionLotPolicy() {
+      var me = this;
+      var requestObj = {
+        sceneId: this.currentAuctionItem.id,
+        policy: this.auctionLotPolicyForm.policy
+      }
+      me.$refs.busyIndicator.show();
+      $.ajax({
+        type: "POST",
+        url: "/api/scene/victory/policy",
+        contentType : "application/json", 
+        context: this,
+        headers: {
+          token: this.loginUser.token
+        },
+        data: JSON.stringify(requestObj),
+        success(data) {
+          if (data.code === 1){
+            this.$message({
+              type: 'success',
+              message: i18n.t('meebid.alertMessage.MSG_ADMIN_USER_UPDATE_AUCTION_LOT_POLICY_SUCCESS')
+            });
+            this.auctionLotPolicyDialogVisible = false;
+            me.currentAuctionItem.vpolicy = me.auctionLotPolicyForm.policy;
+          }else {
+            this.$notify.error({
+              title: 'Failure',
+              message: 'Update Auction Lot Policyfailure',
+              duration: 5000
+            })
+          }
+          me.$refs.busyIndicator.hide();
+        },
+        error(data) {
+          errorUtils.requestError(data);
+          me.$refs.busyIndicator.hide();
+        }
+      });
     },
     onUpdateLot() {
       var me = this;
@@ -4672,6 +4764,19 @@ export default {
           });
           
           break;
+        case 'changePolicy':
+          this.auctionLotPolicyDialogVisible = true;
+          this.auctionLotPolicyForm = {
+            policy: item.vpolicy
+          };
+          this.currentAuctionItem = item;
+          if (this.$refs.auctionLotPolicyForm){
+            var me = this;
+            setTimeout(function(){
+              me.$refs.auctionLotPolicyForm.clearValidate()
+            }, 100);
+          }
+          break;
       }
     },
     handleLotItemCommand(command, item){
@@ -5102,6 +5207,39 @@ export default {
     },
     formatLotNo(item){
       return item.isConflict ? item.no + "*" : item.no;
+    },
+    handleBatchUploadAuctionResultDialogExportAll(){
+      var me = this;
+      var requestObj = {
+        sceneId: me.currentSceneId
+      };
+      this.$refs.batchAuctionResultDialogBusyIndicator.show();
+      $.ajax({
+        type: "POST",
+        url: "/api/lot/simple/export",
+        contentType : "application/json", 
+        context: this,
+        headers: {
+          token: this.loginUser.token
+        },
+        data: JSON.stringify(requestObj),
+        success(data) {
+          if (data.code === 1){
+            window.open(data.content.download);
+          } else {
+            this.$notify.error({
+              title: 'Failure',
+              message: 'Download Simple Lots failure',
+              duration: 5000
+            });
+          }
+        },
+        error(data) {
+          errorUtils.requestError(data);
+        }
+      }).done(function(){
+        me.$refs.batchAuctionResultDialogBusyIndicator.hide();
+      });
     },
     handleBatchUploadAuctionResultDialogCommand(command) {
       var me = this;

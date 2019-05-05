@@ -112,7 +112,7 @@ meebidConstant.lotBidResult = {
     "Available": 1 << 0,
     "Sold": (1 << 1) + (1 << 0),
     0: "Data not available",
-    1: "Do not Display Sold Price",
+    1: "Unsold",
     3: "Sold"
 }
 

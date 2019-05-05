@@ -51,7 +51,7 @@
                 {{getStartPrice(lotItem)}}
               </div>
               <div v-if="lotItem.state === 32" class="meebidLotDetailDescriptionStartBidPriceContainer meebidPaddingTopSmall meebidMarginBottomSmall">
-                <span class="meebidLotDetailFormLabel">Selling Price:</span>
+                <span class="meebidLotDetailFormLabel">Sold Price:</span>
                 {{getSellingPrice(lotItem)}}
               </div>
               <div class="meebidLotDetailDescriptionActionContainer">
