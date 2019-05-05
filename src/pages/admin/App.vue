@@ -761,7 +761,7 @@
               </el-table-column>
               <el-table-column
                 label="Actions"
-                width="75">
+                width="85">
                 <template slot-scope="scope">
                   <el-button v-if="scope.row.state === 1 || scope.row.state === 2 || scope.row.state === 4" type="primary" size="medium" class="meebidSquareButton" @click="handleApproveRegistration(scope.row)">Accept</el-button>
                   <el-button v-if="scope.row.state === 3" size="medium" type="primary" class="meebidSquareButton" @click="handleRejectRegistration(scope.row)">Reject</el-button>
@@ -1271,7 +1271,7 @@
                   </el-button>
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item command="downloadSample">Download Sample Template</el-dropdown-item>
-                    <el-dropdown-item command="exportLots">Export All Lots</el-dropdown-item>
+                    <!--<el-dropdown-item command="exportLots">Export All Lots</el-dropdown-item>-->
                   </el-dropdown-menu>
                 </el-dropdown>
               </el-col>
@@ -1967,6 +1967,15 @@ export default {
         callback();
       }
     };
+    var validateSoldPrice = (rule, value, callback) => {
+      if (!this.lotForm.isSold){
+        callback();
+      } else if (this.lotForm.isSold && parseFloat(this.lotForm.soldPrice) > 0) {
+        callback();
+      } else {
+        callback(new Error("Sold Price must greater than 0."));
+      }
+    };
     var validateExhibitionStartTime = (rule, value, callback) => {
       if (this.exhibitionForm.exhibitionStartTime !== '' && this.exhibitionForm.exhibitionEndTime !== '') {
         this.$refs.exhibitionForm.validateField('exhibitionEndTime');
@@ -2333,7 +2342,10 @@ export default {
           { validator: validateAuctionPaymentInfo, trigger: 'change' }     
         ],
         shippingInfo: [
-          { validator: validateAuctionShippingInfo, trigger: 'change' }     
+          { validator: validateAuctionShippingInfo, trigger: 'change' }
+        ],
+        soldPrice: [
+          { validator: validateSoldPrice, trigger: 'change' }
         ]
       },
       batchLotForm: {},
@@ -5279,6 +5291,7 @@ export default {
       }
     },
     handleBatchUploadDialogCommand(command) {
+      var me = this;
       switch(command){
         case 'downloadSample':
           window.open("./../static/template_newest.xlsx");
