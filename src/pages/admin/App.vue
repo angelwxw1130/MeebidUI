@@ -128,7 +128,25 @@
                   <div class="" v-if="userProfileForm.contact_users && userProfileForm.contact_users.length < 5"><el-button size="small" type="primary" @click="onAddPhoneNumber">Add Phone</el-button></div>
                   <div v-if="userProfileForm.contact_users.length === 5">You cannot have more than <b>5</b> phone numbers</div>
                   
-                </el-form-item>     
+                </el-form-item>    
+                <el-form-item label="Identifier/Passport">
+                  <meebid-upload
+                    class="upload-demo"
+                    ref="idUpload"
+                    field-name="idUpload"
+                    list-type="picture-card"
+                    :multiple="false"
+                    :limit="1"
+                    :on-remove="handleUploadRemove"
+                    :on-exceed="handleUploadExceed"
+                    :on-success="handleUploadSuccess"
+                    :on-preview="handlePictureCardPreview"
+                    :on-error="handleUploadError"
+                    :file-list="userProfileForm.idUpload"
+                    >
+                    <i class="el-icon-plus"></i>
+                  </meebid-upload>
+                </el-form-item> 
                 <!--<el-form-item label="Region" prop="topRegion">
                   <el-select v-model="userProfileForm.topRegion" placeholder="Select...">
                     <el-option
@@ -729,51 +747,68 @@
               :data="houseRegistrations"
               border
               style="width: 100%">
-              <el-table-column label="Lot" width="300">
+              <el-table-column label="Lot" width="230" fixed>
                 <template slot-scope="scope">
                   <a class="meebidApplyLotImageContainer">
-                    <img :src="buildApplyLotImage(scope.row.imageUrls)">
+                    <img :src="buildApplyLotImage(scope.row.apply.imageUrls)">
                   </a>
-                  <a class="meebidLink meebidApplyLotImageDescription" @click="onNavigateLot(scope.row)">{{scope.row.name}}</a>
+                  <a class="meebidLink meebidApplyLotImageDescription" @click="onNavigateLot(scope.row.apply)">{{scope.row.apply.name}}</a>
                 </template>
               </el-table-column>
               <el-table-column
                 prop="type"
                 label="Apply Type" width="120">
                 <template slot-scope="scope">
-                  <span>{{getApplyTypeLabel(scope.row)}}</span>
+                  <span>{{getApplyTypeLabel(scope.row.apply)}}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="Apply Info">
+              <el-table-column label="Apply Info" width="140">
                 <template slot-scope="scope">
-                  <span v-if="scope.row.type === applyType.Telephone">
-                    <span style="display: inline-block; width: 100%;">{{scope.row.telephone1}}</span>
-                    <span v-if="scope.row.telephone2" style="display: inline-block; width: 100%;">{{scope.row.telephone2}}</span>
-                    <span v-if="scope.row.telephone3" style="display: inline-block; width: 100%;">{{scope.row.telephone3}}</span>
+                  <span v-if="scope.row.apply.type === applyType.Telephone">
+                    <span style="display: inline-block; width: 100%;">{{scope.row.apply.telephone1}}</span>
+                    <span v-if="scope.row.telephone2" style="display: inline-block; width: 100%;">{{scope.row.apply.telephone2}}</span>
+                    <span v-if="scope.row.telephone3" style="display: inline-block; width: 100%;">{{scope.row.apply.telephone3}}</span>
                   </span>
-                  <span v-if="scope.row.type === applyType.Absent">{{getApplyMaxBidPrice(scope.row)}}</span>
+                  <span v-if="scope.row.apply.type === applyType.Absent">{{getApplyMaxBidPrice(scope.row.apply)}}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="Apply State">
+              <el-table-column label="Apply State" width="100">
                 <template slot-scope="scope">
-                  <span>{{getApplyStateLabel(scope.row)}}</span>
+                  <span>{{getApplyStateLabel(scope.row.apply)}}</span>
                 </template>
               </el-table-column>
               <el-table-column
                 label="Actions"
                 width="85">
                 <template slot-scope="scope">
-                  <el-button v-if="scope.row.state === 1 || scope.row.state === 2 || scope.row.state === 4" type="primary" size="medium" class="meebidSquareButton" @click="handleApproveRegistration(scope.row)">Accept</el-button>
-                  <el-button v-if="scope.row.state === 3" size="medium" type="primary" class="meebidSquareButton" @click="handleRejectRegistration(scope.row)">Reject</el-button>
+                  <el-button v-if="scope.row.apply.state === 1 || scope.row.apply.state === 2 || scope.row.apply.state === 4" type="primary" size="medium" class="meebidSquareButton" @click="handleApproveRegistration(scope.row.apply)">Accept</el-button>
+                  <el-button v-if="scope.row.apply.state === 3" size="medium" type="primary" class="meebidSquareButton" @click="handleRejectRegistration(scope.row.apply)">Reject</el-button>
                 </template>
               </el-table-column>
               <el-table-column
                 label="Chats"
-                width="75">
+                width="65">
                 <template slot-scope="scope">
-                  <el-button size="medium" type="primary" class="meebidSquareButton" @click="showthislotdialog(scope.row)">
+                  <el-button size="medium" type="primary" class="meebidSquareButton" @click="showthislotdialog(scope.row.apply)">
                     <a href="javascript:void(0)"><i class="fa fa-comments" style="color:#FFFFFF;vertical-align: middle;"></i></a>
                   </el-button>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="User Info" width="110">
+                <template slot-scope="scope">
+                  <el-popover
+                    placement="bottom"
+                    title="User Information"
+                    width="300"
+                    trigger="click">
+                    <span class="meebidPaddingBottomSmall" style="font-size: 16px;display: block;">{{scope.row.user.firstName}} {{scope.row.user.lastName}}</span>
+                    <span class="meebidPaddingBottomSmall" style="display: block;" v-if="scope.row.address && scope.row.address.detail">{{getRegionDetail(scope.row.address.detail)}}</span>
+                    <a v-if="scope.row.user.idUrl != null" class="meebidApplyLotUserImageContainer">
+                      <img :src="scope.row.user.idUrl">
+                    </a>
+                    <el-button size="medium" class="meebidSquareButton" slot="reference">User Info</el-button>
+                  </el-popover>
                 </template>
               </el-table-column>
             </el-table>
@@ -2559,6 +2594,14 @@ export default {
           address.type = address.type - address.type % 2;
           this.addresses[address.type].push(address);
         }
+        if (!this.userProfile.idUrl) {
+          this.userProfile.idUpload = [];
+        } else {
+          this.userProfile.idUpload = [{
+              url: this.userProfile.idUrl,
+              name: this.userProfile.idName
+          }];
+        }
           
       } else if (this.userProfile.type === window.meebidConstant.userType.house){
         if (this.userProfile.name){
@@ -2941,6 +2984,10 @@ export default {
       this.currentPageForMemberRegistration = page;
       this.refreshMemberRegistration();
     },
+    onHouseRegistrationCurrentPageChange(page) {
+      this.currentPageForHouseRegistration = page;
+      this.refreshHouseRegistration();
+    },
     refreshMemberRegistration() {
       var me = this;
       this.$refs.meebidAdminContent.className = "meebidAdminContent meebidAdminContentInLoading";
@@ -2979,6 +3026,41 @@ export default {
         me.$refs.meebidAdminContent.className = "meebidAdminContent";
       });
     },
+    refreshHouseRegistration() {
+      this.$refs.meebidAdminContent.className = "meebidAdminContent meebidAdminContentInLoading";
+      this.$refs.busyIndicator.show();
+      $.ajax({  
+        url : "/api/bid/mgr/applys",  
+        type : 'GET',
+        headers: {
+          token: this.loginUser.token
+        },
+        contentType : "application/json", 
+        data: {
+          offset: (this.currentPageForHouseRegistration - 1) * 20,
+          count: 20
+        },
+        success(data) {
+          if (data.code === 1){
+            me.houseRegistrations = data.content.items;
+            me.totalCountForHouseRegistration = data.content.total || 10;
+          } else {
+            this.$notify.error({
+              title: 'Failure',
+              message: 'Fetch House Registration List failure',
+              duration: 5000
+            })
+          }
+        },  
+        error : function(data) {  
+          errorUtils.requestError(data);
+        },  
+        dataType : 'json' 
+      }).done(function(){
+        me.$refs.busyIndicator.hide();
+        me.$refs.meebidAdminContent.className = "meebidAdminContent";
+      });
+    },
     openUserProfile() {
       //window.open("./admin.html", '_blank');
     },
@@ -3009,7 +3091,7 @@ export default {
         }
       }
       if (this.userProfile.type === this.userType.member) {
-        return {
+        var returnObj = {
           //topRegion: this.userProfile.topRegion,
           //avatar: this.userProfile.avatar,
           firstName: this.userProfile.firstName,
@@ -3019,6 +3101,14 @@ export default {
           email: this.userProfile.email,
           titleId: this.userProfile.titleId
         }
+        if (this.userProfile.idUpload.length && this.userProfile.idUpload[0] && this.userProfile.idUpload[0].rUid){
+          returnObj.idUrl = this.userProfile.idUpload[0].rUid;
+          returnObj.idName = this.userProfile.idUpload[0].name;
+        } else if (this.userProfile.idUpload.length == 0){
+          returnObj.idUrl = "";
+          returnObj.idName = "";
+        }
+        return returnObj;
       } else if (this.userProfile.type === this.userType.house) {
         var returnObj = {
           //topRegion: this.userProfile.topRegion,
